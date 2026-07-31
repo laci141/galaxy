@@ -43,6 +43,8 @@ A panel három fülre oszlik: **Galaxy**, **Visuals**, **Sound**.
 |---|---|
 | **Palette** | 4 színvilág: Classic · Indigo Dust · Blue-Gold · Violet Sea |
 | **Auto-switch** | 2–3 percenként lassú, 4,5 másodperces áttűnéssel új palettát sorsol |
+| **Colour boost** | 0–25%: a palettaszínek telítettsége (alap: 15%) — 0%-on az eredeti, visszafogott színek |
+| **Nebula density** | 0–25%: a köd- és felhőrétegek fedettsége (alap: 15%) |
 | **Star count** | desktop 5 000–30 000, mobil 3 000–20 000 |
 | **Performance guard** | ha az fps 35 alá esik, automatikusan visszaveszi a csillagszámot |
 | **Supernovae** | ritkán felvillanó csillag lágyan táguló fénygömbbel (hanggal is) |
@@ -100,7 +102,7 @@ További ellenőrzött viselkedés: csillagcsúszka 5 000 → 30 000 (fényerő 
 
 Nyisd meg az `index.html`-t böngészőben (vagy `python3 -m http.server` és http://localhost:8000).
 
-URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — ezt állítja elő a **🔗 Copy link** gomb.
+URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — ezt állítja elő a **🔗 Copy link** gomb.
 
 ## Licenc
 

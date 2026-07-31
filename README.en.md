@@ -43,6 +43,8 @@ The panel has three tabs: **Galaxy**, **Visuals** and **Sound**.
 |---|---|
 | **Palette** | 4 colour worlds: Classic · Indigo Dust · Blue-Gold · Violet Sea |
 | **Auto-switch** | picks a new palette every 2–3 minutes with a slow 4.5 s crossfade |
+| **Colour boost** | 0–25% chroma lift on the palette (default 15%) — 0% is the original, restrained colouring |
+| **Nebula density** | 0–25% opacity lift on the cloud and nebula layers (default 15%) |
 | **Star count** | desktop 5,000–30,000, mobile 3,000–20,000 |
 | **Performance guard** | automatically lowers the star count if the frame rate drops below 35 fps |
 | **Supernovae** | a rare star flares up inside a softly expanding shell of light (with sound) |
@@ -100,7 +102,7 @@ Also verified: star slider 5,000 → 30,000 (brightness 1.39× — rises without
 
 Open `index.html` in a browser (or `python3 -m http.server` and visit http://localhost:8000).
 
-URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — this is exactly what the **🔗 Copy link** button produces.
+URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — this is exactly what the **🔗 Copy link** button produces.
 
 ## License
 

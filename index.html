@@ -175,6 +175,10 @@
     <div class="toggles" style="margin-top:9px">
       <div class="tg on" id="tAuto"><span class="sw"></span>Auto-switch <span class="dim">(with crossfade)</span></div>
     </div>
+    <div class="ctl" style="margin-top:11px"><label>Colour boost <span class="val" id="vSat">+15%</span></label>
+      <input id="sSat" type="range" min="0" max="25" step="1" value="15"></div>
+    <div class="ctl"><label>Nebula density <span class="val" id="vNeb">+15%</span></label>
+      <input id="sNeb" type="range" min="0" max="25" step="1" value="15"></div>
     <div class="grp">Stars</div>
     <div class="ctl"><label>Star count <span class="val" id="vStars">12,000</span></label>
       <input id="sStars" type="range" min="3000" max="30000" step="500" value="12000"></div>
@@ -245,7 +249,7 @@ let W=0,H=0,CX=0,CY=0,SC=1,dpr=1;
 const readDPR=()=>{dpr=clamp(devicePixelRatio||1,0.25,4);};
 
 /* ─────────────── colour palettes (from the reference photographs) ─────────────── */
-const PALETTES=[
+const RAW=[
   { id:"classic", name:"Classic", dot:"#7fd4ff",
     bg:"#060913",
     clouds:["60,110,220","70,160,230","110,90,220","150,110,230","40,80,180"],
@@ -286,9 +290,12 @@ const PALETTES=[
     hii:[255,92,204], dust:[34,18,42],
     core:[255,216,236], halo:[236,170,232] }
 ];
-/* The four colour worlds read too much alike on a near-black field, so every
-   palette colour gets 15% more chroma and the cloud layers 15% more opacity. */
-const SAT=1.15, AB=1.15;
+/* On a near-black field the four colour worlds read alike, so the palette gets
+   a chroma lift and the cloud layers an opacity lift — both on live sliders
+   (0–25%, 15% by default). RAW holds the untouched definitions; the boost is
+   always recomputed from those, so dragging back to 0% is lossless. */
+let SAT=1+clamp(qnum("sat",15),0,25)/100;
+let AB=1+clamp(qnum("neb",15),0,25)/100;
 function sat(c){
   const a=typeof c==="string"?c.split(",").map(Number):c.slice();
   const m=(a[0]+a[1]+a[2])/3;
@@ -299,15 +306,19 @@ function satHex(h){
   const [r,g,b]=sat([(n>>16)&255,(n>>8)&255,n&255]);
   return `rgb(${r},${g},${b})`;
 }
-PALETTES.forEach((p,i)=>{
+// live objects: fields are overwritten in place so curPal/nextPal stay valid
+const PALETTES=RAW.map(p=>({...p}));
+function applyBoost(){
   const S=c=>sat(c).join(",");
-  PALETTES[i]={...p, bg:satHex(p.bg),
+  RAW.forEach((p,i)=>Object.assign(PALETTES[i],{
+    bg:satHex(p.bg),
     clouds:p.clouds.map(S), heart:S(p.heart), patch:S(p.patch),
     band:{glow:S(p.band.glow),warm:S(p.band.warm),dust:S(p.band.dust),star:S(p.band.star)},
     neb:p.neb.map(sat), hii:sat(p.hii), dust:sat(p.dust),
     core:sat(p.core), halo:sat(p.halo),
-    starTint:p.starTint.map(v=>1+(v-1)*SAT)};
-});
+    starTint:p.starTint.map(v=>1+(v-1)*SAT)}));
+}
+applyBoost();
 const palIdx=id=>Math.max(0,PALETTES.findIndex(p=>p.id===id));
 
 /* ─────────────── parameters ─────────────── */
@@ -416,6 +427,17 @@ let sprTimer=0;
 function scheduleSprites(){
   clearTimeout(sprTimer);
   sprTimer=setTimeout(()=>{if(Math.abs(curG()/sprG-1)>0.02)buildSets();},120);
+}
+/* The boost sliders change baked-in colours and alphas, so they need a sprite
+   rebuild plus a background repaint — debounced so dragging stays smooth. */
+let lookTimer=0;
+function scheduleLook(){
+  clearTimeout(lookTimer);
+  lookTimer=setTimeout(()=>{
+    applyBoost();buildSets();
+    drawBG(bgFrontCtx,curPal);
+    if(nextPal)drawBG(bgBackCtx,nextPal);
+  },130);
 }
 
 /* ─────────────── populations ─────────────── */
@@ -992,7 +1014,8 @@ function shareLink(){
   const q=new URLSearchParams({
     hub:P.hub.toFixed(2), bar:P.bar.toFixed(2), wind:P.wind.toFixed(1), arms:P.arms,
     zoom:Math.round(P.zoom*100), spd:P.speed.toFixed(2), inc:Math.round(P.incl),
-    stars:NS, pal:curPal.id, auto:P.autoPal?1:0, sn:P.supernova?1:0,
+    stars:NS, pal:curPal.id, sat:Math.round((SAT-1)*100), neb:Math.round((AB-1)*100),
+    auto:P.autoPal?1:0, sn:P.supernova?1:0,
     px:P.parallax?1:0, band:P.band?1:0, orb:P.orbits?1:0, mat:P.material?1:0, seed:SEED
   });
   const url=location.origin+location.pathname+"?"+q.toString();
@@ -1036,6 +1059,9 @@ function syncUI(){
   $("sZoom").value=Math.round(P.zoom*100);$("vZoom").textContent=Math.round(P.zoom*100)+"%";
   $("sSpd").value=P.speed;$("vSpd").textContent=P.speed.toFixed(1)+"×";
   $("sInc").value=Math.round(P.incl);$("vInc").textContent=Math.round(P.incl)+"°";
+  const sv=Math.round((SAT-1)*100), nv=Math.round((AB-1)*100);
+  $("sSat").value=sv;$("vSat").textContent="+"+sv+"%";
+  $("sNeb").value=nv;$("vNeb").textContent="+"+nv+"%";
   document.querySelectorAll("#segArms button").forEach(b=>b.classList.toggle("on",+b.dataset.m===P.arms));
   $("tOrbits").classList.toggle("on",P.orbits);
   $("tMat").classList.toggle("on",P.material);
@@ -1084,6 +1110,10 @@ function bindUI(){
   $("sSpd").addEventListener("input",e=>{P.speed=+e.target.value;syncUI();});
   $("sInc").addEventListener("input",e=>{P.incl=+e.target.value;syncUI();});
   $("sStars").addEventListener("input",e=>setStars(+e.target.value));
+  $("sSat").addEventListener("input",e=>{
+    const v=+e.target.value;SAT=1+v/100;$("vSat").textContent="+"+v+"%";scheduleLook();});
+  $("sNeb").addEventListener("input",e=>{
+    const v=+e.target.value;AB=1+v/100;$("vNeb").textContent="+"+v+"%";scheduleLook();});
   document.querySelectorAll("#segArms button").forEach(b=>
     b.addEventListener("click",()=>{P.arms=+b.dataset.m;syncUI();}));
   wireToggle("tOrbits","orbits");wireToggle("tMat","material");
@@ -1155,6 +1185,9 @@ requestAnimationFrame(()=>{
 window.__DW={P,SN,get g(){return curG();},get dpr(){return dpr;},
   get counts(){return{NS,NN,NH,ND,NSMAX};},get sprG(){return sprG;},
   get pal(){return curPal.id;},get mixing(){return!!nextPal;},
+  get boost(){return{sat:Math.round((SAT-1)*100),neb:Math.round((AB-1)*100)};},
+  setBoost:(s,n)=>{if(s!=null)SAT=1+clamp(s,0,25)/100;if(n!=null)AB=1+clamp(n,0,25)/100;
+    applyBoost();buildSets();drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);syncUI();},
   setPal:id=>startPalette(PALETTES[palIdx(id)]), setStars, sound, savePNG,
   get limits(){return starLimits();}};
 })();
