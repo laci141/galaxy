@@ -1,5 +1,12 @@
 name: Deploy to GitHub Pages
 
+# Az élő oldal a Cloudflare Pages-en fut; ez a workflow a GitHub Pages
+# tartalék-tükröt frissíti. Egyszeri kézi lépés kell hozzá:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+# Amíg ez nincs beállítva, a workflow nem hibára fut, hanem kihagyja a
+# deployt és megjegyzésben jelzi a teendőt (a beépített GITHUB_TOKEN nem
+# hozhat létre Pages-oldalt, ezért nem lehet automatizálni).
+
 on:
   push:
     branches: [main]
@@ -21,13 +28,33 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Pages engedélyezve van?
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          build_type="$(gh api "repos/${{ github.repository }}/pages" --jq '.build_type' 2>/dev/null || true)"
+          if [ "$build_type" = "workflow" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "GitHub Pages készen áll (source: GitHub Actions)."
+          elif [ -n "$build_type" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::A GitHub Pages forrása jelenleg '$build_type'. Állítsd át: Settings -> Pages -> Source: GitHub Actions."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::A GitHub Pages még nincs bekapcsolva. Settings -> Pages -> Source: GitHub Actions, utána ez a workflow magától deployol."
+          fi
+
       - uses: actions/configure-pages@v5
-        with:
-          # creates the Pages site on first run, no manual Settings step needed
-          enablement: true
+        if: steps.check.outputs.ready == 'true'
+
       - uses: actions/upload-pages-artifact@v3
+        if: steps.check.outputs.ready == 'true'
         with:
           path: .
+
       - id: deployment
         uses: actions/deploy-pages@v4
+        if: steps.check.outputs.ready == 'true'
