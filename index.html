@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Density Wave — spirálgalaxis a pályák rendjéből</title>
-<meta name="description" content="Interaktív spirálgalaxis-szimuláció a sűrűséghullám-elmélet alapján: színpaletták, kozmikus hanggenerátor, szupernóvák, fotó mód.">
+<title>Density Wave — a spiral galaxy from nested orbits</title>
+<meta name="description" content="Interactive spiral galaxy simulation built on density wave theory: colour palettes, a procedural cosmic soundscape, supernovae and photo export.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2305070d'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23ffd9a8'/%3E%3Cpath d='M50,50 C64,46 72,56 68,68' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3Cpath d='M50,50 C36,54 28,44 32,32' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
 <style>
   html,body{margin:0;height:100%;background:#05070d;overflow:hidden;
@@ -58,7 +58,7 @@
   .grp{margin:12px 0 4px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(232,238,247,.4)}
   .grp:first-child{margin-top:2px}
   .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-  .btns button{flex:1 1 auto;min-width:76px;font:600 11px inherit;color:rgba(232,238,247,.82);
+  .btns button{flex:1 1 auto;min-width:78px;font:600 11px inherit;color:rgba(232,238,247,.82);
     background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:9px;
     padding:7px 8px;cursor:pointer;transition:.15s}
   .btns button:hover{background:rgba(127,212,255,.18);border-color:rgba(127,212,255,.4)}
@@ -69,7 +69,7 @@
   .pal button.on{border-color:rgba(127,212,255,.6);background:rgba(127,212,255,.16);color:#e8f6ff}
   .pal .dot{width:13px;height:13px;border-radius:50%;flex:none;box-shadow:0 0 7px -1px currentColor}
 
-  /* caption + toast + hint */
+  /* caption + toast + hint + credit */
   #caption{position:fixed;left:50%;bottom:46px;transform:translateX(-50%);max-width:520px;text-align:center;
     font-size:14px;line-height:1.5;color:rgba(255,220,180,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;padding:0 20px;z-index:9;text-wrap:pretty}
@@ -80,9 +80,15 @@
     padding:9px 16px;font-size:12px;color:#e8eef7;opacity:0;pointer-events:none;
     transition:opacity .3s ease,transform .3s ease;box-shadow:0 12px 30px -12px rgba(0,0,0,.8)}
   #toast.on{opacity:1;transform:translate(-50%,0)}
-  #hint{position:fixed;left:20px;bottom:20px;z-index:9;font-size:11px;color:rgba(232,238,247,.34);
+  #hint{position:fixed;left:20px;bottom:46px;z-index:9;font-size:11px;color:rgba(232,238,247,.34);
     opacity:0;transition:opacity .6s ease;pointer-events:none}
   #hint.on{opacity:1}
+  #credit{position:fixed;left:20px;bottom:20px;z-index:11;font-size:11.5px;
+    transition:opacity .4s ease}
+  #credit a{color:rgba(232,238,247,.5);text-decoration:none;transition:color .2s;
+    text-shadow:0 1px 6px rgba(0,0,0,.85)}
+  #credit a:hover{color:#aee4ff}
+  #credit b{color:rgba(232,238,247,.72);font-weight:600}
   #sndBtn{position:fixed;left:20px;top:20px;z-index:11;width:42px;height:42px;border-radius:50%;
     background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.05));
     border:1px solid rgba(255,255,255,.14);color:#e8eef7;font-size:16px;cursor:pointer;
@@ -91,7 +97,7 @@
     box-shadow:0 10px 26px -12px rgba(0,0,0,.8)}
   #sndBtn:hover{background:rgba(127,212,255,.22);border-color:rgba(127,212,255,.5)}
   #sndBtn.on{background:rgba(127,212,255,.26);border-color:rgba(127,212,255,.6)}
-  body.hideui #panel,body.hideui #hint,body.hideui #sndBtn{opacity:0;pointer-events:none}
+  body.hideui #panel,body.hideui #hint,body.hideui #sndBtn,body.hideui #credit{opacity:0;pointer-events:none}
 
   #drawerBtn{display:none}
   @media (max-width:700px){
@@ -106,8 +112,9 @@
     #drawerBtn .chev{transition:transform .35s}
     #panel.open #drawerBtn .chev{transform:rotate(180deg)}
     .page{max-height:58vh}
-    #caption{bottom:64px;font-size:12.5px}
+    #caption{bottom:82px;font-size:12.5px}
     #hint{display:none}
+    #credit{bottom:54px;font-size:10.5px}
     #sndBtn{width:38px;height:38px;left:14px;top:14px}
   }
   @media (prefers-reduced-motion: reduce){canvas.layer{transition:none}}
@@ -120,90 +127,91 @@
   <canvas id="fx" class="layer"></canvas>
 </div>
 
-<div id="caption">Ha a spirálkarok rögzített anyagból állnának, néhány galaktikus fordulat alatt feltekerednék magukat a semmibe. Nem teszik. Lindblad 1925-ben figyelt fel erre.</div>
+<div id="caption">If spiral arms were made of fixed matter, they would wind themselves out of existence within a few galactic rotations. They don't. Lindblad noticed this in 1925.</div>
 <div id="toast"></div>
-<div id="hint">H — felület el/be · F — teljes képernyő · P — fotó · Space — vetítő mód</div>
-<button id="sndBtn" title="Kozmikus hang be/ki" aria-label="Hang be/ki">🔈</button>
+<div id="hint">H — hide UI · F — fullscreen · P — photo · Space — projector mode</div>
+<div id="credit"><a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener">Made by <b>laci141</b> — source &amp; download on GitHub ↗</a></div>
+<button id="sndBtn" title="Cosmic sound on/off" aria-label="Sound on/off">🔈</button>
 
 <div id="panel">
-  <button id="drawerBtn">Vezérlők <span class="chev">▴</span></button>
+  <button id="drawerBtn">Controls <span class="chev">▴</span></button>
   <h1>Density Wave</h1>
-  <p class="sub">Minden csillag a saját, döntött pályáján kering. A spirál forgalmi dugó, nem szerkezet.</p>
+  <p class="sub">Every star rides its own tilted orbit. The spiral is a traffic jam, not a structure.</p>
 
   <div id="tabs">
-    <button data-t="gal" class="on">Galaxis</button>
-    <button data-t="look">Látvány</button>
-    <button data-t="snd">Hang</button>
+    <button data-t="gal" class="on">Galaxy</button>
+    <button data-t="look">Visuals</button>
+    <button data-t="snd">Sound</button>
   </div>
 
-  <!-- ============ GALAXIS ============ -->
+  <!-- ============ GALAXY ============ -->
   <div class="page on" data-t="gal">
-    <div class="ctl"><label>Hubble-típus <span class="val" id="vHub">Sb</span></label>
+    <div class="ctl"><label>Hubble type <span class="val" id="vHub">Sb</span></label>
       <input id="sHub" type="range" min="0" max="1" step="0.01" value="0.5"></div>
-    <div class="ctl"><label>Küllő (bar) <span class="val" id="vBar">0%</span></label>
+    <div class="ctl"><label>Bar <span class="val" id="vBar">0%</span></label>
       <input id="sBar" type="range" min="0" max="100" step="5" value="0"></div>
-    <div class="ctl"><label>Feltekeredés <span class="val" id="vWind">5.0</span></label>
+    <div class="ctl"><label>Winding <span class="val" id="vWind">5.0</span></label>
       <input id="sWind" type="range" min="2" max="9" step="0.1" value="5"></div>
-    <div class="ctl"><label>Spirálkarok</label>
+    <div class="ctl"><label>Spiral arms</label>
       <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button><button data-m="6">6</button></div></div>
     <div class="ctl"><label>Zoom <span class="val" id="vZoom">80%</span></label>
       <input id="sZoom" type="range" min="20" max="200" step="5" value="80"></div>
-    <div class="ctl"><label>Idősebesség <span class="val" id="vSpd">1.0×</span></label>
+    <div class="ctl"><label>Time speed <span class="val" id="vSpd">1.0×</span></label>
       <input id="sSpd" type="range" min="0" max="3" step="0.02" value="1"></div>
-    <div class="ctl"><label>Dőlésszög <span class="val" id="vInc">0°</span></label>
+    <div class="ctl"><label>Inclination <span class="val" id="vInc">0°</span></label>
       <input id="sInc" type="range" min="0" max="80" step="1" value="0"></div>
-    <div class="grp">Készletek</div>
+    <div class="grp">Presets</div>
     <div class="pal" id="presets"></div>
     <div class="toggles">
-      <div class="tg" id="tOrbits"><span class="sw"></span>Pályák megjelenítése</div>
-      <div class="tg" id="tMat"><span class="sw"></span>Anyagi karok <span class="dim">(feltekeredési probléma)</span></div>
+      <div class="tg" id="tOrbits"><span class="sw"></span>Show orbits</div>
+      <div class="tg" id="tMat"><span class="sw"></span>Material arms <span class="dim">(the winding problem)</span></div>
     </div>
   </div>
 
-  <!-- ============ LÁTVÁNY ============ -->
+  <!-- ============ VISUALS ============ -->
   <div class="page" data-t="look">
-    <div class="grp">Színvilág</div>
+    <div class="grp">Palette</div>
     <div class="pal" id="palettes"></div>
     <div class="toggles" style="margin-top:9px">
-      <div class="tg on" id="tAuto"><span class="sw"></span>Automatikus váltás <span class="dim">(áttűnéssel)</span></div>
+      <div class="tg on" id="tAuto"><span class="sw"></span>Auto-switch <span class="dim">(with crossfade)</span></div>
     </div>
-    <div class="grp">Csillagok</div>
-    <div class="ctl"><label>Csillagszám <span class="val" id="vStars">12 000</span></label>
+    <div class="grp">Stars</div>
+    <div class="ctl"><label>Star count <span class="val" id="vStars">12,000</span></label>
       <input id="sStars" type="range" min="3000" max="30000" step="500" value="12000"></div>
     <div class="toggles">
-      <div class="tg on" id="tFps"><span class="sw"></span>Teljesítményőr <span class="dim">(auto)</span></div>
-      <div class="tg on" id="tSN"><span class="sw"></span>Szupernóvák</div>
-      <div class="tg on" id="tPar"><span class="sw"></span>Parallax <span class="dim">(egér / döntés)</span></div>
-      <div class="tg on" id="tBand"><span class="sw"></span>Tejút-sáv a háttérben</div>
+      <div class="tg on" id="tFps"><span class="sw"></span>Performance guard <span class="dim">(auto)</span></div>
+      <div class="tg on" id="tSN"><span class="sw"></span>Supernovae</div>
+      <div class="tg on" id="tPar"><span class="sw"></span>Parallax <span class="dim">(mouse / tilt)</span></div>
+      <div class="tg on" id="tBand"><span class="sw"></span>Milky Way band</div>
     </div>
-    <div class="grp">Műveletek</div>
+    <div class="grp">Actions</div>
     <div class="btns">
-      <button id="bShot">📷 Fotó (PNG)</button>
-      <button id="bLink">🔗 Link másolása</button>
-      <button id="bProj">🎬 Vetítő mód</button>
-      <button id="bHide">👁 Felület el</button>
+      <button id="bShot">📷 Photo (PNG)</button>
+      <button id="bLink">🔗 Copy link</button>
+      <button id="bProj">🎬 Projector</button>
+      <button id="bHide">👁 Hide UI</button>
     </div>
   </div>
 
-  <!-- ============ HANG ============ -->
+  <!-- ============ SOUND ============ -->
   <div class="page" data-t="snd">
-    <p class="sub" style="margin:2px 0 10px">Procedurális kozmikus hangtér — nincs hangfájl, minden élőben generálódik.</p>
+    <p class="sub" style="margin:2px 0 10px">A procedural cosmic soundscape — no audio files, every layer is generated live.</p>
     <div class="toggles" style="margin-top:0">
-      <div class="tg" id="tSound"><span class="sw"></span>Hang bekapcsolása</div>
+      <div class="tg" id="tSound"><span class="sw"></span>Enable sound</div>
     </div>
-    <div class="ctl"><label>Fő hangerő <span class="val" id="vMaster">55%</span></label>
+    <div class="ctl"><label>Master volume <span class="val" id="vMaster">55%</span></label>
       <input id="sMaster" type="range" min="0" max="100" step="1" value="55"></div>
-    <div class="grp">Rétegek</div>
-    <div class="ctl"><label>Mélyűr-drón <span class="val" id="vL0">60%</span></label>
+    <div class="grp">Layers</div>
+    <div class="ctl"><label>Deep-space drone <span class="val" id="vL0">60%</span></label>
       <input id="sL0" type="range" min="0" max="100" step="1" value="60"></div>
-    <div class="ctl"><label>Szoláris szél <span class="val" id="vL1">45%</span></label>
+    <div class="ctl"><label>Solar wind <span class="val" id="vL1">45%</span></label>
       <input id="sL1" type="range" min="0" max="100" step="1" value="45"></div>
-    <div class="ctl"><label>Csillagpor-csengők <span class="val" id="vL2">40%</span></label>
+    <div class="ctl"><label>Stardust chimes <span class="val" id="vL2">40%</span></label>
       <input id="sL2" type="range" min="0" max="100" step="1" value="40"></div>
-    <div class="ctl"><label>Pulzár-lüktetés <span class="val" id="vL3">0%</span></label>
+    <div class="ctl"><label>Pulsar pulse <span class="val" id="vL3">0%</span></label>
       <input id="sL3" type="range" min="0" max="100" step="1" value="0"></div>
     <div class="toggles">
-      <div class="tg on" id="tReact"><span class="sw"></span>Kövesse a szimulációt <span class="dim">(zoom, tempó)</span></div>
+      <div class="tg on" id="tReact"><span class="sw"></span>Follow the simulation <span class="dim">(zoom, tempo)</span></div>
     </div>
   </div>
 </div>
@@ -212,15 +220,15 @@
 (function(){
 "use strict";
 /* ══════════════════════════════════════════════════════════════════
-   Density Wave — spiral galaxy from nested orbits
-   Minden kirajzolt elem mérete a galaxis léptékéből származik (g=scl/REF),
-   ezért a kép böngésző-zoomtól, ablakmérettől és DPI-től független.
+   Density Wave — a spiral galaxy from nested orbits
+   Every drawn element is sized from the galaxy scale (g = scl/REF), so
+   the image is independent of browser zoom, window size and DPI.
    ══════════════════════════════════════════════════════════════════ */
 const TAU=Math.PI*2, clamp=(x,a,b)=>x<a?a:x>b?b:x, lerp=(a,b,t)=>a+(b-a)*t;
 const smooth=(a,b,x)=>{x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x);};
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const QS=new URLSearchParams(location.search);
-const FREEZE=QS.has("freeze");                       // teszt: állókép
+const FREEZE=QS.has("freeze");                       // test hook: static frame
 const qnum=(k,d)=>{const v=parseFloat(QS.get(k));return Number.isFinite(v)?v:d;};
 const qbool=(k,d)=>{const v=QS.get(k);return v===null?d:(v==="1"||v==="true");};
 const SEED=(()=>{const q=parseInt(QS.get("seed"),10);
@@ -236,9 +244,9 @@ let bgFront=bgA, bgBack=bgB, bgFrontCtx=actx, bgBackCtx=bctx2;
 let W=0,H=0,CX=0,CY=0,SC=1,dpr=1;
 const readDPR=()=>{dpr=clamp(devicePixelRatio||1,0.25,4);};
 
-/* ─────────────── színpaletták (a referencia-fotók hangulatából) ─────────────── */
+/* ─────────────── colour palettes (from the reference photographs) ─────────────── */
 const PALETTES=[
-  { id:"classic", name:"Klasszikus", dot:"#7fd4ff",
+  { id:"classic", name:"Classic", dot:"#7fd4ff",
     bg:"#060913",
     clouds:["60,110,220","70,160,230","110,90,220","150,110,230","40,80,180"],
     heart:"170,210,255", patch:"5,6,14",
@@ -248,7 +256,7 @@ const PALETTES=[
     hii:[255,80,165], dust:[38,24,16],
     core:[255,225,180], halo:[255,208,155] },
 
-  { id:"indigo", name:"Indigó por", dot:"#8f8bff",
+  { id:"indigo", name:"Indigo Dust", dot:"#8f8bff",
     bg:"#05060f",
     clouds:["48,60,185","74,62,205","112,72,196","64,84,190","38,48,150"],
     heart:"150,165,255", patch:"6,5,16",
@@ -258,7 +266,7 @@ const PALETTES=[
     hii:[232,112,196], dust:[30,20,36],
     core:[255,236,214], halo:[214,196,255] },
 
-  { id:"gold", name:"Kék-arany", dot:"#ffcf7a",
+  { id:"gold", name:"Blue-Gold", dot:"#ffcf7a",
     bg:"#050c14",
     clouds:["40,130,185","60,175,205","152,120,72","205,162,92","30,108,160"],
     heart:"180,225,255", patch:"4,8,14",
@@ -268,7 +276,7 @@ const PALETTES=[
     hii:[255,124,142], dust:[42,28,13],
     core:[255,220,158], halo:[255,196,120] },
 
-  { id:"violet", name:"Ibolya-tenger", dot:"#c78bff",
+  { id:"violet", name:"Violet Sea", dot:"#c78bff",
     bg:"#0a0518",
     clouds:["132,72,212","172,82,222","112,60,192","202,92,202","92,60,172"],
     heart:"215,180,255", patch:"9,5,20",
@@ -278,9 +286,31 @@ const PALETTES=[
     hii:[255,92,204], dust:[34,18,42],
     core:[255,216,236], halo:[236,170,232] }
 ];
+/* The four colour worlds read too much alike on a near-black field, so every
+   palette colour gets 15% more chroma and the cloud layers 15% more opacity. */
+const SAT=1.15, AB=1.15;
+function sat(c){
+  const a=typeof c==="string"?c.split(",").map(Number):c.slice();
+  const m=(a[0]+a[1]+a[2])/3;
+  return a.map(v=>clamp(Math.round(m+(v-m)*SAT),0,255));
+}
+function satHex(h){
+  const n=parseInt(h.slice(1),16);
+  const [r,g,b]=sat([(n>>16)&255,(n>>8)&255,n&255]);
+  return `rgb(${r},${g},${b})`;
+}
+PALETTES.forEach((p,i)=>{
+  const S=c=>sat(c).join(",");
+  PALETTES[i]={...p, bg:satHex(p.bg),
+    clouds:p.clouds.map(S), heart:S(p.heart), patch:S(p.patch),
+    band:{glow:S(p.band.glow),warm:S(p.band.warm),dust:S(p.band.dust),star:S(p.band.star)},
+    neb:p.neb.map(sat), hii:sat(p.hii), dust:sat(p.dust),
+    core:sat(p.core), halo:sat(p.halo),
+    starTint:p.starTint.map(v=>1+(v-1)*SAT)};
+});
 const palIdx=id=>Math.max(0,PALETTES.findIndex(p=>p.id===id));
 
-/* ─────────────── paraméterek ─────────────── */
+/* ─────────────── parameters ─────────────── */
 const P={
   hub:clamp(qnum("hub",0.5),0,1),
   bar:clamp(qnum("bar",0),0,1),
@@ -294,9 +324,9 @@ const P={
   parallax:qbool("px",true), band:qbool("band",true), fpsGuard:qbool("fps",true)
 };
 let curPal=PALETTES[QS.get("pal")?palIdx(QS.get("pal")):0];
-let nextPal=null, palMix=0;                   // paletta-áttűnés 0→1
+let nextPal=null, palMix=0;                   // palette crossfade 0→1
 
-const REF=700;                                // referencia galaxis-sugár (px)
+const REF=700;                                // reference galaxy radius (px)
 const VMAX=0.0733, RC=0.26;
 const omOf=r=>VMAX/Math.sqrt(r*r+RC*RC);
 const bulgeR=()=>lerp(0.42,0.16,P.hub);
@@ -307,17 +337,17 @@ function eccOf(a){
   let e=EMAX*smooth(0,ab*1.15,a);
   e*=1-0.35*smooth(ab*1.6,1.05,a)*(1-smooth(1.05,1.35,a));
   e*=1-smooth(1.15,1.62,a);
-  return e+P.bar*0.30*(1-smooth(0.05,barR()*1.25,a));   // küllő: nyújtottabb belső pályák
+  return e+P.bar*0.30*(1-smooth(0.05,barR()*1.25,a));   // bar: more elongated inner orbits
 }
 const barR=()=>0.10+P.bar*0.55;
-/* A küllő úgy születik, hogy a belső pályák NEM csavarodnak el egymáshoz
-   képest (közös nagytengely), a külső korong viszont a szokásos módon. */
+/* A bar forms because the inner orbits stop twisting relative to each other
+   (they share a major axis) while the outer disc keeps the usual winding. */
 function tiltOf(a,wnd){
   const t=smooth(barR()*0.35,barR()*1.25,a);
   return lerp(barR()*wnd*0.15,a*wnd,lerp(1,t,P.bar));
 }
 
-/* ─────────────── sugár-eloszlás ─────────────── */
+/* ─────────────── radial distribution ─────────────── */
 let CDF=null;
 function buildCDF(){
   const N=768, Rmax=1.62, Re=bulgeR()*0.7, Rd=0.45;
@@ -338,7 +368,7 @@ function sampleR(rnd){
   return (lo+rnd())/CDF.length*CDF.Rmax;
 }
 
-/* ─────────────── sprite-ok (lépték- és DPI-követő) ─────────────── */
+/* ─────────────── sprites (scale- and DPI-aware) ─────────────── */
 const TEMPS=[[255,158,78],[255,184,108],[255,205,148],[255,226,190],[255,244,234],[222,234,255],[178,206,255],[142,180,255]];
 const STAR_SZ=[5,9,15], NEB_SZ=[70,110,150], HII_SZ=[8,12,17,23,30,38], DUST_SZ=[26,40];
 function glowSprite(px,r,g,b,coreA,midA){
@@ -368,7 +398,7 @@ function buildSet(pal){
   const tt=c=>[clamp(c[0]*t[0],0,255)|0,clamp(c[1]*t[1],0,255)|0,clamp(c[2]*t[2],0,255)|0];
   return {
     star:TEMPS.map(c=>{const[r,g,b]=tt(c);return STAR_SZ.map((s,i)=>mk(s,r,g,b,i===2?0.95:0.8,0.5));}),
-    neb:pal.neb.map(([r,g,b])=>NEB_SZ.map(s=>mk(s,r,g,b,0.05,0.038))),
+    neb:pal.neb.map(([r,g,b])=>NEB_SZ.map(s=>mk(s,r,g,b,0.05*AB,0.038*AB))),
     hii:HII_SZ.map(s=>mk(s,pal.hii[0],pal.hii[1],pal.hii[2],0.5,0.3)),
     dust:DUST_SZ.map(s=>{const d=dev(s);return{img:darkSprite(d,pal.dust[0],pal.dust[1],pal.dust[2]),css:d/dpr};}),
     core:mk(80,pal.core[0],pal.core[1],pal.core[2],0.78,0.3),
@@ -388,7 +418,7 @@ function scheduleSprites(){
   sprTimer=setTimeout(()=>{if(Math.abs(curG()/sprG-1)>0.02)buildSets();},120);
 }
 
-/* ─────────────── populációk ─────────────── */
+/* ─────────────── populations ─────────────── */
 let NSMAX=0,NS=0, sA,sE,sPhi,sZ,sT,sSz,sJit;
 let NNMAX=0,NN=0, nA,nE,nPhi,nZ,nCol,nSz;
 let NH=0, hA,hE,hPhi,hZ,hSeed;
@@ -435,16 +465,16 @@ function populate(){
   }
   setStars(clamp(qnum("stars",L.def),L.min,L.max));
 }
-/* A teljes populáció egyszer készül el; a csúszka csak azt szabja meg,
-   hányat rajzolunk ki belőle → azonnali reakció, nincs újrasorsolás. */
+/* The full population is generated once; the slider only sets how many of
+   them are drawn, so dragging reacts instantly and never reshuffles. */
 function setStars(n){
   const L=starLimits();
   NS=clamp(Math.round(n),L.min,L.max);
   NN=Math.round(NNMAX*NS/NSMAX); ND=Math.round(NDMAX*NS/NSMAX);
   const el=$("sStars"); el.min=L.min; el.max=L.max; el.value=NS;
-  $("vStars").textContent=NS.toLocaleString("hu-HU");
+  $("vStars").textContent=NS.toLocaleString("en-US");
 }
-// több csillag = additívan több fény: a csillagonkénti fényerőt visszavesszük
+// more stars means more additive light: scale per-star brightness back down
 const starAlpha=()=>clamp(Math.pow(12000/Math.max(1,NS),0.4),0.42,1);
 function refreshEcc(){
   for(let i=0;i<NSMAX;i++)sE[i]=eccOf(sA[i]);
@@ -453,7 +483,7 @@ function refreshEcc(){
   for(let i=0;i<NDMAX;i++)dE[i]=eccOf(dA[i]);
 }
 
-/* ─────────────── háttérréteg (statikus, seedelt) ─────────────── */
+/* ─────────────── background layer (static, seeded) ─────────────── */
 function drawBG(c,pal){
   const rnd=mulberry32(SEED^0x85ebca6b);
   const bs=clamp(Math.min(W,H)/1080,0.5,3);
@@ -472,10 +502,10 @@ function drawBG(c,pal){
       const t=rnd(),ang=rnd()*TAU;
       const d=Math.pow(rnd(),0.6)*Math.min(W,H)*0.45;
       blob(bx+Math.cos(ang)*d*1.3, by+Math.sin(ang)*d*0.7,(30+t*140)*bs,
-           pal.clouds[rnd()*pal.clouds.length|0],0.02+rnd()*0.035);
+           pal.clouds[rnd()*pal.clouds.length|0],(0.02+rnd()*0.035)*AB);
     }
     for(let i=0;i<8;i++)
-      blob(bx+(rnd()-0.5)*W*0.2,by+(rnd()-0.5)*H*0.2,(20+rnd()*60)*bs,pal.heart,0.04+rnd()*0.05);
+      blob(bx+(rnd()-0.5)*W*0.2,by+(rnd()-0.5)*H*0.2,(20+rnd()*60)*bs,pal.heart,(0.04+rnd()*0.05)*AB);
   }
   if(P.band)drawBand(c,pal,rnd,bs,blob);
   c.globalCompositeOperation="source-over";
@@ -495,7 +525,7 @@ function drawBG(c,pal){
   }
   c.globalCompositeOperation="lighter";
   for(let i=0;i<14;i++)blob(rnd()*W,rnd()*H,(3+rnd()*5)*bs,rnd()<0.3?"255,210,160":pal.band.star,0.5);
-  for(let g=0;g<3;g++){   // távoli galaxisok
+  for(let g=0;g<3;g++){   // distant galaxies
     const x=rnd()*W,y=rnd()*H*0.7,s=(9+rnd()*13)*bs,rot=rnd()*TAU;
     c.save();c.translate(x,y);c.rotate(rot);c.scale(1,0.38);
     const gr=c.createRadialGradient(0,0,0,0,0,s);
@@ -505,19 +535,19 @@ function drawBG(c,pal){
   }
   c.globalCompositeOperation="source-over";
 }
-/* Tejút-sáv: átlós, sűrű csillagfolyam meleg maggal és sötét porcsíkokkal —
-   a referencia-fotók mélységét adja a háttérnek. */
+/* Milky Way band: a diagonal dense star stream with a warm core and dark dust
+   lanes — this is what gives the background the depth of the reference photos. */
 function drawBand(c,pal,rnd,bs,blob){
-  const ang=-0.34+ (rnd()-0.5)*0.25, len=Math.hypot(W,H)*0.75, sig=Math.min(W,H)*0.16;
+  const ang=-0.34+(rnd()-0.5)*0.25, len=Math.hypot(W,H)*0.75, sig=Math.min(W,H)*0.16;
   const gauss=()=>(rnd()+rnd()+rnd()+rnd()-2)*0.5;
   c.save();c.translate(W/2,H*0.52);c.rotate(ang);
-  for(let i=0;i<150;i++){                        // ködös derengés
+  for(let i=0;i<150;i++){                        // nebulous glow
     const x=(rnd()-0.5)*len*2, y=gauss()*sig*2.2;
-    blob(x+W/2*0-0,y,(40+rnd()*150)*bs*0.9,rnd()<0.35?pal.band.warm:pal.band.glow,0.018+rnd()*0.03);
+    blob(x,y,(40+rnd()*150)*bs*0.9,rnd()<0.35?pal.band.warm:pal.band.glow,(0.018+rnd()*0.03)*AB);
   }
   const [sr,sg,sb]=pal.band.star.split(",").map(Number);
   const n=Math.min(2600,W*H/700);
-  for(let i=0;i<n;i++){                          // sűrű csillagfolyam
+  for(let i=0;i<n;i++){                          // dense star stream
     const x=(rnd()-0.5)*len*2, y=gauss()*sig*1.5, m=rnd();
     const w=rnd()<0.22;
     c.fillStyle=w?`rgba(255,${200+rnd()*40|0},${150+rnd()*50|0},${0.18+m*m*0.55})`
@@ -526,7 +556,7 @@ function drawBand(c,pal,rnd,bs,blob){
     c.fillRect(x,y,s,s);
   }
   c.globalCompositeOperation="source-over";
-  for(let i=0;i<22;i++){                          // sötét porcsíkok a sávban
+  for(let i=0;i<22;i++){                          // dark dust lanes along the band
     const x=(rnd()-0.5)*len*1.7, y=gauss()*sig*0.8;
     const rx=(60+rnd()*220)*bs, ry=(8+rnd()*30)*bs;
     c.save();c.translate(x,y);c.rotate((rnd()-0.5)*0.5);c.scale(1,ry/rx);
@@ -538,7 +568,7 @@ function drawBand(c,pal,rnd,bs,blob){
   c.restore();
 }
 
-/* ─────────────── elrendezés ─────────────── */
+/* ─────────────── layout ─────────────── */
 function sizeCanvases(){
   for(const c of [bgA,bgB,fx]){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);}
 }
@@ -550,27 +580,32 @@ function resize(){
   if(palMix>0&&nextPal)drawBG(bgBackCtx,nextPal);
   scheduleSprites();
 }
-function armDprWatch(){          // lap-zoom / kijelzőváltás pontos követése
+function armDprWatch(){          // precise tracking of page zoom / display changes
   const mq=matchMedia(`(resolution: ${devicePixelRatio}dppx)`);
   const h=()=>{mq.removeEventListener("change",h);resize();armDprWatch();};
   mq.addEventListener("change",h);
 }
 
-/* ─────────────── állapot ─────────────── */
+/* ─────────────── state ─────────────── */
 let windup=0, orbitA=0, matOn=0, simT=0, lastT=0;
 let paraX=0,paraY=0,paraTX=0,paraTY=0;
 let palTimer=0;
-const SN=[];                      // aktív szupernóvák
+const SN=[];                      // active supernovae
 let snTimer=8+Math.random()*14;
 let proj=false, projT=0, projUI=0;
 
-/* ─────────────── szimuláció léptetése ─────────────── */
-function step(dt){
+/* ─────────────── simulation step ─────────────── */
+/* dt drives the orbits and is clamped for numerical stability; rdt is the real
+   elapsed time and drives everything that should take a fixed number of
+   seconds no matter the frame rate — crossfades, supernovae, camera moves.
+   (The CSS background fade runs on wall-clock time, so mixing the two would
+   drift them apart on a slow machine.) */
+function step(dt,rdt){
   const sdt=dt*P.speed;
   simT+=sdt;
-  if(P.material)windup+=sdt; else windup+=(0-windup)*Math.min(1,dt*1.6);
-  matOn+=((P.material?1:0)-matOn)*Math.min(1,dt*2);
-  orbitA+=((P.orbits?1:0)-orbitA)*Math.min(1,dt*2.5);
+  if(P.material)windup+=sdt; else windup+=(0-windup)*Math.min(1,rdt*1.6);
+  matOn+=((P.material?1:0)-matOn)*Math.min(1,rdt*2);
+  orbitA+=((P.orbits?1:0)-orbitA)*Math.min(1,rdt*2.5);
   captionEl.classList.toggle("on",P.material&&windup>6);
 
   for(let i=0;i<NS;i++)sPhi[i]+=omOf(sA[i])*sdt;
@@ -578,20 +613,20 @@ function step(dt){
   for(let i=0;i<NH;i++)hPhi[i]+=omOf(hA[i])*sdt;
   for(let i=0;i<ND;i++)dPhi[i]+=omOf(dA[i])*sdt;
 
-  paraX+=(paraTX-paraX)*Math.min(1,dt*2.4);
-  paraY+=(paraTY-paraY)*Math.min(1,dt*2.4);
+  paraX+=(paraTX-paraX)*Math.min(1,rdt*2.4);
+  paraY+=(paraTY-paraY)*Math.min(1,rdt*2.4);
 
-  // paletta-áttűnés
+  // palette crossfade
   if(nextPal){
-    palMix=Math.min(1,palMix+dt/4.5);
+    palMix=Math.min(1,palMix+rdt/4.5);
     if(palMix>=1)finishPalette();
   }else if(P.autoPal&&!FREEZE){
-    palTimer-=dt;
+    palTimer-=rdt;
     if(palTimer<=0)startPalette(PALETTES[(PALETTES.indexOf(curPal)+1+((Math.random()*3)|0))%PALETTES.length]);
   }
-  // szupernóvák
+  // supernovae
   if(P.supernova&&!FREEZE&&P.speed>0){
-    snTimer-=dt*Math.max(0.3,P.speed);
+    snTimer-=rdt*Math.max(0.3,P.speed);
     if(snTimer<=0&&SN.length<4){
       snTimer=9+Math.random()*16;
       let idx=(Math.random()*NS)|0, guard=0;
@@ -600,14 +635,14 @@ function step(dt){
       if(sound.on)sound.boom();
     }
   }
-  for(let i=SN.length-1;i>=0;i--){SN[i].t+=dt;if(SN[i].t>3.4)SN.splice(i,1);}
+  for(let i=SN.length-1;i>=0;i--){SN[i].t+=rdt;if(SN[i].t>3.4)SN.splice(i,1);}
 
-  if(proj){                       // vetítő mód: lassú kamera-utazás
-    projT+=dt;
+  if(proj){                       // projector mode: slow camera journey
+    projT+=rdt;
     P.zoom=clamp(0.8+0.55*Math.sin(projT*0.08),0.2,2);
     P.incl=clamp(28+26*Math.sin(projT*0.031+1.1),0,80);
     scheduleSprites();
-    if((projUI-=dt)<=0){projUI=0.25;syncUI();}   // UI-frissítés ritkítva
+    if((projUI-=rdt)<=0){projUI=0.25;syncUI();}  // throttled UI refresh
   }
 }
 function startPalette(p){
@@ -620,7 +655,7 @@ function startPalette(p){
 }
 function finishPalette(){
   curPal=nextPal;nextPal=null;palMix=0;setA=setB;setB=null;
-  // szerepcsere: a most látható lesz az elülső réteg
+  // swap roles: the visible layer becomes the front one
   const tf=bgFront,tc=bgFrontCtx;
   bgFront=bgBack;bgFrontCtx=bgBackCtx;bgBack=tf;bgBackCtx=tc;
   bgBack.style.transition="none";bgBack.style.opacity="0";
@@ -630,7 +665,7 @@ function finishPalette(){
   markPalette(curPal);
 }
 
-/* ─────────────── rajzolás ─────────────── */
+/* ─────────────── drawing ─────────────── */
 function drawScene(c){
   const m=P.arms, wnd=windEff();
   const cosI=Math.cos(P.incl*Math.PI/180), sinI=Math.sin(P.incl*Math.PI/180), ci=Math.abs(cosI);
@@ -645,9 +680,9 @@ function drawScene(c){
 
   const mixed=nextPal!==null&&setB!==null;
   const passes=mixed?[[setA,1-palMix],[setB,palMix]]:[[setA,1]];
-  const hot=mixed&&palMix>0.5?setB:setA;              // csillag/por: váltás félidőben
+  const hot=mixed&&palMix>0.5?setB:setA;              // stars/dust: swap at halfway
 
-  /* mag */
+  /* core */
   for(const [S,w] of passes){
     c.globalAlpha=w;
     const hs=S.halo.css*gk, cs=S.core.css*gk;
@@ -655,7 +690,7 @@ function drawScene(c){
     c.drawImage(S.core.img,cx-cs/2,cy-cs*ci/2,cs,cs*ci+1);
   }
 
-  /* ködök */
+  /* nebulae */
   const hubNebA=lerp(1,0.75,P.hub);
   const nebM=NEB_SZ[NEB_SZ.length-1]*curG();
   for(const [S,w] of passes){
@@ -671,7 +706,7 @@ function drawScene(c){
     }
   }
 
-  /* csillagok — a képernyőn kívülieket kihagyjuk (nagy zoomnál sokat számít) */
+  /* stars — off-screen ones are skipped (matters a lot at high zoom) */
   c.globalAlpha=starAlpha();
   const starDS=hot.star.map(t=>t.map(b=>b.css*gk));
   const starM=STAR_SZ[STAR_SZ.length-1]*curG()+2;
@@ -684,7 +719,7 @@ function drawScene(c){
     c.drawImage(hot.star[t][z].img,px-s/2,py-s/2,s,s);
   }
 
-  /* H-II régiók: a sűrűséghullám torlódásában gyúlnak ki */
+  /* H-II regions: they light up where the density wave crowds the gas */
   const hiiScale=lerp(1.1,0.55,P.hub);
   for(const [S,w] of passes){
     c.globalAlpha=w;
@@ -702,25 +737,24 @@ function drawScene(c){
     }
   }
 
-  /* szupernóvák */
+  /* supernovae: a bright flare plus a soft expanding shell — all glow, no outline */
   if(SN.length){
-    c.globalAlpha=1;
     for(const s of SN){
       const i=s.i, a=sA[i], tilt=tiltOf(a,wnd)+sJit[i]+windup*omOf(a)*matOn;
       const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
       const px=cx+r*Math.cos(sPhi[i])*scl, py=cy+(r*Math.sin(sPhi[i])*cosI+sZ[i]*sinI)*scl;
       const t=s.t/3.4, fade=Math.pow(1-t,2.2), flare=Math.exp(-s.t*3.1);
-      const fs=hot.flash.css*gk*(0.35+flare*1.5);
+      const es=hot.flash.css*gk*(0.5+t*4.2);          // expanding shell
+      c.globalAlpha=fade*0.32;
+      c.drawImage(hot.flash.img,px-es/2,py-es*ci/2,es,es*ci+1);
+      const fs=hot.flash.css*gk*(0.35+flare*1.5);     // the flare itself
       c.globalAlpha=clamp(0.35+flare,0,1);
       c.drawImage(hot.flash.img,px-fs/2,py-fs*ci/2,fs,fs*ci+1);
-      c.globalAlpha=fade*0.55;                       // táguló lökéshullám
-      c.strokeStyle="rgba(190,225,255,1)";
-      c.lineWidth=Math.max(0.6,2.4*g*fade);
-      c.beginPath();c.ellipse(px,py,0.115*t*scl,0.115*t*scl*ci,0,0,TAU);c.stroke();
     }
+    c.globalAlpha=1;
   }
 
-  /* porsávok: multiply, a kar belső élén */
+  /* dust lanes: multiply pass, hugging the inner edge of the arms */
   c.globalCompositeOperation="multiply";
   const dustA=lerp(1,0.35,P.hub), dOff=0.6/m;
   const dustDS=hot.dust.map(b=>b.css*gk);
@@ -737,7 +771,7 @@ function drawScene(c){
   }
   c.globalAlpha=1;c.globalCompositeOperation="source-over";
 
-  /* pályák */
+  /* orbits */
   if(orbitA>0.01){
     c.strokeStyle=`rgba(190,215,240,${0.16*orbitA})`;
     c.lineWidth=Math.max(0.4,g);
@@ -754,17 +788,19 @@ function drawScene(c){
   }
 }
 
-/* ─────────────── fő ciklus + teljesítményőr ─────────────── */
+/* ─────────────── main loop + performance guard ─────────────── */
 let fpsT0=0,fpsN=0,fpsLow=0;
 function frame(now){
   requestAnimationFrame(frame);
-  const dt=Math.min(0.05,(now-lastT)/1000||0);lastT=now;
-  step(dt);
+  const raw=(now-lastT)/1000||0;lastT=now;
+  const rdt=Math.min(0.25,raw);          // real time (survives a slow frame)
+  const dt=Math.min(0.05,raw);           // orbit step, clamped for stability
+  step(dt,rdt);
   drawScene(ctx);
   if(sound.on)sound.tick();
 
-  // valós eltelt idővel mérünk: a szimulációs dt felül van vágva, abból
-  // hamis (mindig 20-as) fps jönne ki akadás közben
+  // measure with real elapsed time: the simulation dt is clamped, which would
+  // report a fake constant frame rate while the page is actually stuttering
   if(!fpsT0)fpsT0=now;
   fpsN++;
   const el=(now-fpsT0)/1000;
@@ -774,25 +810,25 @@ function frame(now){
       if(++fpsLow>=3){
         fpsLow=0;
         setStars(Math.max(starLimits().min,Math.round(NS*0.75)));
-        toast(`Teljesítményőr: csillagszám ${NS.toLocaleString("hu-HU")}`);
+        toast(`Performance guard: star count ${NS.toLocaleString("en-US")}`);
       }
     }else fpsLow=0;
   }
 }
 
-/* ─────────────── hang: procedurális kozmikus hangtér ─────────────── */
+/* ─────────────── sound: procedural cosmic soundscape ─────────────── */
 const sound={
   on:false, ac:null, master:null, g:[0,0,0,0], vol:[0.6,0.45,0.4,0], mv:0.55,
   react:true, nodes:{}, chimeT:0,
   init(){
     if(this.ac)return;
     const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC){toast("A böngésző nem támogatja a Web Audiót");return;}
+    if(!AC){toast("This browser does not support Web Audio");return;}
     const ac=this.ac=new AC();
     const master=this.master=ac.createGain();
     master.gain.value=0;master.connect(ac.destination);
 
-    // visszhang (procedurális impulzusválasz)
+    // reverb from a generated impulse response
     const rev=ac.createConvolver(), len=ac.sampleRate*2.6;
     const buf=ac.createBuffer(2,len,ac.sampleRate);
     for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);
@@ -804,7 +840,7 @@ const sound={
 
     const mkGain=i=>{const g=ac.createGain();g.gain.value=0;g.connect(master);this.g[i]=g;return g;};
 
-    /* 0 — mélyűr-drón */
+    /* 0 — deep-space drone */
     const dg=mkGain(0), lp=ac.createBiquadFilter();
     lp.type="lowpass";lp.frequency.value=320;lp.Q.value=0.7;lp.connect(dg);
     [55,82.5,110,164.8].forEach((f,i)=>{
@@ -818,11 +854,11 @@ const sound={
     dlfo.connect(dlg);dlg.connect(lp.frequency);dlfo.start();
     this.nodes.lp=lp;
 
-    /* 1 — szoláris szél (szűrt zaj, lassú hullámzás) */
+    /* 1 — solar wind (filtered noise, slow swell) */
     const wg=mkGain(1);
     const nb=ac.createBuffer(1,ac.sampleRate*4,ac.sampleRate), nd=nb.getChannelData(0);
     let b0=0,b1=0,b2=0;
-    for(let i=0;i<nd.length;i++){        // rózsaszín-szerű zaj
+    for(let i=0;i<nd.length;i++){        // pink-ish noise
       const w=Math.random()*2-1;
       b0=0.99765*b0+w*0.0990460;b1=0.96300*b1+w*0.2965164;b2=0.57000*b2+w*1.0526913;
       nd[i]=(b0+b1+b2+w*0.1848)*0.16;
@@ -839,7 +875,7 @@ const sound={
     alfo.start();abase.start();
     this.nodes.bp=bp;this.nodes.windBase=abase;
 
-    /* 2 — csillagpor-csengők, 3 — pulzár: eseményvezérelt */
+    /* 2 — stardust chimes, 3 — pulsar: event driven */
     mkGain(2);mkGain(3);
     this.applyVol();
   },
@@ -888,7 +924,7 @@ const sound={
     o.connect(g);g.connect(this.g[3]);this.g[3].gain.setValueAtTime(1,t);
     o.start(t);o.stop(t+0.6);
   },
-  boom(){                       // szupernóva
+  boom(){                       // supernova
     const ac=this.ac;if(!ac||!this.on)return;
     const o=ac.createOscillator(),g=ac.createGain();
     o.type="sine";o.frequency.setValueAtTime(110,ac.currentTime);
@@ -913,14 +949,14 @@ const sound={
     if(this.vol[3]>0&&(!this.pulseT||now>=this.pulseT)){
       this.pulse();this.pulseT=now+1.55/(this.react?clamp(P.speed,0.3,2):1);
     }
-    if(this.react&&this.nodes.lp){   // zoom → közelebbi, teltebb hangzás
+    if(this.react&&this.nodes.lp){   // zoom → a closer, fuller timbre
       this.nodes.lp.frequency.setTargetAtTime(220+P.zoom*260,now,1.5);
       this.nodes.bp.frequency.setTargetAtTime(300+P.zoom*380,now,1.5);
     }
   }
 };
 
-/* ─────────────── fotó, link, módok ─────────────── */
+/* ─────────────── photo, link, modes ─────────────── */
 let toastT=0;
 function toast(msg,ms){
   const el=$("toast");el.textContent=msg;el.classList.add("on");
@@ -944,7 +980,7 @@ function savePNG(){
       const u=URL.createObjectURL(b), a=document.createElement("a");
       a.href=u;a.download=`density-wave-${curPal.id}-${out.width}x${out.height}.png`;
       a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);
-      toast(`Kép mentve — ${out.width}×${out.height}`);
+      toast(`Image saved — ${out.width}×${out.height}`);
     },"image/png");
   }finally{
     dpr=oldDpr;sizeCanvases();
@@ -960,37 +996,37 @@ function shareLink(){
     px:P.parallax?1:0, band:P.band?1:0, orb:P.orbits?1:0, mat:P.material?1:0, seed:SEED
   });
   const url=location.origin+location.pathname+"?"+q.toString();
-  const done=()=>toast("Link a vágólapon — a beállításokkal együtt");
+  const done=()=>toast("Link copied — with every setting included");
   if(navigator.clipboard&&navigator.clipboard.writeText)
-    navigator.clipboard.writeText(url).then(done,()=>prompt("Másold ki a linket:",url));
-  else prompt("Másold ki a linket:",url);
+    navigator.clipboard.writeText(url).then(done,()=>prompt("Copy the link:",url));
+  else prompt("Copy the link:",url);
 }
 function setHide(v){document.body.classList.toggle("hideui",v);}
 function setProj(v){
   proj=v;setHide(v);
   if(v){projT=0;P.autoPal=true;$("tAuto").classList.add("on");
-    toast("Vetítő mód — kilépés: Space, Esc vagy kattintás",3600);}
-  else{toast("Vetítő mód kikapcsolva");}
+    toast("Projector mode — exit with Space, Esc or a click",3600);}
+  else{toast("Projector mode off");}
 }
 function toggleFull(){
   if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
   else document.exitFullscreen&&document.exitFullscreen();
 }
 
-/* ─────────────── készletek (presetek) ─────────────── */
+/* ─────────────── presets ─────────────── */
 const PRESETS=[
   {name:"Andromeda", hub:0.42, wind:5.6, arms:2, inc:68, bar:0, zoom:0.9},
-  {name:"Örvény M51", hub:0.85, wind:3.4, arms:2, inc:18, bar:0, zoom:1.0},
-  {name:"Küllős SBb", hub:0.5, wind:4.4, arms:2, inc:24, bar:0.85, zoom:0.85},
-  {name:"Szélkerék", hub:0.95, wind:3.0, arms:5, inc:12, bar:0.15, zoom:0.95}
+  {name:"Whirlpool M51", hub:0.85, wind:3.4, arms:2, inc:18, bar:0, zoom:1.0},
+  {name:"Barred SBb", hub:0.5, wind:4.4, arms:2, inc:24, bar:0.85, zoom:0.85},
+  {name:"Pinwheel", hub:0.95, wind:3.0, arms:5, inc:12, bar:0.15, zoom:0.95}
 ];
 function applyPreset(p){
   P.hub=p.hub;P.wind=p.wind;P.arms=p.arms;P.incl=p.inc;P.bar=p.bar;P.zoom=p.zoom;
   buildCDF();refreshEcc();syncUI();scheduleSprites();
-  toast(p.name+" beállítva");
+  toast(p.name+" applied");
 }
 
-/* ─────────────── kezelőfelület ─────────────── */
+/* ─────────────── user interface ─────────────── */
 const hubName=t=>t<0.2?"Sa":t<0.4?"Sab":t<0.6?"Sb":t<0.8?"Sbc":"Sc";
 function syncUI(){
   $("sHub").value=P.hub;
@@ -1068,7 +1104,7 @@ function bindUI(){
   $("bShot").addEventListener("click",()=>{setHide(true);setTimeout(()=>{savePNG();setTimeout(()=>setHide(false),400);},60);});
   $("bLink").addEventListener("click",shareLink);
   $("bProj").addEventListener("click",()=>setProj(true));
-  $("bHide").addEventListener("click",()=>{setHide(true);toast("Felület elrejtve — H a visszahozáshoz");});
+  $("bHide").addEventListener("click",()=>{setHide(true);toast("UI hidden — press H to bring it back");});
   $("drawerBtn").addEventListener("click",()=>$("panel").classList.toggle("open"));
   document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
     document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
@@ -1084,7 +1120,7 @@ function bindUI(){
     else if(k==="escape"&&proj)setProj(false);
     else if(k==="m")sound.toggle();
   });
-  addEventListener("pointerdown",()=>{if(proj)setProj(false);});
+  addEventListener("pointerdown",e=>{if(proj&&!e.target.closest("#credit"))setProj(false);});
   addEventListener("pointermove",e=>{
     if(!P.parallax)return;
     paraTX=(e.clientX/W-0.5)*2;paraTY=(e.clientY/H-0.5)*2;
@@ -1093,10 +1129,10 @@ function bindUI(){
     if(!P.parallax||e.gamma==null)return;
     paraTX=clamp(e.gamma/30,-1,1);paraTY=clamp((e.beta-45)/30,-1,1);
   });
-  if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× (csökkentett mozgás)";}
+  if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× (reduced motion)";}
 }
 
-/* parallax a háttéren (ellentétes irányban → mélységérzet) */
+/* background parallax (opposite direction → sense of depth) */
 function parallaxBG(){
   const k=P.parallax?1:0;
   const t=`translate3d(${(-paraX*14*k).toFixed(1)}px,${(-paraY*10*k).toFixed(1)}px,0) scale(1.035)`;
@@ -1104,7 +1140,7 @@ function parallaxBG(){
   requestAnimationFrame(parallaxBG);
 }
 
-/* ─────────────── indulás ─────────────── */
+/* ─────────────── boot ─────────────── */
 buildPaletteUI();bindUI();
 readDPR();resize();populate();buildSets();syncUI();armDprWatch();
 palTimer=110+Math.random()*70;

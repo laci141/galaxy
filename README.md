@@ -6,54 +6,64 @@ Interaktív spirálgalaxis a **sűrűséghullám-elmélet** (Lindblad, 1925) ala
 
 **Élő demó:** https://laci141.github.io/galaxy/ (GitHub Pages) · https://galaxy-90m.pages.dev/ (Cloudflare Pages)
 
-Mindkét cím a `main` ág tartalmát szolgálja ki, és minden commit után automatikusan frissül.
+Mindkét cím a `main` ág tartalmát szolgálja ki, és minden commit után automatikusan frissül. A kezelőfelület nyelve angol; ez a leírás magyarul ismerteti.
+
+## Letöltés, saját használat
+
+Az egész alkalmazás egyetlen fájl. Töltsd le az [index.html](index.html)-t (vagy klónozd a repót), nyisd meg böngészőben — kész, nincs telepítés, nincs build, internetkapcsolat sem kell hozzá.
+
+```bash
+git clone https://github.com/laci141/galaxy.git
+```
+
+Az oldal alján lévő link mindig visszavezet ide, hogy bárki letölthesse.
 
 ## Vezérlők
 
-A panel három fülre oszlik: **Galaxis**, **Látvány**, **Hang**.
+A panel három fülre oszlik: **Galaxy**, **Visuals**, **Sound**.
 
-### Galaxis
+### Galaxy — a galaxis alakja
 
 | Vezérlő | Mit csinál |
 |---|---|
-| **Hubble-típus** | Sa → Sc: nagyobb mag + szorosabb karok ↔ kisebb mag + nyitottabb karok |
-| **Küllő (bar)** | 0–100%: a belső pályák közös nagytengelyre állnak, így küllős (SB) galaxis születik |
-| **Feltekeredés** | a karok feltekeredettsége |
-| **Spirálkarok** | karok száma (1–6) |
+| **Hubble type** | Sa → Sc: nagyobb mag + szorosabb karok ↔ kisebb mag + nyitottabb karok |
+| **Bar** (küllő) | 0–100%: a belső pályák közös nagytengelyre állnak, így küllős (SB) galaxis születik |
+| **Winding** | a karok feltekeredettsége |
+| **Spiral arms** | karok száma (1–6) |
 | **Zoom** | valódi kamera-zoom 20–200% (a csillagok mérete is együtt skálázódik) |
-| **Idősebesség** | szimulációs sebesség (0–3×) |
-| **Dőlésszög** | rálátási szög (0° = szemből) |
-| **Készletek** | Andromeda · Örvény M51 · Küllős SBb · Szélkerék — egy kattintásos beállítás-csomagok |
-| **Pályák megjelenítése** | a rejtett ellipszispályák kirajzolása |
-| **Anyagi karok** | „mi lenne, ha a kar anyagból állna" — a feltekeredési probléma demója |
+| **Time speed** | szimulációs sebesség (0–3×) |
+| **Inclination** | rálátási szög (0° = szemből) |
+| **Presets** | Andromeda · Whirlpool M51 · Barred SBb · Pinwheel — egy kattintásos beállítás-csomagok |
+| **Show orbits** | a rejtett ellipszispályák kirajzolása |
+| **Material arms** | „mi lenne, ha a kar anyagból állna" — a feltekeredési probléma demója |
 
-### Látvány
+### Visuals — látvány
 
 | Vezérlő | Mit csinál |
 |---|---|
-| **Színvilág** | 4 paletta: Klasszikus · Indigó por · Kék-arany · Ibolya-tenger |
-| **Automatikus váltás** | 2–3 percenként lassú, 4,5 másodperces áttűnéssel új palettát sorsol |
-| **Csillagszám** | desktop 5 000–30 000, mobil 3 000–20 000 |
-| **Teljesítményőr** | ha az fps 35 alá esik, automatikusan visszaveszi a csillagszámot |
-| **Szupernóvák** | ritkán felvillanó csillag táguló lökéshullámmal (hanggal is) |
+| **Palette** | 4 színvilág: Classic · Indigo Dust · Blue-Gold · Violet Sea |
+| **Auto-switch** | 2–3 percenként lassú, 4,5 másodperces áttűnéssel új palettát sorsol |
+| **Star count** | desktop 5 000–30 000, mobil 3 000–20 000 |
+| **Performance guard** | ha az fps 35 alá esik, automatikusan visszaveszi a csillagszámot |
+| **Supernovae** | ritkán felvillanó csillag lágyan táguló fénygömbbel (hanggal is) |
 | **Parallax** | egérmozgásra / mobil-döntésre a háttér és a galaxis elcsúszik → mélységérzet |
-| **Tejút-sáv** | átlós, sűrű csillagfolyam sötét porcsíkokkal a háttérben |
-| **📷 Fotó (PNG)** | felület nélküli mentés, ahol fér, kétszeres felbontásban |
-| **🔗 Link másolása** | az összes beállítás belekerül az URL-be, így megosztható |
-| **🎬 Vetítő mód** | teljes képernyős, lassú kamera-utazás automatikus palettaváltással |
-| **👁 Felület el** | vezérlők elrejtése |
+| **Milky Way band** | átlós, sűrű csillagfolyam sötét porcsíkokkal a háttérben |
+| **📷 Photo (PNG)** | felület nélküli mentés, ahol fér, kétszeres felbontásban |
+| **🔗 Copy link** | az összes beállítás belekerül az URL-be, így megosztható |
+| **🎬 Projector** | teljes képernyős, lassú kamera-utazás automatikus palettaváltással |
+| **👁 Hide UI** | vezérlők elrejtése |
 
-### Hang — procedurális kozmikus hangtér
+### Sound — procedurális kozmikus hangtér
 
 Nincs hangfájl: minden réteget a Web Audio API generál élőben. Rétegenként külön csúszka, mint egy hangkeverőben.
 
 | Réteg | Mi szól |
 |---|---|
-| **Mélyűr-drón** | mély, lassan lélegző alapharmónia szűrt oszcillátorokból |
-| **Szoláris szél** | rózsaszín zaj sávszűrőn, 30–50 másodperces hullámzással |
-| **Csillagpor-csengők** | ritka, visszhangos harangszerű hangok pentaton skálán |
-| **Pulzár-lüktetés** | lassú, mély dobbanás (alapból kikapcsolva) |
-| **Kövesse a szimulációt** | a zoom a hangszínt, az idősebesség a csengők ritmusát vezérli |
+| **Deep-space drone** | mély, lassan lélegző alapharmónia szűrt oszcillátorokból |
+| **Solar wind** | rózsaszín zaj sávszűrőn, 30–50 másodperces hullámzással |
+| **Stardust chimes** | ritka, visszhangos harangszerű hangok pentaton skálán |
+| **Pulsar pulse** | lassú, mély dobbanás (alapból kikapcsolva) |
+| **Follow the simulation** | a zoom a hangszínt, az idősebesség a csengők ritmusát vezérli |
 
 A hang a bal felső 🔊 gombbal vagy az **M** billentyűvel is kapcsolható (böngésző-szabály miatt csak felhasználói kattintás után indulhat).
 
@@ -71,7 +81,8 @@ A mostani változatban:
 - **Éles sprite-ok:** a sprite-bitmapek az aktuális lépték × `devicePixelRatio` felbontásban készülnek újra (nyugalomban 1:1 pixelblit), a `devicePixelRatio` változását `matchMedia` figyeli.
 - **Fényerő-normalizálás:** több csillagnál a csillagonkénti fényerő arányosan csökken, így 30 000 csillagnál is sűrűbb lesz a kép, nem fehérebb.
 - **Stabil kép:** seedelt véletlengenerátor — ablakméretezés, zoom vagy palettaváltás nem keveri újra a galaxist.
-- **Képernyőn kívüli elemek kihagyása:** erős zoomnál a látótéren kívüli csillagok nem is kerülnek kirajzolásra.
+- **Kettős időalap:** a pályák felülvágott `dt`-vel lépnek (numerikus stabilitás), de az áttűnések, szupernóvák és a vetítő mód kameramozgása valós időt használ, így lassú gépen sem húzódnak el.
+- **Képernyőn kívüli elemek kihagyása:** erős zoomnál a látótéren kívüli csillagok nem kerülnek kirajzolásra.
 
 ## Ellenőrzés
 
@@ -79,18 +90,18 @@ Playwright + Chromium, azonos fizikai felbontásra normált képek 50 / 70 / 100
 
 | Mérés | Régi | Mostani |
 |---|---|---|
-| Fényerő 50% → 100% zoomon | +77% | azonos (20,4 → 20,9) |
-| Kiégett fehér pixelarány | 8× nőtt | változatlan (0,043%) |
+| Fényerő 50% → 100% zoomon | +77% | azonos (21,1 → 21,6) |
+| Kiégett fehér pixelarány | 8× nőtt | változatlan (0,042%) |
 | Pixel-eltérés a zoomszintek között | — | ≤ 0,55/255 |
 
-További ellenőrzött viselkedés: csillagcsúszka 5 000 → 30 000 (fényerő 1,38× — nő, de nem ég ki), mobil-tartomány 3 000–20 000, 4 paletta jól elkülönülő színvilággal és működő áttűnéssel, küllő 0 → 90% látható változás, presetek, szupernóva-életciklus, 3200×1800-as PNG-mentés, link-megosztás és -visszaállítás, hangmotor indulás/leállás, teljesítményőr, vetítő mód, mobil fiók és fülek vízszintes görgetés nélkül. Konzolhiba nincs.
+További ellenőrzött viselkedés: csillagcsúszka 5 000 → 30 000 (fényerő 1,39× — nő, de nem ég ki), mobil-tartomány 3 000–20 000, a 4 paletta minimális színtávolsága 6,92 (a 15%-os erősítés előtt 5,71), küllő 0 → 90% látható változás, presetek, szupernóva-életciklus, 3200×1800-as PNG-mentés, link-megosztás és -visszaállítás, hangmotor indulás/leállás, teljesítményőr, vetítő mód, angol felület magyar maradvány nélkül, GitHub-link láthatósága, mobil fiók és fülek vízszintes görgetés nélkül. Konzolhiba nincs.
 
 ## Futtatás, tesztelés
 
 Nyisd meg az `index.html`-t böngészőben (vagy `python3 -m http.server` és http://localhost:8000).
 
-URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — ezt állítja elő a **🔗 Link másolása** gomb.
+URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — ezt állítja elő a **🔗 Copy link** gomb.
 
 ## Licenc
 
-MIT — lásd [LICENSE](LICENSE).
+MIT — lásd [LICENSE](LICENSE). Szabadon használható, módosítható, megosztható.
