@@ -18,15 +18,36 @@
 
   /* ---------- glass panel ---------- */
   #panel{
-    position:fixed;right:22px;bottom:22px;width:290px;z-index:10;
+    position:fixed;right:22px;top:22px;width:290px;z-index:10;
     background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.045));
     border:1px solid rgba(255,255,255,.10);border-radius:20px;
     backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
     box-shadow:0 18px 50px -18px rgba(0,0,0,.75);
-    padding:16px 16px 14px;transition:opacity .4s ease,transform .35s ease;
+    padding:16px 16px 14px;transition:opacity .3s ease,transform .3s ease;
     max-height:calc(100vh - 44px);display:flex;flex-direction:column}
   #panel h1{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:.02em}
   #panel .sub{margin:0 0 11px;font-size:11px;color:rgba(232,238,247,.55);line-height:1.35}
+  /* header: title + sound / minimise buttons */
+  .head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .head .txt{min-width:0}
+  .hbtns{display:flex;gap:6px;flex:none}
+  .hbtns button{width:29px;height:29px;border-radius:9px;cursor:pointer;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+    color:#e8eef7;font:600 14px inherit;line-height:1;transition:.15s;
+    display:flex;align-items:center;justify-content:center;padding:0}
+  .hbtns button:hover{background:rgba(127,212,255,.2);border-color:rgba(127,212,255,.45)}
+  #sndBtn.on{background:rgba(127,212,255,.26);border-color:rgba(127,212,255,.6)}
+  /* minimised: panel gone, one round button brings it back */
+  #restoreBtn{position:fixed;right:22px;top:22px;z-index:11;width:44px;height:44px;border-radius:50%;
+    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.05));
+    border:1px solid rgba(255,255,255,.14);color:#e8eef7;font-size:15px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    align-items:center;justify-content:center;display:none;transition:.2s;
+    box-shadow:0 10px 26px -12px rgba(0,0,0,.8)}
+  #restoreBtn:hover{background:rgba(127,212,255,.22);border-color:rgba(127,212,255,.5)}
+  body.min #panel{opacity:0;transform:translateY(-10px) scale(.97);pointer-events:none}
+  body.min #restoreBtn{display:flex}
+  body.hideui #restoreBtn{opacity:0;pointer-events:none}
   .ctl{margin:9px 0}
   .ctl label{display:flex;justify-content:space-between;font-size:11px;color:rgba(232,238,247,.8);margin-bottom:3px}
   .ctl label .val{color:rgba(232,238,247,.5);font-variant-numeric:tabular-nums}
@@ -46,7 +67,9 @@
   .tg.on .sw::after{transform:translateX(13px);background:#fff}
   .dim{color:rgba(232,238,247,.45)}
 
-  /* tabs */
+  /* language switch + tabs */
+  #langs{margin:10px 0 8px}
+  #langs button{font-size:10.5px;letter-spacing:.05em;padding:4px 0}
   #tabs{display:flex;gap:5px;margin:0 0 10px}
   #tabs button{flex:1;font:600 11px inherit;color:rgba(232,238,247,.7);background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:6px 0;cursor:pointer;transition:.15s}
@@ -89,24 +112,19 @@
     text-shadow:0 1px 6px rgba(0,0,0,.85)}
   #credit a:hover{color:#aee4ff}
   #credit b{color:rgba(232,238,247,.72);font-weight:600}
-  #sndBtn{position:fixed;left:20px;top:20px;z-index:11;width:42px;height:42px;border-radius:50%;
-    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.05));
-    border:1px solid rgba(255,255,255,.14);color:#e8eef7;font-size:16px;cursor:pointer;
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    display:flex;align-items:center;justify-content:center;transition:.2s;
-    box-shadow:0 10px 26px -12px rgba(0,0,0,.8)}
-  #sndBtn:hover{background:rgba(127,212,255,.22);border-color:rgba(127,212,255,.5)}
-  #sndBtn.on{background:rgba(127,212,255,.26);border-color:rgba(127,212,255,.6)}
-  body.hideui #panel,body.hideui #hint,body.hideui #sndBtn,body.hideui #credit{opacity:0;pointer-events:none}
+  body.hideui #panel,body.hideui #hint,body.hideui #credit{opacity:0;pointer-events:none}
 
   #drawerBtn{display:none}
   @media (max-width:700px){
-    #panel{left:0;right:0;bottom:0;width:auto;border-radius:16px 16px 0 0;
+    #panel{left:0;right:0;top:auto;bottom:0;width:auto;border-radius:16px 16px 0 0;
       backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
       box-shadow:0 12px 32px -14px rgba(0,0,0,.7);padding:0 14px 12px;
-      max-height:82vh;transform:translateY(calc(100% - 44px));transition:transform .35s ease,opacity .4s ease}
+      max-height:82vh;transform:translateY(calc(100% - 44px));transition:transform .35s ease,opacity .3s ease}
     #panel.open{transform:translateY(0)}
     #panel h1,#panel .sub{display:none}
+    .head{padding-bottom:4px}
+    body.min #panel{transform:translateY(100%)}
+    #restoreBtn{width:40px;height:40px;right:14px;top:14px}
     #drawerBtn{display:flex;width:100%;height:44px;align-items:center;justify-content:center;gap:8px;
       background:none;border:0;color:#e8eef7;font:600 12px inherit;cursor:pointer;letter-spacing:.04em;flex:none}
     #drawerBtn .chev{transition:transform .35s}
@@ -127,95 +145,107 @@
   <canvas id="fx" class="layer"></canvas>
 </div>
 
-<div id="caption">If spiral arms were made of fixed matter, they would wind themselves out of existence within a few galactic rotations. They don't. Lindblad noticed this in 1925.</div>
+<div id="caption" data-i18n="caption"></div>
 <div id="toast"></div>
-<div id="hint">H — hide UI · F — fullscreen · P — photo · Space — projector mode</div>
-<div id="credit"><a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener">Made by <b>laci141</b> — source &amp; download on GitHub ↗</a></div>
-<button id="sndBtn" title="Cosmic sound on/off" aria-label="Sound on/off">🔈</button>
+<div id="hint" data-i18n="hint"></div>
+<div id="credit"><a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener"><span data-i18n="creditPre"></span> <b>laci141</b> <span data-i18n="creditPost"></span></a></div>
+<button id="restoreBtn" data-i18n-title="restoreTitle" aria-label="Show controls">☰</button>
 
 <div id="panel">
-  <button id="drawerBtn">Controls <span class="chev">▴</span></button>
-  <h1>Density Wave</h1>
-  <p class="sub">Every star rides its own tilted orbit. The spiral is a traffic jam, not a structure.</p>
+  <button id="drawerBtn"><span data-i18n="controls"></span> <span class="chev">▴</span></button>
+  <div class="head">
+    <div class="txt">
+      <h1>Density Wave</h1>
+      <p class="sub" data-i18n="sub"></p>
+    </div>
+    <div class="hbtns">
+      <button id="sndBtn" data-i18n-title="sndTitle" aria-label="Sound on/off">🔈</button>
+      <button id="minBtn" data-i18n-title="minTitle" aria-label="Minimise panel">–</button>
+    </div>
+  </div>
+
+  <div class="seg" id="langs">
+    <button data-l="en">EN</button><button data-l="hu">HU</button><button data-l="ro">RO</button><button data-l="de">DE</button>
+  </div>
 
   <div id="tabs">
-    <button data-t="gal" class="on">Galaxy</button>
-    <button data-t="look">Visuals</button>
-    <button data-t="snd">Sound</button>
+    <button data-t="gal" class="on" data-i18n="tabGal"></button>
+    <button data-t="look" data-i18n="tabLook"></button>
+    <button data-t="snd" data-i18n="tabSnd"></button>
   </div>
 
   <!-- ============ GALAXY ============ -->
   <div class="page on" data-t="gal">
-    <div class="ctl"><label>Hubble type <span class="val" id="vHub">Sb</span></label>
+    <div class="ctl"><label><span data-i18n="hubble"></span> <span class="val" id="vHub">Sb</span></label>
       <input id="sHub" type="range" min="0" max="1" step="0.01" value="0.5"></div>
-    <div class="ctl"><label>Bar <span class="val" id="vBar">0%</span></label>
+    <div class="ctl"><label><span data-i18n="bar"></span> <span class="val" id="vBar">0%</span></label>
       <input id="sBar" type="range" min="0" max="100" step="5" value="0"></div>
-    <div class="ctl"><label>Winding <span class="val" id="vWind">5.0</span></label>
+    <div class="ctl"><label><span data-i18n="winding"></span> <span class="val" id="vWind">5.0</span></label>
       <input id="sWind" type="range" min="2" max="9" step="0.1" value="5"></div>
-    <div class="ctl"><label>Spiral arms</label>
+    <div class="ctl"><label><span data-i18n="arms"></span></label>
       <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button><button data-m="6">6</button></div></div>
-    <div class="ctl"><label>Zoom <span class="val" id="vZoom">80%</span></label>
+    <div class="ctl"><label><span data-i18n="zoom"></span> <span class="val" id="vZoom">80%</span></label>
       <input id="sZoom" type="range" min="20" max="200" step="5" value="80"></div>
-    <div class="ctl"><label>Time speed <span class="val" id="vSpd">1.0×</span></label>
+    <div class="ctl"><label><span data-i18n="speed"></span> <span class="val" id="vSpd">1.0×</span></label>
       <input id="sSpd" type="range" min="0" max="3" step="0.02" value="1"></div>
-    <div class="ctl"><label>Inclination <span class="val" id="vInc">0°</span></label>
+    <div class="ctl"><label><span data-i18n="incl"></span> <span class="val" id="vInc">0°</span></label>
       <input id="sInc" type="range" min="0" max="80" step="1" value="0"></div>
-    <div class="grp">Presets</div>
+    <div class="grp" data-i18n="presets"></div>
     <div class="pal" id="presets"></div>
     <div class="toggles">
-      <div class="tg" id="tOrbits"><span class="sw"></span>Show orbits</div>
-      <div class="tg" id="tMat"><span class="sw"></span>Material arms <span class="dim">(the winding problem)</span></div>
+      <div class="tg" id="tOrbits"><span class="sw"></span><span data-i18n="orbits"></span></div>
+      <div class="tg" id="tMat"><span class="sw"></span><span data-i18n="material"></span> <span class="dim" data-i18n="windProb"></span></div>
     </div>
   </div>
 
   <!-- ============ VISUALS ============ -->
   <div class="page" data-t="look">
-    <div class="grp">Palette</div>
+    <div class="grp" data-i18n="palette"></div>
     <div class="pal" id="palettes"></div>
     <div class="toggles" style="margin-top:9px">
-      <div class="tg on" id="tAuto"><span class="sw"></span>Auto-switch <span class="dim">(with crossfade)</span></div>
+      <div class="tg on" id="tAuto"><span class="sw"></span><span data-i18n="autoSw"></span> <span class="dim" data-i18n="crossfade"></span></div>
     </div>
-    <div class="ctl" style="margin-top:11px"><label>Colour boost <span class="val" id="vSat">+15%</span></label>
+    <div class="ctl" style="margin-top:11px"><label><span data-i18n="colBoost"></span> <span class="val" id="vSat">+15%</span></label>
       <input id="sSat" type="range" min="0" max="25" step="1" value="15"></div>
-    <div class="ctl"><label>Nebula density <span class="val" id="vNeb">+15%</span></label>
+    <div class="ctl"><label><span data-i18n="nebDens"></span> <span class="val" id="vNeb">+15%</span></label>
       <input id="sNeb" type="range" min="0" max="25" step="1" value="15"></div>
-    <div class="grp">Stars</div>
-    <div class="ctl"><label>Star count <span class="val" id="vStars">12,000</span></label>
+    <div class="grp" data-i18n="starsGrp"></div>
+    <div class="ctl"><label><span data-i18n="starCount"></span> <span class="val" id="vStars">12,000</span></label>
       <input id="sStars" type="range" min="3000" max="30000" step="500" value="12000"></div>
     <div class="toggles">
-      <div class="tg on" id="tFps"><span class="sw"></span>Performance guard <span class="dim">(auto)</span></div>
-      <div class="tg on" id="tSN"><span class="sw"></span>Supernovae</div>
-      <div class="tg on" id="tPar"><span class="sw"></span>Parallax <span class="dim">(mouse / tilt)</span></div>
-      <div class="tg on" id="tBand"><span class="sw"></span>Milky Way band</div>
+      <div class="tg on" id="tFps"><span class="sw"></span><span data-i18n="perfGuard"></span> <span class="dim" data-i18n="auto"></span></div>
+      <div class="tg on" id="tSN"><span class="sw"></span><span data-i18n="supernovae"></span></div>
+      <div class="tg on" id="tPar"><span class="sw"></span><span data-i18n="parallax"></span> <span class="dim" data-i18n="mouseTilt"></span></div>
+      <div class="tg on" id="tBand"><span class="sw"></span><span data-i18n="band"></span></div>
     </div>
-    <div class="grp">Actions</div>
+    <div class="grp" data-i18n="actions"></div>
     <div class="btns">
-      <button id="bShot">📷 Photo (PNG)</button>
-      <button id="bLink">🔗 Copy link</button>
-      <button id="bProj">🎬 Projector</button>
-      <button id="bHide">👁 Hide UI</button>
+      <button id="bShot">📷 <span data-i18n="photo"></span></button>
+      <button id="bLink">🔗 <span data-i18n="copyLink"></span></button>
+      <button id="bProj">🎬 <span data-i18n="projector"></span></button>
+      <button id="bHide">👁 <span data-i18n="hideUI"></span></button>
     </div>
   </div>
 
   <!-- ============ SOUND ============ -->
   <div class="page" data-t="snd">
-    <p class="sub" style="margin:2px 0 10px">A procedural cosmic soundscape — no audio files, every layer is generated live.</p>
+    <p class="sub" style="margin:2px 0 10px" data-i18n="sndSub"></p>
     <div class="toggles" style="margin-top:0">
-      <div class="tg" id="tSound"><span class="sw"></span>Enable sound</div>
+      <div class="tg" id="tSound"><span class="sw"></span><span data-i18n="enableSnd"></span></div>
     </div>
-    <div class="ctl"><label>Master volume <span class="val" id="vMaster">55%</span></label>
+    <div class="ctl"><label><span data-i18n="master"></span> <span class="val" id="vMaster">55%</span></label>
       <input id="sMaster" type="range" min="0" max="100" step="1" value="55"></div>
-    <div class="grp">Layers</div>
-    <div class="ctl"><label>Deep-space drone <span class="val" id="vL0">60%</span></label>
+    <div class="grp" data-i18n="layers"></div>
+    <div class="ctl"><label><span data-i18n="drone"></span> <span class="val" id="vL0">60%</span></label>
       <input id="sL0" type="range" min="0" max="100" step="1" value="60"></div>
-    <div class="ctl"><label>Solar wind <span class="val" id="vL1">45%</span></label>
+    <div class="ctl"><label><span data-i18n="wind"></span> <span class="val" id="vL1">45%</span></label>
       <input id="sL1" type="range" min="0" max="100" step="1" value="45"></div>
-    <div class="ctl"><label>Stardust chimes <span class="val" id="vL2">40%</span></label>
+    <div class="ctl"><label><span data-i18n="chimes"></span> <span class="val" id="vL2">40%</span></label>
       <input id="sL2" type="range" min="0" max="100" step="1" value="40"></div>
-    <div class="ctl"><label>Pulsar pulse <span class="val" id="vL3">0%</span></label>
+    <div class="ctl"><label><span data-i18n="pulsar"></span> <span class="val" id="vL3">0%</span></label>
       <input id="sL3" type="range" min="0" max="100" step="1" value="0"></div>
     <div class="toggles">
-      <div class="tg on" id="tReact"><span class="sw"></span>Follow the simulation <span class="dim">(zoom, tempo)</span></div>
+      <div class="tg on" id="tReact"><span class="sw"></span><span data-i18n="follow"></span> <span class="dim" data-i18n="zoomTempo"></span></div>
     </div>
   </div>
 </div>
@@ -240,6 +270,118 @@ const SEED=(()=>{const q=parseInt(QS.get("seed"),10);
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;
   let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
   return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ─────────────── translations (EN · HU · RO · DE) ─────────────── */
+const I18N={
+ en:{tabGal:"Galaxy",tabLook:"Visuals",tabSnd:"Sound",controls:"Controls",
+  sub:"Every star rides its own tilted orbit. The spiral is a traffic jam, not a structure.",
+  hubble:"Hubble type",bar:"Bar",winding:"Winding",arms:"Spiral arms",zoom:"Zoom",
+  speed:"Time speed",incl:"Inclination",presets:"Presets",
+  orbits:"Show orbits",material:"Material arms",windProb:"(the winding problem)",
+  palette:"Palette",autoSw:"Auto-switch",crossfade:"(with crossfade)",
+  colBoost:"Colour boost",nebDens:"Nebula density",
+  starsGrp:"Stars",starCount:"Star count",perfGuard:"Performance guard",auto:"(auto)",
+  supernovae:"Supernovae",parallax:"Parallax",mouseTilt:"(mouse / tilt)",band:"Milky Way band",
+  actions:"Actions",photo:"Photo (PNG)",copyLink:"Copy link",projector:"Projector",hideUI:"Hide UI",
+  sndSub:"A procedural cosmic soundscape — no audio files, every layer is generated live.",
+  enableSnd:"Enable sound",master:"Master volume",layers:"Layers",
+  drone:"Deep-space drone",wind:"Solar wind",chimes:"Stardust chimes",pulsar:"Pulsar pulse",
+  follow:"Follow the simulation",zoomTempo:"(zoom, tempo)",
+  caption:"If spiral arms were made of fixed matter, they would wind themselves out of existence within a few galactic rotations. They don't. Lindblad noticed this in 1925.",
+  hint:"H — hide UI · F — fullscreen · P — photo · Space — projector mode",
+  creditPre:"Made by",creditPost:"— source & download on GitHub ↗",
+  sndTitle:"Cosmic sound on/off",minTitle:"Minimise panel",restoreTitle:"Show controls",
+  pal_classic:"Classic",pal_indigo:"Indigo Dust",pal_gold:"Blue-Gold",pal_violet:"Violet Sea",
+  pre_andromeda:"Andromeda",pre_whirlpool:"Whirlpool M51",pre_barred:"Barred SBb",pre_pinwheel:"Pinwheel",
+  tGuard:"Performance guard: star count {n}",tSaved:"Image saved — {s}",
+  tLink:"Link copied — with every setting included",tCopy:"Copy the link:",
+  tProjOn:"Projector mode — exit with Space, Esc or a click",tProjOff:"Projector mode off",
+  tApplied:"{name} applied",tHidden:"UI hidden — press H to bring it back",
+  tNoAudio:"This browser does not support Web Audio",reducedMotion:"(reduced motion)"},
+
+ hu:{tabGal:"Galaxis",tabLook:"Látvány",tabSnd:"Hang",controls:"Vezérlők",
+  sub:"Minden csillag a saját, döntött pályáján kering. A spirál forgalmi dugó, nem szerkezet.",
+  hubble:"Hubble-típus",bar:"Küllő",winding:"Feltekeredés",arms:"Spirálkarok",zoom:"Zoom",
+  speed:"Idősebesség",incl:"Dőlésszög",presets:"Készletek",
+  orbits:"Pályák megjelenítése",material:"Anyagi karok",windProb:"(feltekeredési probléma)",
+  palette:"Színvilág",autoSw:"Automatikus váltás",crossfade:"(áttűnéssel)",
+  colBoost:"Színerősítés",nebDens:"Ködsűrűség",
+  starsGrp:"Csillagok",starCount:"Csillagszám",perfGuard:"Teljesítményőr",auto:"(auto)",
+  supernovae:"Szupernóvák",parallax:"Parallax",mouseTilt:"(egér / döntés)",band:"Tejút-sáv",
+  actions:"Műveletek",photo:"Fotó (PNG)",copyLink:"Link másolása",projector:"Vetítő",hideUI:"Felület el",
+  sndSub:"Procedurális kozmikus hangtér — nincs hangfájl, minden réteg élőben generálódik.",
+  enableSnd:"Hang bekapcsolása",master:"Fő hangerő",layers:"Rétegek",
+  drone:"Mélyűr-drón",wind:"Szoláris szél",chimes:"Csillagpor-csengők",pulsar:"Pulzár-lüktetés",
+  follow:"Kövesse a szimulációt",zoomTempo:"(zoom, tempó)",
+  caption:"Ha a spirálkarok rögzített anyagból állnának, néhány galaktikus fordulat alatt feltekerednék magukat a semmibe. Nem teszik. Lindblad 1925-ben figyelt fel erre.",
+  hint:"H — felület el/be · F — teljes képernyő · P — fotó · Space — vetítő mód",
+  creditPre:"Készítette:",creditPost:"— forráskód és letöltés a GitHubon ↗",
+  sndTitle:"Kozmikus hang be/ki",minTitle:"Panel kicsinyítése",restoreTitle:"Vezérlők megjelenítése",
+  pal_classic:"Klasszikus",pal_indigo:"Indigó por",pal_gold:"Kék-arany",pal_violet:"Ibolya-tenger",
+  pre_andromeda:"Androméda",pre_whirlpool:"Örvény M51",pre_barred:"Küllős SBb",pre_pinwheel:"Szélkerék",
+  tGuard:"Teljesítményőr: csillagszám {n}",tSaved:"Kép mentve — {s}",
+  tLink:"Link a vágólapon — minden beállítással",tCopy:"Másold ki a linket:",
+  tProjOn:"Vetítő mód — kilépés: Space, Esc vagy kattintás",tProjOff:"Vetítő mód kikapcsolva",
+  tApplied:"{name} beállítva",tHidden:"Felület elrejtve — H a visszahozáshoz",
+  tNoAudio:"A böngésző nem támogatja a Web Audiót",reducedMotion:"(csökkentett mozgás)"},
+
+ ro:{tabGal:"Galaxie",tabLook:"Aspect",tabSnd:"Sunet",controls:"Comenzi",
+  sub:"Fiecare stea își urmează propria orbită înclinată. Spirala este un ambuteiaj, nu o structură.",
+  hubble:"Tip Hubble",bar:"Bară",winding:"Înfășurare",arms:"Brațe spirale",zoom:"Zoom",
+  speed:"Viteza timpului",incl:"Înclinare",presets:"Presetări",
+  orbits:"Arată orbitele",material:"Brațe materiale",windProb:"(problema înfășurării)",
+  palette:"Paletă",autoSw:"Schimbare automată",crossfade:"(cu tranziție)",
+  colBoost:"Intensitate culori",nebDens:"Densitate nebuloase",
+  starsGrp:"Stele",starCount:"Număr de stele",perfGuard:"Protecție performanță",auto:"(auto)",
+  supernovae:"Supernove",parallax:"Paralaxă",mouseTilt:"(mouse / înclinare)",band:"Banda Căii Lactee",
+  actions:"Acțiuni",photo:"Foto (PNG)",copyLink:"Copiază linkul",projector:"Proiector",hideUI:"Ascunde UI",
+  sndSub:"Un peisaj sonor cosmic procedural — fără fișiere audio, fiecare strat este generat live.",
+  enableSnd:"Activează sunetul",master:"Volum principal",layers:"Straturi",
+  drone:"Dronă din spațiu",wind:"Vânt solar",chimes:"Clopoței de praf stelar",pulsar:"Puls de pulsar",
+  follow:"Urmează simularea",zoomTempo:"(zoom, tempo)",
+  caption:"Dacă brațele spirale ar fi făcute din materie fixă, s-ar înfășura până la dispariție în câteva rotații galactice. Nu o fac. Lindblad a observat asta în 1925.",
+  hint:"H — ascunde UI · F — ecran complet · P — foto · Space — mod proiector",
+  creditPre:"Realizat de",creditPost:"— sursă și descărcare pe GitHub ↗",
+  sndTitle:"Sunet cosmic pornit/oprit",minTitle:"Minimizează panoul",restoreTitle:"Arată comenzile",
+  pal_classic:"Clasic",pal_indigo:"Praf indigo",pal_gold:"Albastru-auriu",pal_violet:"Marea violetă",
+  pre_andromeda:"Andromeda",pre_whirlpool:"Vârtejul M51",pre_barred:"SBb cu bară",pre_pinwheel:"Morișca",
+  tGuard:"Protecție performanță: {n} stele",tSaved:"Imagine salvată — {s}",
+  tLink:"Link copiat — cu toate setările",tCopy:"Copiază linkul:",
+  tProjOn:"Mod proiector — ieșire cu Space, Esc sau clic",tProjOff:"Mod proiector oprit",
+  tApplied:"{name} aplicat",tHidden:"UI ascuns — apasă H pentru a-l readuce",
+  tNoAudio:"Acest browser nu suportă Web Audio",reducedMotion:"(mișcare redusă)"},
+
+ de:{tabGal:"Galaxie",tabLook:"Ansicht",tabSnd:"Klang",controls:"Steuerung",
+  sub:"Jeder Stern folgt seiner eigenen geneigten Bahn. Die Spirale ist ein Stau, keine Struktur.",
+  hubble:"Hubble-Typ",bar:"Balken",winding:"Aufwicklung",arms:"Spiralarme",zoom:"Zoom",
+  speed:"Zeitgeschwindigkeit",incl:"Neigung",presets:"Vorlagen",
+  orbits:"Bahnen zeigen",material:"Materielle Arme",windProb:"(das Aufwicklungsproblem)",
+  palette:"Palette",autoSw:"Autom. Wechsel",crossfade:"(mit Überblendung)",
+  colBoost:"Farbverstärkung",nebDens:"Nebeldichte",
+  starsGrp:"Sterne",starCount:"Sternenzahl",perfGuard:"Leistungswächter",auto:"(auto)",
+  supernovae:"Supernovae",parallax:"Parallaxe",mouseTilt:"(Maus / Neigung)",band:"Milchstraßenband",
+  actions:"Aktionen",photo:"Foto (PNG)",copyLink:"Link kopieren",projector:"Projektor",hideUI:"UI ausblenden",
+  sndSub:"Eine prozedurale kosmische Klangwelt — keine Audiodateien, jede Schicht entsteht live.",
+  enableSnd:"Ton einschalten",master:"Gesamtlautstärke",layers:"Ebenen",
+  drone:"Tiefraum-Drone",wind:"Sonnenwind",chimes:"Sternenstaub-Glocken",pulsar:"Pulsar-Puls",
+  follow:"Der Simulation folgen",zoomTempo:"(Zoom, Tempo)",
+  caption:"Wären die Spiralarme aus fester Materie, würden sie sich in wenigen galaktischen Umdrehungen selbst aufwickeln und verschwinden. Das tun sie nicht. Lindblad bemerkte das 1925.",
+  hint:"H — UI aus/ein · F — Vollbild · P — Foto · Space — Projektormodus",
+  creditPre:"Erstellt von",creditPost:"— Quellcode & Download auf GitHub ↗",
+  sndTitle:"Kosmischer Klang an/aus",minTitle:"Panel minimieren",restoreTitle:"Steuerung anzeigen",
+  pal_classic:"Klassisch",pal_indigo:"Indigostaub",pal_gold:"Blau-Gold",pal_violet:"Violettes Meer",
+  pre_andromeda:"Andromeda",pre_whirlpool:"Strudel M51",pre_barred:"Balken SBb",pre_pinwheel:"Feuerrad",
+  tGuard:"Leistungswächter: Sternenzahl {n}",tSaved:"Bild gespeichert — {s}",
+  tLink:"Link kopiert — mit allen Einstellungen",tCopy:"Link kopieren:",
+  tProjOn:"Projektormodus — Beenden mit Space, Esc oder Klick",tProjOff:"Projektormodus aus",
+  tApplied:"{name} angewendet",tHidden:"UI ausgeblendet — H holt es zurück",
+  tNoAudio:"Dieser Browser unterstützt Web Audio nicht",reducedMotion:"(reduzierte Bewegung)"}
+};
+const LOCALE={en:"en-US",hu:"hu-HU",ro:"ro-RO",de:"de-DE"};
+const stored=(()=>{try{return localStorage.getItem("dw-lang");}catch(e){return null;}})();
+const navLang=(navigator.language||"en").slice(0,2).toLowerCase();
+let LANG=(l=>I18N[l]?l:"en")((QS.get("lang")||stored||navLang||"en").toLowerCase());
+const t=k=>(I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;
 
 const $=id=>document.getElementById(id);
 const bgA=$("bgA"), bgB=$("bgB"), fx=$("fx"), captionEl=$("caption");
@@ -494,7 +636,7 @@ function setStars(n){
   NS=clamp(Math.round(n),L.min,L.max);
   NN=Math.round(NNMAX*NS/NSMAX); ND=Math.round(NDMAX*NS/NSMAX);
   const el=$("sStars"); el.min=L.min; el.max=L.max; el.value=NS;
-  $("vStars").textContent=NS.toLocaleString("en-US");
+  $("vStars").textContent=NS.toLocaleString(LOCALE[LANG]);
 }
 // more stars means more additive light: scale per-star brightness back down
 const starAlpha=()=>clamp(Math.pow(12000/Math.max(1,NS),0.4),0.42,1);
@@ -832,7 +974,7 @@ function frame(now){
       if(++fpsLow>=3){
         fpsLow=0;
         setStars(Math.max(starLimits().min,Math.round(NS*0.75)));
-        toast(`Performance guard: star count ${NS.toLocaleString("en-US")}`);
+        toast(t("tGuard").replace("{n}",NS.toLocaleString(LOCALE[LANG])));
       }
     }else fpsLow=0;
   }
@@ -845,7 +987,7 @@ const sound={
   init(){
     if(this.ac)return;
     const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC){toast("This browser does not support Web Audio");return;}
+    if(!AC){toast(t("tNoAudio"));return;}
     const ac=this.ac=new AC();
     const master=this.master=ac.createGain();
     master.gain.value=0;master.connect(ac.destination);
@@ -1002,7 +1144,7 @@ function savePNG(){
       const u=URL.createObjectURL(b), a=document.createElement("a");
       a.href=u;a.download=`density-wave-${curPal.id}-${out.width}x${out.height}.png`;
       a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);
-      toast(`Image saved — ${out.width}×${out.height}`);
+      toast(t("tSaved").replace("{s}",out.width+"×"+out.height));
     },"image/png");
   }finally{
     dpr=oldDpr;sizeCanvases();
@@ -1014,22 +1156,23 @@ function shareLink(){
   const q=new URLSearchParams({
     hub:P.hub.toFixed(2), bar:P.bar.toFixed(2), wind:P.wind.toFixed(1), arms:P.arms,
     zoom:Math.round(P.zoom*100), spd:P.speed.toFixed(2), inc:Math.round(P.incl),
-    stars:NS, pal:curPal.id, sat:Math.round((SAT-1)*100), neb:Math.round((AB-1)*100),
+    stars:NS, pal:curPal.id, sat:Math.round((SAT-1)*100), neb:Math.round((AB-1)*100), lang:LANG,
     auto:P.autoPal?1:0, sn:P.supernova?1:0,
     px:P.parallax?1:0, band:P.band?1:0, orb:P.orbits?1:0, mat:P.material?1:0, seed:SEED
   });
   const url=location.origin+location.pathname+"?"+q.toString();
-  const done=()=>toast("Link copied — with every setting included");
+  const done=()=>toast(t("tLink"));
   if(navigator.clipboard&&navigator.clipboard.writeText)
-    navigator.clipboard.writeText(url).then(done,()=>prompt("Copy the link:",url));
-  else prompt("Copy the link:",url);
+    navigator.clipboard.writeText(url).then(done,()=>prompt(t("tCopy"),url));
+  else prompt(t("tCopy"),url);
 }
 function setHide(v){document.body.classList.toggle("hideui",v);}
+function setMin(v){document.body.classList.toggle("min",v);}
 function setProj(v){
   proj=v;setHide(v);
   if(v){projT=0;P.autoPal=true;$("tAuto").classList.add("on");
-    toast("Projector mode — exit with Space, Esc or a click",3600);}
-  else{toast("Projector mode off");}
+    toast(t("tProjOn"),3600);}
+  else{toast(t("tProjOff"));}
 }
 function toggleFull(){
   if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
@@ -1038,15 +1181,29 @@ function toggleFull(){
 
 /* ─────────────── presets ─────────────── */
 const PRESETS=[
-  {name:"Andromeda", hub:0.42, wind:5.6, arms:2, inc:68, bar:0, zoom:0.9},
-  {name:"Whirlpool M51", hub:0.85, wind:3.4, arms:2, inc:18, bar:0, zoom:1.0},
-  {name:"Barred SBb", hub:0.5, wind:4.4, arms:2, inc:24, bar:0.85, zoom:0.85},
-  {name:"Pinwheel", hub:0.95, wind:3.0, arms:5, inc:12, bar:0.15, zoom:0.95}
+  {key:"andromeda", hub:0.42, wind:5.6, arms:2, inc:68, bar:0, zoom:0.9},
+  {key:"whirlpool", hub:0.85, wind:3.4, arms:2, inc:18, bar:0, zoom:1.0},
+  {key:"barred", hub:0.5, wind:4.4, arms:2, inc:24, bar:0.85, zoom:0.85},
+  {key:"pinwheel", hub:0.95, wind:3.0, arms:5, inc:12, bar:0.15, zoom:0.95}
 ];
 function applyPreset(p){
   P.hub=p.hub;P.wind=p.wind;P.arms=p.arms;P.incl=p.inc;P.bar=p.bar;P.zoom=p.zoom;
   buildCDF();refreshEcc();syncUI();scheduleSprites();
-  toast(p.name+" applied");
+  toast(t("tApplied").replace("{name}",t("pre_"+p.key)));
+}
+
+/* ─────────────── language switch ─────────────── */
+function applyLang(l){
+  LANG=I18N[l]?l:"en";
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
+  document.querySelectorAll("[data-i18n-title]").forEach(e=>{
+    e.title=t(e.dataset.i18nTitle);e.setAttribute("aria-label",t(e.dataset.i18nTitle));});
+  document.querySelectorAll("#langs button").forEach(b=>b.classList.toggle("on",b.dataset.l===LANG));
+  setStars(NS||starLimits().def);          // re-format the number for the locale
+  syncUI();
+  if(reduced)$("vSpd").textContent="0.0× "+t("reducedMotion");
+  try{localStorage.setItem("dw-lang",LANG);}catch(e){}
 }
 
 /* ─────────────── user interface ─────────────── */
@@ -1079,7 +1236,8 @@ function buildPaletteUI(){
   PALETTES.forEach(p=>{
     const b=document.createElement("button");
     b.dataset.p=p.id;
-    b.innerHTML=`<span class="dot" style="background:${p.dot};color:${p.dot}"></span>${p.name}`;
+    b.innerHTML=`<span class="dot" style="background:${p.dot};color:${p.dot}"></span>`+
+      `<span data-i18n="pal_${p.id}"></span>`;
     b.addEventListener("click",()=>{
       if(p===curPal&&!nextPal)return;
       if(nextPal)finishPalette();
@@ -1091,7 +1249,8 @@ function buildPaletteUI(){
   const pw=$("presets");
   PRESETS.forEach(p=>{
     const b=document.createElement("button");
-    b.innerHTML=`<span class="dot" style="background:rgba(127,212,255,.5);color:#7fd4ff"></span>${p.name}`;
+    b.innerHTML=`<span class="dot" style="background:rgba(127,212,255,.5);color:#7fd4ff"></span>`+
+      `<span data-i18n="pre_${p.key}"></span>`;
     b.addEventListener("click",()=>applyPreset(p));
     pw.appendChild(b);
   });
@@ -1123,6 +1282,10 @@ function bindUI(){
   wireToggle("tFps","fpsGuard");
   $("tSound").addEventListener("click",()=>sound.toggle());
   $("sndBtn").addEventListener("click",()=>sound.toggle());
+  document.querySelectorAll("#langs button").forEach(b=>
+    b.addEventListener("click",()=>applyLang(b.dataset.l)));
+  $("minBtn").addEventListener("click",()=>setMin(true));
+  $("restoreBtn").addEventListener("click",()=>setMin(false));
   $("tReact").addEventListener("click",()=>{sound.react=!sound.react;$("tReact").classList.toggle("on",sound.react);});
   const vol=(id,lab,fn)=>$(id).addEventListener("input",e=>{
     const v=+e.target.value;$(lab).textContent=v+"%";fn(v/100);sound.applyVol();});
@@ -1134,7 +1297,7 @@ function bindUI(){
   $("bShot").addEventListener("click",()=>{setHide(true);setTimeout(()=>{savePNG();setTimeout(()=>setHide(false),400);},60);});
   $("bLink").addEventListener("click",shareLink);
   $("bProj").addEventListener("click",()=>setProj(true));
-  $("bHide").addEventListener("click",()=>{setHide(true);toast("UI hidden — press H to bring it back");});
+  $("bHide").addEventListener("click",()=>{setHide(true);toast(t("tHidden"));});
   $("drawerBtn").addEventListener("click",()=>$("panel").classList.toggle("open"));
   document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
     document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
@@ -1159,7 +1322,7 @@ function bindUI(){
     if(!P.parallax||e.gamma==null)return;
     paraTX=clamp(e.gamma/30,-1,1);paraTY=clamp((e.beta-45)/30,-1,1);
   });
-  if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× (reduced motion)";}
+  if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× "+t("reducedMotion");}
 }
 
 /* background parallax (opposite direction → sense of depth) */
@@ -1172,7 +1335,7 @@ function parallaxBG(){
 
 /* ─────────────── boot ─────────────── */
 buildPaletteUI();bindUI();
-readDPR();resize();populate();buildSets();syncUI();armDprWatch();
+readDPR();resize();populate();buildSets();applyLang(LANG);armDprWatch();
 palTimer=110+Math.random()*70;
 addEventListener("resize",resize);
 requestAnimationFrame(parallaxBG);
@@ -1188,6 +1351,7 @@ window.__DW={P,SN,get g(){return curG();},get dpr(){return dpr;},
   get boost(){return{sat:Math.round((SAT-1)*100),neb:Math.round((AB-1)*100)};},
   setBoost:(s,n)=>{if(s!=null)SAT=1+clamp(s,0,25)/100;if(n!=null)AB=1+clamp(n,0,25)/100;
     applyBoost();buildSets();drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);syncUI();},
+  get lang(){return LANG;}, setLang:applyLang, langs:Object.keys(I18N),
   setPal:id=>startPalette(PALETTES[palIdx(id)]), setStars, sound, savePNG,
   get limits(){return starLimits();}};
 })();
