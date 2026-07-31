@@ -1,132 +1,323 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Density Wave — a spiral galaxy from nested orbits</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Density Wave — spirálgalaxis a pályák rendjéből</title>
+<meta name="description" content="Interaktív spirálgalaxis-szimuláció a sűrűséghullám-elmélet alapján: színpaletták, kozmikus hanggenerátor, szupernóvák, fotó mód.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2305070d'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23ffd9a8'/%3E%3Cpath d='M50,50 C64,46 72,56 68,68' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3Cpath d='M50,50 C36,54 28,44 32,32' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
 <style>
-  html,body{margin:0;height:100%;background:#05070d;overflow:hidden;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#e8eef7}
-  a{color:#7fd4ff}a:hover{color:#aee4ff}
+  html,body{margin:0;height:100%;background:#05070d;overflow:hidden;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#e8eef7;
+    -webkit-tap-highlight-color:transparent}
   #wrap{position:fixed;inset:0;opacity:0;transition:opacity 2s ease}
   #wrap.on{opacity:1}
-  canvas.layer{position:absolute;inset:0;width:100%;height:100%;display:block}
-  /* glass panel */
+  canvas.layer{position:absolute;inset:0;width:100%;height:100%;display:block;
+    will-change:transform;transition:opacity 4.5s ease}
+  #bgB{opacity:0}
+
+  /* ---------- glass panel ---------- */
   #panel{
-    position:fixed;right:22px;bottom:22px;width:264px;z-index:10;
+    position:fixed;right:22px;bottom:22px;width:290px;z-index:10;
     background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.045));
     border:1px solid rgba(255,255,255,.10);border-radius:20px;
     backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
     box-shadow:0 18px 50px -18px rgba(0,0,0,.75);
-    padding:18px 18px 16px;
-  }
+    padding:16px 16px 14px;transition:opacity .4s ease,transform .35s ease;
+    max-height:calc(100vh - 44px);display:flex;flex-direction:column}
   #panel h1{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:.02em}
-  #panel .sub{margin:0 0 12px;font-size:11px;color:rgba(232,238,247,.55);line-height:1.35}
+  #panel .sub{margin:0 0 11px;font-size:11px;color:rgba(232,238,247,.55);line-height:1.35}
   .ctl{margin:9px 0}
   .ctl label{display:flex;justify-content:space-between;font-size:11px;color:rgba(232,238,247,.8);margin-bottom:3px}
   .ctl label .val{color:rgba(232,238,247,.5);font-variant-numeric:tabular-nums}
-  input[type=range]{width:100%;height:18px;margin:0;accent-color:#7fd4ff;background:transparent}
-  .seg{display:flex;gap:6px}
-  .seg button{flex:1;font:600 11px inherit;color:rgba(232,238,247,.75);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px 0;cursor:pointer}
+  input[type=range]{width:100%;height:20px;margin:0;accent-color:#7fd4ff;background:transparent;cursor:pointer}
+  .seg{display:flex;gap:5px}
+  .seg button{flex:1;font:600 11px inherit;color:rgba(232,238,247,.75);background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px 0;cursor:pointer;transition:.15s}
+  .seg button:hover{background:rgba(255,255,255,.12)}
   .seg button.on{background:rgba(127,212,255,.22);border-color:rgba(127,212,255,.55);color:#dff3ff}
-  .toggles{display:flex;flex-direction:column;gap:7px;margin:12px 0 10px}
-  .tg{display:flex;align-items:center;gap:9px;font-size:11.5px;cursor:pointer;user-select:none}
-  .tg .sw{width:30px;height:17px;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);position:relative;transition:background .25s;flex:none}
-  .tg .sw::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#cfd9e6;transition:transform .25s}
+  .toggles{display:flex;flex-direction:column;gap:7px;margin:11px 0 4px}
+  .tg{display:flex;align-items:center;gap:9px;font-size:11.5px;cursor:pointer;user-select:none;color:rgba(232,238,247,.85)}
+  .tg .sw{width:30px;height:17px;border-radius:9px;background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.18);position:relative;transition:background .25s;flex:none}
+  .tg .sw::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;
+    background:#cfd9e6;transition:transform .25s}
   .tg.on .sw{background:rgba(127,212,255,.55)}
   .tg.on .sw::after{transform:translateX(13px);background:#fff}
+  .dim{color:rgba(232,238,247,.45)}
+
+  /* tabs */
+  #tabs{display:flex;gap:5px;margin:0 0 10px}
+  #tabs button{flex:1;font:600 11px inherit;color:rgba(232,238,247,.7);background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:6px 0;cursor:pointer;transition:.15s}
+  #tabs button.on{background:rgba(127,212,255,.20);border-color:rgba(127,212,255,.5);color:#dff3ff}
+  .page{display:none;overflow-y:auto;overscroll-behavior:contain;padding-right:2px}
+  .page.on{display:block}
+  .page::-webkit-scrollbar{width:5px}
+  .page::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:3px}
+  .grp{margin:12px 0 4px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(232,238,247,.4)}
+  .grp:first-child{margin-top:2px}
+  .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .btns button{flex:1 1 auto;min-width:76px;font:600 11px inherit;color:rgba(232,238,247,.82);
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:9px;
+    padding:7px 8px;cursor:pointer;transition:.15s}
+  .btns button:hover{background:rgba(127,212,255,.18);border-color:rgba(127,212,255,.4)}
+  .pal{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .pal button{display:flex;align-items:center;gap:7px;font:600 10.5px inherit;color:rgba(232,238,247,.78);
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);border-radius:9px;
+    padding:6px 7px;cursor:pointer;text-align:left;transition:.15s}
+  .pal button.on{border-color:rgba(127,212,255,.6);background:rgba(127,212,255,.16);color:#e8f6ff}
+  .pal .dot{width:13px;height:13px;border-radius:50%;flex:none;box-shadow:0 0 7px -1px currentColor}
+
+  /* caption + toast + hint */
   #caption{position:fixed;left:50%;bottom:46px;transform:translateX(-50%);max-width:520px;text-align:center;
     font-size:14px;line-height:1.5;color:rgba(255,220,180,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;padding:0 20px;z-index:9;text-wrap:pretty}
   #caption.on{opacity:1}
+  #toast{position:fixed;left:50%;top:24px;transform:translate(-50%,-14px);z-index:20;
+    background:rgba(12,18,32,.72);border:1px solid rgba(255,255,255,.13);border-radius:11px;
+    backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);
+    padding:9px 16px;font-size:12px;color:#e8eef7;opacity:0;pointer-events:none;
+    transition:opacity .3s ease,transform .3s ease;box-shadow:0 12px 30px -12px rgba(0,0,0,.8)}
+  #toast.on{opacity:1;transform:translate(-50%,0)}
+  #hint{position:fixed;left:20px;bottom:20px;z-index:9;font-size:11px;color:rgba(232,238,247,.34);
+    opacity:0;transition:opacity .6s ease;pointer-events:none}
+  #hint.on{opacity:1}
+  #sndBtn{position:fixed;left:20px;top:20px;z-index:11;width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.05));
+    border:1px solid rgba(255,255,255,.14);color:#e8eef7;font-size:16px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    display:flex;align-items:center;justify-content:center;transition:.2s;
+    box-shadow:0 10px 26px -12px rgba(0,0,0,.8)}
+  #sndBtn:hover{background:rgba(127,212,255,.22);border-color:rgba(127,212,255,.5)}
+  #sndBtn.on{background:rgba(127,212,255,.26);border-color:rgba(127,212,255,.6)}
+  body.hideui #panel,body.hideui #hint,body.hideui #sndBtn{opacity:0;pointer-events:none}
+
   #drawerBtn{display:none}
   @media (max-width:700px){
     #panel{left:0;right:0;bottom:0;width:auto;border-radius:16px 16px 0 0;
       backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
-      box-shadow:0 12px 32px -14px rgba(0,0,0,.7);padding:0 16px 14px;
-      transform:translateY(calc(100% - 42px));transition:transform .35s ease}
+      box-shadow:0 12px 32px -14px rgba(0,0,0,.7);padding:0 14px 12px;
+      max-height:82vh;transform:translateY(calc(100% - 44px));transition:transform .35s ease,opacity .4s ease}
     #panel.open{transform:translateY(0)}
-    #drawerBtn{display:flex;width:100%;height:42px;align-items:center;justify-content:center;gap:8px;
-      background:none;border:0;color:#e8eef7;font:600 12px inherit;cursor:pointer;letter-spacing:.04em}
+    #panel h1,#panel .sub{display:none}
+    #drawerBtn{display:flex;width:100%;height:44px;align-items:center;justify-content:center;gap:8px;
+      background:none;border:0;color:#e8eef7;font:600 12px inherit;cursor:pointer;letter-spacing:.04em;flex:none}
     #drawerBtn .chev{transition:transform .35s}
     #panel.open #drawerBtn .chev{transform:rotate(180deg)}
-    #caption{bottom:56px;font-size:12.5px}
-    #panel h1{font-size:14px}
+    .page{max-height:58vh}
+    #caption{bottom:64px;font-size:12.5px}
+    #hint{display:none}
+    #sndBtn{width:38px;height:38px;left:14px;top:14px}
   }
+  @media (prefers-reduced-motion: reduce){canvas.layer{transition:none}}
 </style>
 </head>
 <body>
 <div id="wrap">
-  <canvas id="bg" class="layer"></canvas>
+  <canvas id="bgA" class="layer"></canvas>
+  <canvas id="bgB" class="layer"></canvas>
   <canvas id="fx" class="layer"></canvas>
 </div>
-<div id="caption">If spiral arms were made of fixed matter, they would wind themselves out of existence within a few galactic rotations. They don't. Lindblad noticed this in 1925.</div>
+
+<div id="caption">Ha a spirálkarok rögzített anyagból állnának, néhány galaktikus fordulat alatt feltekerednék magukat a semmibe. Nem teszik. Lindblad 1925-ben figyelt fel erre.</div>
+<div id="toast"></div>
+<div id="hint">H — felület el/be · F — teljes képernyő · P — fotó · Space — vetítő mód</div>
+<button id="sndBtn" title="Kozmikus hang be/ki" aria-label="Hang be/ki">🔈</button>
+
 <div id="panel">
-  <button id="drawerBtn">Controls <span class="chev">▴</span></button>
+  <button id="drawerBtn">Vezérlők <span class="chev">▴</span></button>
   <h1>Density Wave</h1>
-  <p class="sub">Every star rides its own tilted orbit. The spiral is a traffic jam, not a structure.</p>
-  <div class="ctl"><label>Hubble type <span class="val" id="vHub">Sb</span></label>
-    <input id="sHub" type="range" min="0" max="1" step="0.01" value="0.5"></div>
-  <div class="ctl"><label>Zoom <span class="val" id="vZoom">80%</span></label>
-    <input id="sZoom" type="range" min="20" max="200" step="5" value="80"></div>
-  <div class="ctl"><label>Winding <span class="val" id="vWind">5.0</span></label>
-    <input id="sWind" type="range" min="2" max="9" step="0.1" value="5"></div>
-  <div class="ctl"><label>Spiral arms</label>
-    <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button><button data-m="6">6</button></div></div>
-  <div class="ctl"><label>Time speed <span class="val" id="vSpd">1.0×</span></label>
-    <input id="sSpd" type="range" min="0.02" max="3" step="0.02" value="1"></div>
-  <div class="ctl"><label>Inclination <span class="val" id="vInc">0°</span></label>
-    <input id="sInc" type="range" min="0" max="80" step="1" value="0"></div>
-  <div class="toggles">
-    <div class="tg" id="tOrbits"><span class="sw"></span>Show orbits</div>
-    <div class="tg" id="tMat"><span class="sw"></span>Material arms <span style="color:rgba(232,238,247,.45)">(the winding problem)</span></div>
+  <p class="sub">Minden csillag a saját, döntött pályáján kering. A spirál forgalmi dugó, nem szerkezet.</p>
+
+  <div id="tabs">
+    <button data-t="gal" class="on">Galaxis</button>
+    <button data-t="look">Látvány</button>
+    <button data-t="snd">Hang</button>
+  </div>
+
+  <!-- ============ GALAXIS ============ -->
+  <div class="page on" data-t="gal">
+    <div class="ctl"><label>Hubble-típus <span class="val" id="vHub">Sb</span></label>
+      <input id="sHub" type="range" min="0" max="1" step="0.01" value="0.5"></div>
+    <div class="ctl"><label>Küllő (bar) <span class="val" id="vBar">0%</span></label>
+      <input id="sBar" type="range" min="0" max="100" step="5" value="0"></div>
+    <div class="ctl"><label>Feltekeredés <span class="val" id="vWind">5.0</span></label>
+      <input id="sWind" type="range" min="2" max="9" step="0.1" value="5"></div>
+    <div class="ctl"><label>Spirálkarok</label>
+      <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button><button data-m="6">6</button></div></div>
+    <div class="ctl"><label>Zoom <span class="val" id="vZoom">80%</span></label>
+      <input id="sZoom" type="range" min="20" max="200" step="5" value="80"></div>
+    <div class="ctl"><label>Idősebesség <span class="val" id="vSpd">1.0×</span></label>
+      <input id="sSpd" type="range" min="0" max="3" step="0.02" value="1"></div>
+    <div class="ctl"><label>Dőlésszög <span class="val" id="vInc">0°</span></label>
+      <input id="sInc" type="range" min="0" max="80" step="1" value="0"></div>
+    <div class="grp">Készletek</div>
+    <div class="pal" id="presets"></div>
+    <div class="toggles">
+      <div class="tg" id="tOrbits"><span class="sw"></span>Pályák megjelenítése</div>
+      <div class="tg" id="tMat"><span class="sw"></span>Anyagi karok <span class="dim">(feltekeredési probléma)</span></div>
+    </div>
+  </div>
+
+  <!-- ============ LÁTVÁNY ============ -->
+  <div class="page" data-t="look">
+    <div class="grp">Színvilág</div>
+    <div class="pal" id="palettes"></div>
+    <div class="toggles" style="margin-top:9px">
+      <div class="tg on" id="tAuto"><span class="sw"></span>Automatikus váltás <span class="dim">(áttűnéssel)</span></div>
+    </div>
+    <div class="grp">Csillagok</div>
+    <div class="ctl"><label>Csillagszám <span class="val" id="vStars">12 000</span></label>
+      <input id="sStars" type="range" min="3000" max="30000" step="500" value="12000"></div>
+    <div class="toggles">
+      <div class="tg on" id="tFps"><span class="sw"></span>Teljesítményőr <span class="dim">(auto)</span></div>
+      <div class="tg on" id="tSN"><span class="sw"></span>Szupernóvák</div>
+      <div class="tg on" id="tPar"><span class="sw"></span>Parallax <span class="dim">(egér / döntés)</span></div>
+      <div class="tg on" id="tBand"><span class="sw"></span>Tejút-sáv a háttérben</div>
+    </div>
+    <div class="grp">Műveletek</div>
+    <div class="btns">
+      <button id="bShot">📷 Fotó (PNG)</button>
+      <button id="bLink">🔗 Link másolása</button>
+      <button id="bProj">🎬 Vetítő mód</button>
+      <button id="bHide">👁 Felület el</button>
+    </div>
+  </div>
+
+  <!-- ============ HANG ============ -->
+  <div class="page" data-t="snd">
+    <p class="sub" style="margin:2px 0 10px">Procedurális kozmikus hangtér — nincs hangfájl, minden élőben generálódik.</p>
+    <div class="toggles" style="margin-top:0">
+      <div class="tg" id="tSound"><span class="sw"></span>Hang bekapcsolása</div>
+    </div>
+    <div class="ctl"><label>Fő hangerő <span class="val" id="vMaster">55%</span></label>
+      <input id="sMaster" type="range" min="0" max="100" step="1" value="55"></div>
+    <div class="grp">Rétegek</div>
+    <div class="ctl"><label>Mélyűr-drón <span class="val" id="vL0">60%</span></label>
+      <input id="sL0" type="range" min="0" max="100" step="1" value="60"></div>
+    <div class="ctl"><label>Szoláris szél <span class="val" id="vL1">45%</span></label>
+      <input id="sL1" type="range" min="0" max="100" step="1" value="45"></div>
+    <div class="ctl"><label>Csillagpor-csengők <span class="val" id="vL2">40%</span></label>
+      <input id="sL2" type="range" min="0" max="100" step="1" value="40"></div>
+    <div class="ctl"><label>Pulzár-lüktetés <span class="val" id="vL3">0%</span></label>
+      <input id="sL3" type="range" min="0" max="100" step="1" value="0"></div>
+    <div class="toggles">
+      <div class="tg on" id="tReact"><span class="sw"></span>Kövesse a szimulációt <span class="dim">(zoom, tempó)</span></div>
+    </div>
   </div>
 </div>
+
 <script>
 (function(){
 "use strict";
+/* ══════════════════════════════════════════════════════════════════
+   Density Wave — spiral galaxy from nested orbits
+   Minden kirajzolt elem mérete a galaxis léptékéből származik (g=scl/REF),
+   ezért a kép böngésző-zoomtól, ablakmérettől és DPI-től független.
+   ══════════════════════════════════════════════════════════════════ */
 const TAU=Math.PI*2, clamp=(x,a,b)=>x<a?a:x>b?b:x, lerp=(a,b,t)=>a+(b-a)*t;
 const smooth=(a,b,x)=>{x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x);};
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const QS=new URLSearchParams(location.search);
-const FREEZE=QS.has("freeze");             // test hook: static frame
+const FREEZE=QS.has("freeze");                       // teszt: állókép
+const qnum=(k,d)=>{const v=parseFloat(QS.get(k));return Number.isFinite(v)?v:d;};
+const qbool=(k,d)=>{const v=QS.get(k);return v===null?d:(v==="1"||v==="true");};
 const SEED=(()=>{const q=parseInt(QS.get("seed"),10);
   return Number.isFinite(q)&&q!==0?q:(Math.random()*0x7fffffff)|0;})();
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;
   let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
   return((t^t>>>14)>>>0)/4294967296;};}
-const bg=document.getElementById("bg"), fx=document.getElementById("fx");
-const captionEl=document.getElementById("caption");
-const bctx=bg.getContext("2d"), ctx=fx.getContext("2d");
+
+const $=id=>document.getElementById(id);
+const bgA=$("bgA"), bgB=$("bgB"), fx=$("fx"), captionEl=$("caption");
+const actx=bgA.getContext("2d"), bctx2=bgB.getContext("2d"), ctx=fx.getContext("2d");
+let bgFront=bgA, bgBack=bgB, bgFrontCtx=actx, bgBackCtx=bctx2;
 let W=0,H=0,CX=0,CY=0,SC=1,dpr=1;
 const readDPR=()=>{dpr=clamp(devicePixelRatio||1,0.25,4);};
 
-/* ---------- parameters ---------- */
+/* ─────────────── színpaletták (a referencia-fotók hangulatából) ─────────────── */
+const PALETTES=[
+  { id:"classic", name:"Klasszikus", dot:"#7fd4ff",
+    bg:"#060913",
+    clouds:["60,110,220","70,160,230","110,90,220","150,110,230","40,80,180"],
+    heart:"170,210,255", patch:"5,6,14",
+    band:{glow:"70,120,210", warm:"150,170,220", dust:"6,8,18", star:"210,225,255"},
+    starTint:[1,1,1],
+    neb:[[70,110,225],[55,160,225],[225,120,65],[175,85,225]],
+    hii:[255,80,165], dust:[38,24,16],
+    core:[255,225,180], halo:[255,208,155] },
+
+  { id:"indigo", name:"Indigó por", dot:"#8f8bff",
+    bg:"#05060f",
+    clouds:["48,60,185","74,62,205","112,72,196","64,84,190","38,48,150"],
+    heart:"150,165,255", patch:"6,5,16",
+    band:{glow:"70,66,190", warm:"150,120,175", dust:"9,7,20", star:"225,230,255"},
+    starTint:[0.93,0.96,1.09],
+    neb:[[62,74,205],[96,74,214],[152,92,200],[70,102,192]],
+    hii:[232,112,196], dust:[30,20,36],
+    core:[255,236,214], halo:[214,196,255] },
+
+  { id:"gold", name:"Kék-arany", dot:"#ffcf7a",
+    bg:"#050c14",
+    clouds:["40,130,185","60,175,205","152,120,72","205,162,92","30,108,160"],
+    heart:"180,225,255", patch:"4,8,14",
+    band:{glow:"46,140,180", warm:"205,164,96", dust:"8,9,12", star:"200,232,255"},
+    starTint:[1.08,1.01,0.9],
+    neb:[[50,152,202],[62,182,212],[222,162,80],[190,120,60]],
+    hii:[255,124,142], dust:[42,28,13],
+    core:[255,220,158], halo:[255,196,120] },
+
+  { id:"violet", name:"Ibolya-tenger", dot:"#c78bff",
+    bg:"#0a0518",
+    clouds:["132,72,212","172,82,222","112,60,192","202,92,202","92,60,172"],
+    heart:"215,180,255", patch:"9,5,20",
+    band:{glow:"140,78,210", warm:"206,140,220", dust:"12,6,24", star:"235,220,255"},
+    starTint:[1.05,0.9,1.12],
+    neb:[[142,82,226],[180,92,220],[212,102,182],[122,72,212]],
+    hii:[255,92,204], dust:[34,18,42],
+    core:[255,216,236], halo:[236,170,232] }
+];
+const palIdx=id=>Math.max(0,PALETTES.findIndex(p=>p.id===id));
+
+/* ─────────────── paraméterek ─────────────── */
 const P={
-  hub:0.5, wind:5, arms:2, speed:(reduced||FREEZE)?0:1, incl:0, zoom:0.80,
-  orbits:false, material:false
+  hub:clamp(qnum("hub",0.5),0,1),
+  bar:clamp(qnum("bar",0),0,1),
+  wind:clamp(qnum("wind",5),2,9),
+  arms:clamp(Math.round(qnum("arms",2)),1,6),
+  speed:(reduced||FREEZE)?0:clamp(qnum("spd",1),0,3),
+  incl:clamp(qnum("inc",0),0,80),
+  zoom:clamp(qnum("zoom",80),20,200)/100,
+  orbits:qbool("orb",false), material:qbool("mat",false),
+  autoPal:qbool("auto",true), supernova:qbool("sn",true),
+  parallax:qbool("px",true), band:qbool("band",true), fpsGuard:qbool("fps",true)
 };
-// REF: galaxy radius (px) at which the base sprite sizes look right.
-// Everything drawn is scaled by g = scl/REF, so the star-to-galaxy ratio —
-// and with it the additive-blend density — is identical at every browser
-// zoom, window size and DPI.
-const REF=700;
-const VMAX=0.0733;           // rad-units/s at flat part → ~60 s rotation at r=0.7
-const RC=0.26;               // rotation-curve turnover radius
-const vOf=r=>VMAX*r/Math.sqrt(r*r+RC*RC);
+let curPal=PALETTES[QS.get("pal")?palIdx(QS.get("pal")):0];
+let nextPal=null, palMix=0;                   // paletta-áttűnés 0→1
+
+const REF=700;                                // referencia galaxis-sugár (px)
+const VMAX=0.0733, RC=0.26;
 const omOf=r=>VMAX/Math.sqrt(r*r+RC*RC);
 const bulgeR=()=>lerp(0.42,0.16,P.hub);
 const windEff=()=>P.wind*lerp(1.3,0.72,P.hub);
 const EMAX=0.42;
 function eccOf(a){
   const ab=bulgeR();
-  let e=EMAX*smooth(0,ab*1.15,a);             // rise through bulge
-  e*=1-0.35*smooth(ab*1.6,1.05,a)*(1-smooth(1.05,1.35,a)); // dip mid-disk
-  e*=1-smooth(1.15,1.62,a);                   // circular again in halo
-  return e;
+  let e=EMAX*smooth(0,ab*1.15,a);
+  e*=1-0.35*smooth(ab*1.6,1.05,a)*(1-smooth(1.05,1.35,a));
+  e*=1-smooth(1.15,1.62,a);
+  return e+P.bar*0.30*(1-smooth(0.05,barR()*1.25,a));   // küllő: nyújtottabb belső pályák
+}
+const barR=()=>0.10+P.bar*0.55;
+/* A küllő úgy születik, hogy a belső pályák NEM csavarodnak el egymáshoz
+   képest (közös nagytengely), a külső korong viszont a szokásos módon. */
+function tiltOf(a,wnd){
+  const t=smooth(barR()*0.35,barR()*1.25,a);
+  return lerp(barR()*wnd*0.15,a*wnd,lerp(1,t,P.bar));
 }
 
-/* ---------- radial sampler: de Vaucouleurs bulge + exponential disk ---------- */
+/* ─────────────── sugár-eloszlás ─────────────── */
 let CDF=null;
 function buildCDF(){
   const N=768, Rmax=1.62, Re=bulgeR()*0.7, Rd=0.45;
@@ -147,12 +338,9 @@ function sampleR(rnd){
   return (lo+rnd())/CDF.length*CDF.Rmax;
 }
 
-/* ---------- sprites ----------
-   Base sizes are in "reference px" (valid when g=1). Bitmaps are rebuilt at
-   the current scale × devicePixelRatio, so they stay crisp at any zoom. */
+/* ─────────────── sprite-ok (lépték- és DPI-követő) ─────────────── */
 const TEMPS=[[255,158,78],[255,184,108],[255,205,148],[255,226,190],[255,244,234],[222,234,255],[178,206,255],[142,180,255]];
 const STAR_SZ=[5,9,15], NEB_SZ=[70,110,150], HII_SZ=[8,12,17,23,30,38], DUST_SZ=[26,40];
-const nebCols=[[70,110,225],[55,160,225],[225,120,65],[175,85,225]];
 function glowSprite(px,r,g,b,coreA,midA){
   const c=document.createElement("canvas");c.width=c.height=px;
   const x=c.getContext("2d"),h=px/2;
@@ -162,53 +350,64 @@ function glowSprite(px,r,g,b,coreA,midA){
   gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
   x.fillStyle=gr;x.fillRect(0,0,px,px);return c;
 }
-function dustSpriteImg(px){
+function darkSprite(px,r,g,b){
   const c=document.createElement("canvas");c.width=c.height=px;
   const x=c.getContext("2d"),h=px/2;
   const gr=x.createRadialGradient(h,h,0,h,h,h);
-  gr.addColorStop(0,"rgba(38,24,16,0.42)");gr.addColorStop(0.6,"rgba(38,24,16,0.2)");gr.addColorStop(1,"rgba(38,24,16,0)");
+  gr.addColorStop(0,`rgba(${r},${g},${b},0.42)`);
+  gr.addColorStop(0.6,`rgba(${r},${g},${b},0.2)`);
+  gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
   x.fillStyle=gr;x.fillRect(0,0,px,px);return c;
 }
-let starSpr,nebSpr,hiiSpr,dustSpr,coreSpr,coreHalo;
-let sprG=1;                  // scale the current sprite set was built for
+let sprG=1;
 const curG=()=>SC*P.zoom/REF;
-function buildSprites(){
-  sprG=Math.max(0.05,curG());
-  // css is derived back from the device size so a settled draw is an exact
-  // 1:1 pixel blit (fast path, no resampling)
+function buildSet(pal){
   const dev=v=>Math.max(2,Math.round(Math.max(1.2,v*sprG)*dpr));
   const mk=(base,r,g,b,cA,mA)=>{const d=dev(base);return{img:glowSprite(d,r,g,b,cA,mA),css:d/dpr};};
-  starSpr=TEMPS.map(([r,g,b])=>STAR_SZ.map((s,i)=>mk(s,r,g,b,i===2?0.95:0.8,0.5)));
-  nebSpr=nebCols.map(([r,g,b])=>NEB_SZ.map(s=>mk(s,r,g,b,0.05,0.038)));
-  hiiSpr=HII_SZ.map(s=>mk(s,255,80,165,0.5,0.3));
-  dustSpr=DUST_SZ.map(s=>{const d=dev(s);return{img:dustSpriteImg(d),css:d/dpr};});
-  coreSpr=mk(80,255,225,180,0.78,0.3);
-  coreHalo=mk(300,255,208,155,0.11,0.06);
+  const t=pal.starTint;
+  const tt=c=>[clamp(c[0]*t[0],0,255)|0,clamp(c[1]*t[1],0,255)|0,clamp(c[2]*t[2],0,255)|0];
+  return {
+    star:TEMPS.map(c=>{const[r,g,b]=tt(c);return STAR_SZ.map((s,i)=>mk(s,r,g,b,i===2?0.95:0.8,0.5));}),
+    neb:pal.neb.map(([r,g,b])=>NEB_SZ.map(s=>mk(s,r,g,b,0.05,0.038))),
+    hii:HII_SZ.map(s=>mk(s,pal.hii[0],pal.hii[1],pal.hii[2],0.5,0.3)),
+    dust:DUST_SZ.map(s=>{const d=dev(s);return{img:darkSprite(d,pal.dust[0],pal.dust[1],pal.dust[2]),css:d/dpr};}),
+    core:mk(80,pal.core[0],pal.core[1],pal.core[2],0.78,0.3),
+    halo:mk(300,pal.halo[0],pal.halo[1],pal.halo[2],0.11,0.06),
+    flash:mk(160,255,246,225,0.95,0.5)
+  };
+}
+let setA=null,setB=null;
+function buildSets(){
+  sprG=Math.max(0.05,curG());
+  setA=buildSet(curPal);
+  setB=nextPal?buildSet(nextPal):null;
 }
 let sprTimer=0;
 function scheduleSprites(){
   clearTimeout(sprTimer);
-  sprTimer=setTimeout(()=>{if(Math.abs(curG()/sprG-1)>0.02)buildSprites();},120);
+  sprTimer=setTimeout(()=>{if(Math.abs(curG()/sprG-1)>0.02)buildSets();},120);
 }
 
-/* ---------- populations (flat typed arrays) ---------- */
-let NS=0, sA,sE,sPhi,sZ,sT,sSz,sJit;
-let NN=0, nA,nE,nPhi,nZ,nCol,nSz;
+/* ─────────────── populációk ─────────────── */
+let NSMAX=0,NS=0, sA,sE,sPhi,sZ,sT,sSz,sJit;
+let NNMAX=0,NN=0, nA,nE,nPhi,nZ,nCol,nSz;
 let NH=0, hA,hE,hPhi,hZ,hSeed;
-let ND=0, dA,dE,dPhi,dZ,dSz,dJit;
-function starBudget(){
-  // screen.* is device-based, so browser zoom cannot flip the tier
-  const sw=screen.width||innerWidth;
-  return sw<600?5000:sw<1000?9000:12000;
+let NDMAX=0,ND=0, dA,dE,dPhi,dZ,dSz,dJit;
+const isSmall=()=>(screen.width||innerWidth)<600;
+const isMed=()=>(screen.width||innerWidth)<1000;
+function starLimits(){
+  if(isSmall())return{min:3000,max:20000,def:5000};
+  if(isMed())return{min:3000,max:25000,def:9000};
+  return{min:5000,max:30000,def:12000};
 }
 function populate(){
   buildCDF();
   const rnd=mulberry32(SEED^0x1b873593);
-  NS=starBudget(); const f=NS/11000;
-  NN=Math.round(400*f); NH=120; ND=Math.round(1500*f);
-  sA=new Float32Array(NS);sE=new Float32Array(NS);sPhi=new Float32Array(NS);sZ=new Float32Array(NS);
-  sT=new Uint8Array(NS);sSz=new Uint8Array(NS);sJit=new Float32Array(NS);
-  for(let i=0;i<NS;i++){
+  const L=starLimits();
+  NSMAX=L.max; NNMAX=Math.round(400*NSMAX/11000); NDMAX=Math.round(1500*NSMAX/11000); NH=120;
+  sA=new Float32Array(NSMAX);sE=new Float32Array(NSMAX);sPhi=new Float32Array(NSMAX);sZ=new Float32Array(NSMAX);
+  sT=new Uint8Array(NSMAX);sSz=new Uint8Array(NSMAX);sJit=new Float32Array(NSMAX);
+  for(let i=0;i<NSMAX;i++){
     const a=sampleR(rnd);sA[i]=a;sE[i]=eccOf(a);sPhi[i]=rnd()*TAU;
     sZ[i]=(rnd()+rnd()+rnd()-1.5)*0.045*(1+a*0.4);
     sJit[i]=(rnd()-0.5)*0.32;
@@ -216,9 +415,9 @@ function populate(){
     sT[i]=Math.min(7,t*8|0);
     const u=rnd();sSz[i]=u>0.985?2:u>0.86?1:0;
   }
-  nA=new Float32Array(NN);nE=new Float32Array(NN);nPhi=new Float32Array(NN);nZ=new Float32Array(NN);
-  nCol=new Uint8Array(NN);nSz=new Uint8Array(NN);
-  for(let i=0;i<NN;i++){
+  nA=new Float32Array(NNMAX);nE=new Float32Array(NNMAX);nPhi=new Float32Array(NNMAX);nZ=new Float32Array(NNMAX);
+  nCol=new Uint8Array(NNMAX);nSz=new Uint8Array(NNMAX);
+  for(let i=0;i<NNMAX;i++){
     const a=0.12+Math.pow(rnd(),0.8)*1.3;
     nA[i]=a;nE[i]=eccOf(a);nPhi[i]=rnd()*TAU;nZ[i]=(rnd()-0.5)*0.05;
     nCol[i]=a<0.35?2:(rnd()*4|0);nSz[i]=rnd()*3|0;
@@ -228,235 +427,700 @@ function populate(){
     const a=0.25+Math.pow(rnd(),0.75)*1.15;
     hA[i]=a;hE[i]=eccOf(a);hPhi[i]=rnd()*TAU;hZ[i]=(rnd()-0.5)*0.04;hSeed[i]=rnd();
   }
-  dA=new Float32Array(ND);dE=new Float32Array(ND);dPhi=new Float32Array(ND);dZ=new Float32Array(ND);dSz=new Uint8Array(ND);dJit=new Float32Array(ND);
-  for(let i=0;i<ND;i++){
+  dA=new Float32Array(NDMAX);dE=new Float32Array(NDMAX);dPhi=new Float32Array(NDMAX);dZ=new Float32Array(NDMAX);
+  dSz=new Uint8Array(NDMAX);dJit=new Float32Array(NDMAX);
+  for(let i=0;i<NDMAX;i++){
     const a=0.2+Math.pow(rnd(),0.85)*1.2;
     dA[i]=a;dE[i]=eccOf(a);dPhi[i]=rnd()*TAU;dZ[i]=(rnd()-0.5)*0.03;dSz[i]=rnd()*2|0;dJit[i]=(rnd()-0.5)*0.25;
   }
+  setStars(clamp(qnum("stars",L.def),L.min,L.max));
 }
+/* A teljes populáció egyszer készül el; a csúszka csak azt szabja meg,
+   hányat rajzolunk ki belőle → azonnali reakció, nincs újrasorsolás. */
+function setStars(n){
+  const L=starLimits();
+  NS=clamp(Math.round(n),L.min,L.max);
+  NN=Math.round(NNMAX*NS/NSMAX); ND=Math.round(NDMAX*NS/NSMAX);
+  const el=$("sStars"); el.min=L.min; el.max=L.max; el.value=NS;
+  $("vStars").textContent=NS.toLocaleString("hu-HU");
+}
+// több csillag = additívan több fény: a csillagonkénti fényerőt visszavesszük
+const starAlpha=()=>clamp(Math.pow(12000/Math.max(1,NS),0.4),0.42,1);
 function refreshEcc(){
-  for(let i=0;i<NS;i++)sE[i]=eccOf(sA[i]);
-  for(let i=0;i<NN;i++)nE[i]=eccOf(nA[i]);
+  for(let i=0;i<NSMAX;i++)sE[i]=eccOf(sA[i]);
+  for(let i=0;i<NNMAX;i++)nE[i]=eccOf(nA[i]);
   for(let i=0;i<NH;i++)hE[i]=eccOf(hA[i]);
-  for(let i=0;i<ND;i++)dE[i]=eccOf(dA[i]);
+  for(let i=0;i<NDMAX;i++)dE[i]=eccOf(dA[i]);
 }
 
-/* ---------- background layer (static, seeded → stable across resizes) ---------- */
-function drawBG(){
+/* ─────────────── háttérréteg (statikus, seedelt) ─────────────── */
+function drawBG(c,pal){
   const rnd=mulberry32(SEED^0x85ebca6b);
-  const bs=clamp(Math.min(W,H)/1080,0.5,3);   // background feature scale
-  bctx.setTransform(dpr,0,0,dpr,0,0);
-  bctx.fillStyle="#060913";bctx.fillRect(0,0,W,H);
+  const bs=clamp(Math.min(W,H)/1080,0.5,3);
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.globalAlpha=1;c.globalCompositeOperation="source-over";
+  c.fillStyle=pal.bg;c.fillRect(0,0,W,H);
   const blob=(x,y,r,col,a)=>{
-    const gr=bctx.createRadialGradient(x,y,0,x,y,r);
+    const gr=c.createRadialGradient(x,y,0,x,y,r);
     gr.addColorStop(0,`rgba(${col},${a})`);gr.addColorStop(1,`rgba(${col},0)`);
-    bctx.fillStyle=gr;bctx.beginPath();bctx.arc(x,y,r,0,TAU);bctx.fill();
+    c.fillStyle=gr;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
   };
-  bctx.globalCompositeOperation="lighter";
-  const cols=["60,110,220","70,160,230","110,90,220","150,110,230","40,80,180"];
-  // two broad diagonal bands of cloud
+  c.globalCompositeOperation="lighter";
   for(let b=0;b<2;b++){
     const bx=W*(b?0.72:0.25), by=H*(b?0.3:0.72);
     for(let i=0;i<70;i++){
       const t=rnd(),ang=rnd()*TAU;
       const d=Math.pow(rnd(),0.6)*Math.min(W,H)*0.45;
-      const x=bx+Math.cos(ang)*d*1.3, y=by+Math.sin(ang)*d*0.7;
-      blob(x,y,(30+t*140)*bs,cols[rnd()*cols.length|0],0.02+rnd()*0.035);
+      blob(bx+Math.cos(ang)*d*1.3, by+Math.sin(ang)*d*0.7,(30+t*140)*bs,
+           pal.clouds[rnd()*pal.clouds.length|0],0.02+rnd()*0.035);
     }
-    // bright cloud hearts
-    for(let i=0;i<8;i++)blob(bx+(rnd()-0.5)*W*0.2,by+(rnd()-0.5)*H*0.2,(20+rnd()*60)*bs,"170,210,255",0.04+rnd()*0.05);
+    for(let i=0;i<8;i++)
+      blob(bx+(rnd()-0.5)*W*0.2,by+(rnd()-0.5)*H*0.2,(20+rnd()*60)*bs,pal.heart,0.04+rnd()*0.05);
   }
-  bctx.globalCompositeOperation="source-over";
-  // dark dust patches over the clouds
+  if(P.band)drawBand(c,pal,rnd,bs,blob);
+  c.globalCompositeOperation="source-over";
   for(let i=0;i<26;i++){
     const x=rnd()*W,y=rnd()*H,r=(25+rnd()*90)*bs;
-    const gr=bctx.createRadialGradient(x,y,0,x,y,r);
-    gr.addColorStop(0,"rgba(5,6,14,0.30)");gr.addColorStop(1,"rgba(5,6,14,0)");
-    bctx.fillStyle=gr;bctx.beginPath();bctx.arc(x,y,r,0,TAU);bctx.fill();
+    const gr=c.createRadialGradient(x,y,0,x,y,r);
+    gr.addColorStop(0,`rgba(${pal.patch},0.30)`);gr.addColorStop(1,`rgba(${pal.patch},0)`);
+    c.fillStyle=gr;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
   }
-  // dense star scatter
+  const [sr,sg,sb]=pal.band.star.split(",").map(Number);
   for(let i=0;i<Math.min(1600,W*H/1100);i++){
-    const x=rnd()*W,y=rnd()*H,m=rnd();
-    const warm=rnd()<0.15;
-    bctx.fillStyle=warm?`rgba(255,${185+rnd()*40|0},140,${0.2+m*m*0.6})`:
-      `rgba(${190+rnd()*65|0},${205+rnd()*50|0},255,${0.15+m*m*0.6})`;
+    const x=rnd()*W,y=rnd()*H,m=rnd(), warm=rnd()<0.15;
+    c.fillStyle=warm?`rgba(255,${185+rnd()*40|0},140,${0.2+m*m*0.6})`:
+      `rgba(${clamp(sr-30+rnd()*60,0,255)|0},${clamp(sg-25+rnd()*50,0,255)|0},${sb},${0.15+m*m*0.6})`;
     const sz=(m>0.95?1.7:1)*bs;
-    bctx.fillRect(x,y,sz,sz);
+    c.fillRect(x,y,sz,sz);
   }
-  // a few bigger glowing foreground stars
-  for(let i=0;i<14;i++){
-    const x=rnd()*W,y=rnd()*H;
-    blob(x,y,(3+rnd()*5)*bs,rnd()<0.3?"255,210,160":"200,225,255",0.5);
-  }
-  for(let g=0;g<3;g++){
+  c.globalCompositeOperation="lighter";
+  for(let i=0;i<14;i++)blob(rnd()*W,rnd()*H,(3+rnd()*5)*bs,rnd()<0.3?"255,210,160":pal.band.star,0.5);
+  for(let g=0;g<3;g++){   // távoli galaxisok
     const x=rnd()*W,y=rnd()*H*0.7,s=(9+rnd()*13)*bs,rot=rnd()*TAU;
-    bctx.save();bctx.translate(x,y);bctx.rotate(rot);bctx.scale(1,0.38);
-    const gr=bctx.createRadialGradient(0,0,0,0,0,s);
-    gr.addColorStop(0,"rgba(220,215,255,0.30)");gr.addColorStop(0.4,"rgba(180,170,230,0.12)");gr.addColorStop(1,"rgba(180,170,230,0)");
-    bctx.fillStyle=gr;bctx.beginPath();bctx.arc(0,0,s,0,TAU);bctx.fill();bctx.restore();
+    c.save();c.translate(x,y);c.rotate(rot);c.scale(1,0.38);
+    const gr=c.createRadialGradient(0,0,0,0,0,s);
+    gr.addColorStop(0,"rgba(220,215,255,0.30)");gr.addColorStop(0.4,"rgba(180,170,230,0.12)");
+    gr.addColorStop(1,"rgba(180,170,230,0)");
+    c.fillStyle=gr;c.beginPath();c.arc(0,0,s,0,TAU);c.fill();c.restore();
   }
+  c.globalCompositeOperation="source-over";
+}
+/* Tejút-sáv: átlós, sűrű csillagfolyam meleg maggal és sötét porcsíkokkal —
+   a referencia-fotók mélységét adja a háttérnek. */
+function drawBand(c,pal,rnd,bs,blob){
+  const ang=-0.34+ (rnd()-0.5)*0.25, len=Math.hypot(W,H)*0.75, sig=Math.min(W,H)*0.16;
+  const gauss=()=>(rnd()+rnd()+rnd()+rnd()-2)*0.5;
+  c.save();c.translate(W/2,H*0.52);c.rotate(ang);
+  for(let i=0;i<150;i++){                        // ködös derengés
+    const x=(rnd()-0.5)*len*2, y=gauss()*sig*2.2;
+    blob(x+W/2*0-0,y,(40+rnd()*150)*bs*0.9,rnd()<0.35?pal.band.warm:pal.band.glow,0.018+rnd()*0.03);
+  }
+  const [sr,sg,sb]=pal.band.star.split(",").map(Number);
+  const n=Math.min(2600,W*H/700);
+  for(let i=0;i<n;i++){                          // sűrű csillagfolyam
+    const x=(rnd()-0.5)*len*2, y=gauss()*sig*1.5, m=rnd();
+    const w=rnd()<0.22;
+    c.fillStyle=w?`rgba(255,${200+rnd()*40|0},${150+rnd()*50|0},${0.18+m*m*0.55})`
+                 :`rgba(${sr},${sg},${sb},${0.14+m*m*0.5})`;
+    const s=(m>0.97?1.8:0.9)*bs;
+    c.fillRect(x,y,s,s);
+  }
+  c.globalCompositeOperation="source-over";
+  for(let i=0;i<22;i++){                          // sötét porcsíkok a sávban
+    const x=(rnd()-0.5)*len*1.7, y=gauss()*sig*0.8;
+    const rx=(60+rnd()*220)*bs, ry=(8+rnd()*30)*bs;
+    c.save();c.translate(x,y);c.rotate((rnd()-0.5)*0.5);c.scale(1,ry/rx);
+    const gr=c.createRadialGradient(0,0,0,0,0,rx);
+    gr.addColorStop(0,`rgba(${pal.band.dust},0.55)`);gr.addColorStop(1,`rgba(${pal.band.dust},0)`);
+    c.fillStyle=gr;c.beginPath();c.arc(0,0,rx,0,TAU);c.fill();c.restore();
+  }
+  c.globalCompositeOperation="lighter";
+  c.restore();
 }
 
-/* ---------- layout ---------- */
+/* ─────────────── elrendezés ─────────────── */
+function sizeCanvases(){
+  for(const c of [bgA,bgB,fx]){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);}
+}
 function resize(){
-  W=innerWidth;H=innerHeight;
-  readDPR();                                  // page zoom changes devicePixelRatio
-  for(const c of [bg,fx]){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);}
+  W=innerWidth;H=innerHeight;readDPR();
+  sizeCanvases();
   CX=W/2;CY=H/2;SC=Math.min(W,H)*0.42;
-  drawBG();
+  drawBG(bgFrontCtx,curPal);
+  if(palMix>0&&nextPal)drawBG(bgBackCtx,nextPal);
   scheduleSprites();
 }
-// robust zoom / monitor-DPI change detection (resize alone can miss some)
-function armDprWatch(){
+function armDprWatch(){          // lap-zoom / kijelzőváltás pontos követése
   const mq=matchMedia(`(resolution: ${devicePixelRatio}dppx)`);
   const h=()=>{mq.removeEventListener("change",h);resize();armDprWatch();};
   mq.addEventListener("change",h);
 }
 
-/* ---------- state for effects ---------- */
-let windup=0;          // material-arms accumulated differential time
-let orbitA=0, matOn=0; // animated 0..1
-let simT=0, lastT=0;
+/* ─────────────── állapot ─────────────── */
+let windup=0, orbitA=0, matOn=0, simT=0, lastT=0;
+let paraX=0,paraY=0,paraTX=0,paraTY=0;
+let palTimer=0;
+const SN=[];                      // aktív szupernóvák
+let snTimer=8+Math.random()*14;
+let proj=false, projT=0, projUI=0;
 
-/* ---------- main draw ---------- */
-function frame(now){
-  requestAnimationFrame(frame);
-  const dt=Math.min(0.05,(now-lastT)/1000||0);lastT=now;
+/* ─────────────── szimuláció léptetése ─────────────── */
+function step(dt){
   const sdt=dt*P.speed;
   simT+=sdt;
-  // material arms wind-up: accumulate while on, unwind when off
-  if(P.material)windup+=sdt;
-  else windup+=(0-windup)*Math.min(1,dt*1.6);
+  if(P.material)windup+=sdt; else windup+=(0-windup)*Math.min(1,dt*1.6);
   matOn+=((P.material?1:0)-matOn)*Math.min(1,dt*2);
   orbitA+=((P.orbits?1:0)-orbitA)*Math.min(1,dt*2.5);
   captionEl.classList.toggle("on",P.material&&windup>6);
 
+  for(let i=0;i<NS;i++)sPhi[i]+=omOf(sA[i])*sdt;
+  for(let i=0;i<NN;i++)nPhi[i]+=omOf(nA[i])*sdt;
+  for(let i=0;i<NH;i++)hPhi[i]+=omOf(hA[i])*sdt;
+  for(let i=0;i<ND;i++)dPhi[i]+=omOf(dA[i])*sdt;
+
+  paraX+=(paraTX-paraX)*Math.min(1,dt*2.4);
+  paraY+=(paraTY-paraY)*Math.min(1,dt*2.4);
+
+  // paletta-áttűnés
+  if(nextPal){
+    palMix=Math.min(1,palMix+dt/4.5);
+    if(palMix>=1)finishPalette();
+  }else if(P.autoPal&&!FREEZE){
+    palTimer-=dt;
+    if(palTimer<=0)startPalette(PALETTES[(PALETTES.indexOf(curPal)+1+((Math.random()*3)|0))%PALETTES.length]);
+  }
+  // szupernóvák
+  if(P.supernova&&!FREEZE&&P.speed>0){
+    snTimer-=dt*Math.max(0.3,P.speed);
+    if(snTimer<=0&&SN.length<4){
+      snTimer=9+Math.random()*16;
+      let idx=(Math.random()*NS)|0, guard=0;
+      while(sA[idx]<0.25&&guard++<20)idx=(Math.random()*NS)|0;
+      SN.push({i:idx,t:0});
+      if(sound.on)sound.boom();
+    }
+  }
+  for(let i=SN.length-1;i>=0;i--){SN[i].t+=dt;if(SN[i].t>3.4)SN.splice(i,1);}
+
+  if(proj){                       // vetítő mód: lassú kamera-utazás
+    projT+=dt;
+    P.zoom=clamp(0.8+0.55*Math.sin(projT*0.08),0.2,2);
+    P.incl=clamp(28+26*Math.sin(projT*0.031+1.1),0,80);
+    scheduleSprites();
+    if((projUI-=dt)<=0){projUI=0.25;syncUI();}   // UI-frissítés ritkítva
+  }
+}
+function startPalette(p){
+  if(!p||p===curPal||nextPal)return;
+  nextPal=p;palMix=0;
+  setB=buildSet(nextPal);
+  drawBG(bgBackCtx,nextPal);
+  bgBack.style.opacity="1";
+  markPalette(p);
+}
+function finishPalette(){
+  curPal=nextPal;nextPal=null;palMix=0;setA=setB;setB=null;
+  // szerepcsere: a most látható lesz az elülső réteg
+  const tf=bgFront,tc=bgFrontCtx;
+  bgFront=bgBack;bgFrontCtx=bgBackCtx;bgBack=tf;bgBackCtx=tc;
+  bgBack.style.transition="none";bgBack.style.opacity="0";
+  requestAnimationFrame(()=>{bgBack.style.transition="";});
+  bgFront.style.transition="none";bgFront.style.opacity="1";
+  palTimer=110+Math.random()*70;
+  markPalette(curPal);
+}
+
+/* ─────────────── rajzolás ─────────────── */
+function drawScene(c){
   const m=P.arms, wnd=windEff();
-  const cosI=Math.cos(P.incl*Math.PI/180), sinI=Math.sin(P.incl*Math.PI/180);
-  // breathing / drift
+  const cosI=Math.cos(P.incl*Math.PI/180), sinI=Math.sin(P.incl*Math.PI/180), ci=Math.abs(cosI);
   const br=(reduced||FREEZE)?0:1;
   const scl=SC*P.zoom*(1+0.006*Math.sin(simT*0.11)*br);
-  const g=scl/REF;
-  // sprite sizes follow the settled scale only (breathing moves positions,
-  // not sizes) so a settled frame blits sprites 1:1 with no resampling
-  const gk=curG()/sprG;
-  const cx=CX+4*g*Math.sin(simT*0.05)*br, cy=CY+3*g*Math.cos(simT*0.043)*br;
-  // per-bucket draw sizes, hoisted out of the hot loops
-  const starDS=starSpr.map(t=>t.map(b=>b.css*gk));
-  const nebDS=nebSpr.map(t=>t.map(b=>b.css*gk));
-  const hiiDS=hiiSpr.map(b=>b.css*gk);
-  const dustDS=dustSpr.map(b=>b.css*gk);
+  const g=scl/REF, gk=curG()/sprG;
+  const cx=CX+(4*Math.sin(simT*0.05)*br+paraX*3)*g, cy=CY+(3*Math.cos(simT*0.043)*br+paraY*3)*g;
 
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,W,H);
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.clearRect(0,0,W,H);
+  c.globalCompositeOperation="lighter";
 
-  /* nebulae + stars + HII : additive */
-  ctx.globalCompositeOperation="lighter";
-  ctx.globalAlpha=1;
-  const ci=Math.abs(cosI);
-  // core bloom
-  {
-    const hs=coreHalo.css*gk, cs=coreSpr.css*gk;
-    ctx.drawImage(coreHalo.img,cx-hs/2,cy-hs*ci/2,hs,hs*ci+1);
-    ctx.drawImage(coreSpr.img,cx-cs/2,cy-cs*ci/2,cs,cs*ci+1);
+  const mixed=nextPal!==null&&setB!==null;
+  const passes=mixed?[[setA,1-palMix],[setB,palMix]]:[[setA,1]];
+  const hot=mixed&&palMix>0.5?setB:setA;              // csillag/por: váltás félidőben
+
+  /* mag */
+  for(const [S,w] of passes){
+    c.globalAlpha=w;
+    const hs=S.halo.css*gk, cs=S.core.css*gk;
+    c.drawImage(S.halo.img,cx-hs/2,cy-hs*ci/2,hs,hs*ci+1);
+    c.drawImage(S.core.img,cx-cs/2,cy-cs*ci/2,cs,cs*ci+1);
   }
 
+  /* ködök */
   const hubNebA=lerp(1,0.75,P.hub);
-  ctx.globalAlpha=hubNebA;
-  for(let i=0;i<NN;i++){
-    const a=nA[i],om=omOf(a);nPhi[i]+=om*sdt;
-    const tilt=a*wnd+windup*om*matOn;
-    const r=a*(1-nE[i]*Math.cos(m*(nPhi[i]-tilt)));
-    const px=cx+r*Math.cos(nPhi[i])*scl, py=cy+(r*Math.sin(nPhi[i])*cosI+nZ[i]*sinI)*scl;
-    const c=nCol[i],z=nSz[i],s=nebDS[c][z];
-    ctx.drawImage(nebSpr[c][z].img,px-s/2,py-s/2,s,s);
+  const nebM=NEB_SZ[NEB_SZ.length-1]*curG();
+  for(const [S,w] of passes){
+    c.globalAlpha=hubNebA*w;
+    const DS=S.neb.map(t=>t.map(b=>b.css*gk));
+    for(let i=0;i<NN;i++){
+      const a=nA[i], tilt=tiltOf(a,wnd)+windup*omOf(a)*matOn;
+      const r=a*(1-nE[i]*Math.cos(m*(nPhi[i]-tilt)));
+      const px=cx+r*Math.cos(nPhi[i])*scl, py=cy+(r*Math.sin(nPhi[i])*cosI+nZ[i]*sinI)*scl;
+      if(px<-nebM||px>W+nebM||py<-nebM||py>H+nebM)continue;
+      const col=nCol[i],z=nSz[i],s=DS[col][z];
+      c.drawImage(S.neb[col][z].img,px-s/2,py-s/2,s,s);
+    }
   }
-  ctx.globalAlpha=1;
+
+  /* csillagok — a képernyőn kívülieket kihagyjuk (nagy zoomnál sokat számít) */
+  c.globalAlpha=starAlpha();
+  const starDS=hot.star.map(t=>t.map(b=>b.css*gk));
+  const starM=STAR_SZ[STAR_SZ.length-1]*curG()+2;
   for(let i=0;i<NS;i++){
-    const a=sA[i],om=omOf(a);sPhi[i]+=om*sdt;
-    const tilt=a*wnd+sJit[i]+windup*om*matOn;
+    const a=sA[i], tilt=tiltOf(a,wnd)+sJit[i]+windup*omOf(a)*matOn;
     const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
     const px=cx+r*Math.cos(sPhi[i])*scl, py=cy+(r*Math.sin(sPhi[i])*cosI+sZ[i]*sinI)*scl;
+    if(px<-starM||px>W+starM||py<-starM||py>H+starM)continue;
     const t=sT[i],z=sSz[i],s=starDS[t][z];
-    ctx.drawImage(starSpr[t][z].img,px-s/2,py-s/2,s,s);
-  }
-  // H-II regions: size follows local density-wave compression
-  const hiiScale=lerp(1.1,0.55,P.hub);
-  for(let i=0;i<NH;i++){
-    const a=hA[i],om=omOf(a);hPhi[i]+=om*sdt;
-    const tilt=a*wnd+windup*om*matOn;
-    const ph=hPhi[i]-tilt;
-    const r=a*(1-hE[i]*Math.cos(m*ph));
-    const comp=Math.cos(m*ph)*0.5+0.5;             // 1 inside arm crest
-    const k=smooth(0.62,1,comp)*hiiScale*(0.6+hSeed[i]*0.7);
-    if(k<0.12)continue;
-    const idx=Math.min(HII_SZ.length-1,(k*HII_SZ.length)|0);
-    const s=hiiDS[idx];
-    const px=cx+r*Math.cos(hPhi[i])*scl, py=cy+(r*Math.sin(hPhi[i])*cosI+hZ[i]*sinI)*scl;
-    ctx.drawImage(hiiSpr[idx].img,px-s/2,py-s/2,s,s);
+    c.drawImage(hot.star[t][z].img,px-s/2,py-s/2,s,s);
   }
 
-  /* dust lanes: multiply pass, hugging inner edge of arms */
-  ctx.globalCompositeOperation="multiply";
+  /* H-II régiók: a sűrűséghullám torlódásában gyúlnak ki */
+  const hiiScale=lerp(1.1,0.55,P.hub);
+  for(const [S,w] of passes){
+    c.globalAlpha=w;
+    const DS=S.hii.map(b=>b.css*gk);
+    for(let i=0;i<NH;i++){
+      const a=hA[i], tilt=tiltOf(a,wnd)+windup*omOf(a)*matOn, ph=hPhi[i]-tilt;
+      const comp=Math.cos(m*ph)*0.5+0.5;
+      const k=smooth(0.62,1,comp)*hiiScale*(0.6+hSeed[i]*0.7);
+      if(k<0.12)continue;
+      const r=a*(1-hE[i]*Math.cos(m*ph));
+      const idx=Math.min(HII_SZ.length-1,(k*HII_SZ.length)|0), s=DS[idx];
+      const px=cx+r*Math.cos(hPhi[i])*scl, py=cy+(r*Math.sin(hPhi[i])*cosI+hZ[i]*sinI)*scl;
+      if(px<-s||px>W+s||py<-s||py>H+s)continue;
+      c.drawImage(S.hii[idx].img,px-s/2,py-s/2,s,s);
+    }
+  }
+
+  /* szupernóvák */
+  if(SN.length){
+    c.globalAlpha=1;
+    for(const s of SN){
+      const i=s.i, a=sA[i], tilt=tiltOf(a,wnd)+sJit[i]+windup*omOf(a)*matOn;
+      const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
+      const px=cx+r*Math.cos(sPhi[i])*scl, py=cy+(r*Math.sin(sPhi[i])*cosI+sZ[i]*sinI)*scl;
+      const t=s.t/3.4, fade=Math.pow(1-t,2.2), flare=Math.exp(-s.t*3.1);
+      const fs=hot.flash.css*gk*(0.35+flare*1.5);
+      c.globalAlpha=clamp(0.35+flare,0,1);
+      c.drawImage(hot.flash.img,px-fs/2,py-fs*ci/2,fs,fs*ci+1);
+      c.globalAlpha=fade*0.55;                       // táguló lökéshullám
+      c.strokeStyle="rgba(190,225,255,1)";
+      c.lineWidth=Math.max(0.6,2.4*g*fade);
+      c.beginPath();c.ellipse(px,py,0.115*t*scl,0.115*t*scl*ci,0,0,TAU);c.stroke();
+    }
+  }
+
+  /* porsávok: multiply, a kar belső élén */
+  c.globalCompositeOperation="multiply";
   const dustA=lerp(1,0.35,P.hub), dOff=0.6/m;
+  const dustDS=hot.dust.map(b=>b.css*gk);
   for(let i=0;i<ND;i++){
-    const a=dA[i],om=omOf(a);dPhi[i]+=om*sdt;
-    const tilt=a*wnd+dJit[i]+windup*om*matOn;
-    const ph=dPhi[i]-tilt;
+    const a=dA[i], tilt=tiltOf(a,wnd)+dJit[i]+windup*omOf(a)*matOn, ph=dPhi[i]-tilt;
     const comp=Math.cos(m*(ph+dOff))*0.5+0.5;
     if(comp<0.72)continue;
     const r=a*(1-dE[i]*Math.cos(m*ph));
     const px=cx+r*Math.cos(dPhi[i])*scl, py=cy+(r*Math.sin(dPhi[i])*cosI+dZ[i]*sinI)*scl;
     const z=dSz[i],s=dustDS[z];
-    ctx.globalAlpha=dustA*smooth(0.72,1,comp);
-    ctx.drawImage(dustSpr[z].img,px-s/2,py-s/2,s,s);
+    if(px<-s||px>W+s||py<-s||py>H+s)continue;
+    c.globalAlpha=dustA*smooth(0.72,1,comp);
+    c.drawImage(hot.dust[z].img,px-s/2,py-s/2,s,s);
   }
-  ctx.globalAlpha=1;
-  ctx.globalCompositeOperation="source-over";
+  c.globalAlpha=1;c.globalCompositeOperation="source-over";
 
-  /* orbit overlay */
+  /* pályák */
   if(orbitA>0.01){
-    ctx.strokeStyle=`rgba(190,215,240,${0.16*orbitA})`;
-    ctx.lineWidth=Math.max(0.4,g);
+    c.strokeStyle=`rgba(190,215,240,${0.16*orbitA})`;
+    c.lineWidth=Math.max(0.4,g);
     for(let k=0;k<26;k++){
-      const a=0.1+k/25*1.4, e=eccOf(a), om=omOf(a);
-      const tilt=a*wnd+windup*om*matOn;
-      ctx.beginPath();
+      const a=0.1+k/25*1.4, e=eccOf(a), tilt=tiltOf(a,wnd)+windup*omOf(a)*matOn;
+      c.beginPath();
       for(let j=0;j<=90;j++){
-        const th=j/90*TAU;
-        const r=a*(1-e*Math.cos(m*(th-tilt)));
+        const th=j/90*TAU, r=a*(1-e*Math.cos(m*(th-tilt)));
         const x=cx+r*Math.cos(th)*scl, y=cy+r*Math.sin(th)*cosI*scl;
-        j?ctx.lineTo(x,y):ctx.moveTo(x,y);
+        j?c.lineTo(x,y):c.moveTo(x,y);
       }
-      ctx.stroke();
+      c.stroke();
     }
   }
 }
 
-/* ---------- controls ---------- */
-const $=id=>document.getElementById(id);
-const hubName=t=>t<0.2?"Sa":t<0.4?"Sab":t<0.6?"Sb":t<0.8?"Sbc":"Sc";
-$("sHub").addEventListener("input",e=>{P.hub=+e.target.value;$("vHub").textContent=hubName(P.hub);buildCDF();refreshEcc();});
-$("sHub").addEventListener("change",()=>populate());
-$("sZoom").addEventListener("input",e=>{const p=+e.target.value;P.zoom=p/100;$("vZoom").textContent=p+"%";scheduleSprites();});
-$("sWind").addEventListener("input",e=>{P.wind=+e.target.value;$("vWind").textContent=P.wind.toFixed(1);});
-$("sSpd").addEventListener("input",e=>{P.speed=+e.target.value;$("vSpd").textContent=P.speed.toFixed(1)+"×";});
-$("sInc").addEventListener("input",e=>{P.incl=+e.target.value;$("vInc").textContent=P.incl+"°";});
-document.querySelectorAll("#segArms button").forEach(b=>b.addEventListener("click",()=>{
-  P.arms=+b.dataset.m;
-  document.querySelectorAll("#segArms button").forEach(x=>x.classList.toggle("on",x===b));
-}));
-function wireToggle(id,key){$(id).addEventListener("click",()=>{P[key]=!P[key];$(id).classList.toggle("on",P[key]);});}
-wireToggle("tOrbits","orbits");wireToggle("tMat","material");
-$("drawerBtn").addEventListener("click",()=>$("panel").classList.toggle("open"));
-if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× (reduced motion)";}
+/* ─────────────── fő ciklus + teljesítményőr ─────────────── */
+let fpsT0=0,fpsN=0,fpsLow=0;
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt=Math.min(0.05,(now-lastT)/1000||0);lastT=now;
+  step(dt);
+  drawScene(ctx);
+  if(sound.on)sound.tick();
 
-/* ---------- boot ---------- */
+  // valós eltelt idővel mérünk: a szimulációs dt felül van vágva, abból
+  // hamis (mindig 20-as) fps jönne ki akadás közben
+  if(!fpsT0)fpsT0=now;
+  fpsN++;
+  const el=(now-fpsT0)/1000;
+  if(el>=1.5){
+    const fps=fpsN/el;fpsT0=now;fpsN=0;
+    if(P.fpsGuard&&fps<35&&NS>starLimits().min){
+      if(++fpsLow>=3){
+        fpsLow=0;
+        setStars(Math.max(starLimits().min,Math.round(NS*0.75)));
+        toast(`Teljesítményőr: csillagszám ${NS.toLocaleString("hu-HU")}`);
+      }
+    }else fpsLow=0;
+  }
+}
+
+/* ─────────────── hang: procedurális kozmikus hangtér ─────────────── */
+const sound={
+  on:false, ac:null, master:null, g:[0,0,0,0], vol:[0.6,0.45,0.4,0], mv:0.55,
+  react:true, nodes:{}, chimeT:0,
+  init(){
+    if(this.ac)return;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC){toast("A böngésző nem támogatja a Web Audiót");return;}
+    const ac=this.ac=new AC();
+    const master=this.master=ac.createGain();
+    master.gain.value=0;master.connect(ac.destination);
+
+    // visszhang (procedurális impulzusválasz)
+    const rev=ac.createConvolver(), len=ac.sampleRate*2.6;
+    const buf=ac.createBuffer(2,len,ac.sampleRate);
+    for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);
+      for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6);}
+    rev.buffer=buf;
+    const revG=ac.createGain();revG.gain.value=0.55;
+    rev.connect(revG);revG.connect(master);
+    this.nodes.rev=rev;
+
+    const mkGain=i=>{const g=ac.createGain();g.gain.value=0;g.connect(master);this.g[i]=g;return g;};
+
+    /* 0 — mélyűr-drón */
+    const dg=mkGain(0), lp=ac.createBiquadFilter();
+    lp.type="lowpass";lp.frequency.value=320;lp.Q.value=0.7;lp.connect(dg);
+    [55,82.5,110,164.8].forEach((f,i)=>{
+      const o=ac.createOscillator();o.type=i>1?"sine":"triangle";o.frequency.value=f;
+      o.detune.value=(i-1.5)*7;
+      const og=ac.createGain();og.gain.value=[0.5,0.32,0.2,0.09][i];
+      o.connect(og);og.connect(lp);o.start();
+    });
+    const dlfo=ac.createOscillator(),dlg=ac.createGain();
+    dlfo.frequency.value=0.045;dlg.gain.value=110;
+    dlfo.connect(dlg);dlg.connect(lp.frequency);dlfo.start();
+    this.nodes.lp=lp;
+
+    /* 1 — szoláris szél (szűrt zaj, lassú hullámzás) */
+    const wg=mkGain(1);
+    const nb=ac.createBuffer(1,ac.sampleRate*4,ac.sampleRate), nd=nb.getChannelData(0);
+    let b0=0,b1=0,b2=0;
+    for(let i=0;i<nd.length;i++){        // rózsaszín-szerű zaj
+      const w=Math.random()*2-1;
+      b0=0.99765*b0+w*0.0990460;b1=0.96300*b1+w*0.2965164;b2=0.57000*b2+w*1.0526913;
+      nd[i]=(b0+b1+b2+w*0.1848)*0.16;
+    }
+    const ns=ac.createBufferSource();ns.buffer=nb;ns.loop=true;
+    const bp=ac.createBiquadFilter();bp.type="bandpass";bp.frequency.value=420;bp.Q.value=0.8;
+    ns.connect(bp);bp.connect(wg);ns.start();
+    const wlfo=ac.createOscillator(),wlg=ac.createGain();
+    wlfo.frequency.value=0.033;wlg.gain.value=260;
+    wlfo.connect(wlg);wlg.connect(bp.frequency);wlfo.start();
+    const alfo=ac.createOscillator(),alg=ac.createGain(),abase=ac.createConstantSource();
+    alfo.frequency.value=0.021;alg.gain.value=0.45;abase.offset.value=0.55;
+    alfo.connect(alg);alg.connect(wg.gain);abase.connect(wg.gain);
+    alfo.start();abase.start();
+    this.nodes.bp=bp;this.nodes.windBase=abase;
+
+    /* 2 — csillagpor-csengők, 3 — pulzár: eseményvezérelt */
+    mkGain(2);mkGain(3);
+    this.applyVol();
+  },
+  applyVol(){
+    if(!this.ac)return;
+    const t=this.ac.currentTime;
+    this.master.gain.setTargetAtTime(this.on?this.mv:0,t,0.4);
+    for(let i=0;i<4;i++)if(this.g[i]&&this.g[i].gain){
+      if(i===1){this.nodes.windBase.offset.setTargetAtTime(this.vol[1]*0.9,t,0.5);}
+      else this.g[i].gain.setTargetAtTime(this.vol[i]*(i===0?0.5:0.6),t,0.5);
+    }
+  },
+  toggle(v){
+    this.init();
+    if(!this.ac)return;
+    this.on=v===undefined?!this.on:v;
+    if(this.on&&this.ac.state==="suspended")this.ac.resume();
+    this.applyVol();
+    $("sndBtn").classList.toggle("on",this.on);
+    $("sndBtn").textContent=this.on?"🔊":"🔈";
+    $("tSound").classList.toggle("on",this.on);
+  },
+  chime(){
+    const ac=this.ac;if(!ac||this.vol[2]<=0)return;
+    const scale=[0,3,5,7,10,12,15,19];
+    const f=196*Math.pow(2,scale[(Math.random()*scale.length)|0]/12)*(Math.random()<0.3?2:1);
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type="sine";o.frequency.value=f;
+    const t=ac.currentTime, dur=2.4+Math.random()*2.4;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(this.vol[2]*0.16,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g);g.connect(this.nodes.rev);g.connect(this.g[2]);
+    this.g[2].gain.setValueAtTime(1,t);
+    o.start(t);o.stop(t+dur+0.1);
+  },
+  pulse(){
+    const ac=this.ac;if(!ac||this.vol[3]<=0)return;
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type="sine";o.frequency.setValueAtTime(72,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(38,ac.currentTime+0.35);
+    const t=ac.currentTime;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(this.vol[3]*0.5,t+0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.55);
+    o.connect(g);g.connect(this.g[3]);this.g[3].gain.setValueAtTime(1,t);
+    o.start(t);o.stop(t+0.6);
+  },
+  boom(){                       // szupernóva
+    const ac=this.ac;if(!ac||!this.on)return;
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type="sine";o.frequency.setValueAtTime(110,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(28,ac.currentTime+1.6);
+    const t=ac.currentTime;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.22,t+0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+2.2);
+    o.connect(g);g.connect(this.nodes.rev);g.connect(this.master);
+    o.start(t);o.stop(t+2.3);
+    this.chime();
+  },
+  tick(){
+    const ac=this.ac;if(!ac)return;
+    const now=ac.currentTime;
+    if(this.chimeT===0)this.chimeT=now+2;
+    const rate=this.react?clamp(0.5+P.speed*0.7,0.4,2.4):1;
+    if(now>=this.chimeT){
+      this.chime();
+      this.chimeT=now+(2.2+Math.random()*5.5)/rate;
+    }
+    if(this.vol[3]>0&&(!this.pulseT||now>=this.pulseT)){
+      this.pulse();this.pulseT=now+1.55/(this.react?clamp(P.speed,0.3,2):1);
+    }
+    if(this.react&&this.nodes.lp){   // zoom → közelebbi, teltebb hangzás
+      this.nodes.lp.frequency.setTargetAtTime(220+P.zoom*260,now,1.5);
+      this.nodes.bp.frequency.setTargetAtTime(300+P.zoom*380,now,1.5);
+    }
+  }
+};
+
+/* ─────────────── fotó, link, módok ─────────────── */
+let toastT=0;
+function toast(msg,ms){
+  const el=$("toast");el.textContent=msg;el.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),ms||2400);
+}
+function savePNG(){
+  const mult=clamp(Math.floor(7600/Math.max(W*dpr,H*dpr)),1,2)||1;
+  const oldDpr=dpr;
+  try{
+    dpr=clamp(oldDpr*mult,0.25,4);
+    sizeCanvases();drawBG(bgFrontCtx,curPal);
+    if(nextPal)drawBG(bgBackCtx,nextPal);
+    buildSets();drawScene(ctx);
+    const out=document.createElement("canvas");
+    out.width=fx.width;out.height=fx.height;
+    const o=out.getContext("2d");
+    o.drawImage(bgFront,0,0);
+    if(nextPal){o.globalAlpha=palMix;o.drawImage(bgBack,0,0);o.globalAlpha=1;}
+    o.drawImage(fx,0,0);
+    out.toBlob(b=>{
+      const u=URL.createObjectURL(b), a=document.createElement("a");
+      a.href=u;a.download=`density-wave-${curPal.id}-${out.width}x${out.height}.png`;
+      a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);
+      toast(`Kép mentve — ${out.width}×${out.height}`);
+    },"image/png");
+  }finally{
+    dpr=oldDpr;sizeCanvases();
+    drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);
+    buildSets();drawScene(ctx);
+  }
+}
+function shareLink(){
+  const q=new URLSearchParams({
+    hub:P.hub.toFixed(2), bar:P.bar.toFixed(2), wind:P.wind.toFixed(1), arms:P.arms,
+    zoom:Math.round(P.zoom*100), spd:P.speed.toFixed(2), inc:Math.round(P.incl),
+    stars:NS, pal:curPal.id, auto:P.autoPal?1:0, sn:P.supernova?1:0,
+    px:P.parallax?1:0, band:P.band?1:0, orb:P.orbits?1:0, mat:P.material?1:0, seed:SEED
+  });
+  const url=location.origin+location.pathname+"?"+q.toString();
+  const done=()=>toast("Link a vágólapon — a beállításokkal együtt");
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(url).then(done,()=>prompt("Másold ki a linket:",url));
+  else prompt("Másold ki a linket:",url);
+}
+function setHide(v){document.body.classList.toggle("hideui",v);}
+function setProj(v){
+  proj=v;setHide(v);
+  if(v){projT=0;P.autoPal=true;$("tAuto").classList.add("on");
+    toast("Vetítő mód — kilépés: Space, Esc vagy kattintás",3600);}
+  else{toast("Vetítő mód kikapcsolva");}
+}
+function toggleFull(){
+  if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
+  else document.exitFullscreen&&document.exitFullscreen();
+}
+
+/* ─────────────── készletek (presetek) ─────────────── */
+const PRESETS=[
+  {name:"Andromeda", hub:0.42, wind:5.6, arms:2, inc:68, bar:0, zoom:0.9},
+  {name:"Örvény M51", hub:0.85, wind:3.4, arms:2, inc:18, bar:0, zoom:1.0},
+  {name:"Küllős SBb", hub:0.5, wind:4.4, arms:2, inc:24, bar:0.85, zoom:0.85},
+  {name:"Szélkerék", hub:0.95, wind:3.0, arms:5, inc:12, bar:0.15, zoom:0.95}
+];
+function applyPreset(p){
+  P.hub=p.hub;P.wind=p.wind;P.arms=p.arms;P.incl=p.inc;P.bar=p.bar;P.zoom=p.zoom;
+  buildCDF();refreshEcc();syncUI();scheduleSprites();
+  toast(p.name+" beállítva");
+}
+
+/* ─────────────── kezelőfelület ─────────────── */
+const hubName=t=>t<0.2?"Sa":t<0.4?"Sab":t<0.6?"Sb":t<0.8?"Sbc":"Sc";
+function syncUI(){
+  $("sHub").value=P.hub;
+  $("vHub").textContent=(P.bar>0.25?"SB":"S")+hubName(P.hub).slice(1);
+  $("sBar").value=Math.round(P.bar*100);$("vBar").textContent=Math.round(P.bar*100)+"%";
+  $("sWind").value=P.wind;$("vWind").textContent=P.wind.toFixed(1);
+  $("sZoom").value=Math.round(P.zoom*100);$("vZoom").textContent=Math.round(P.zoom*100)+"%";
+  $("sSpd").value=P.speed;$("vSpd").textContent=P.speed.toFixed(1)+"×";
+  $("sInc").value=Math.round(P.incl);$("vInc").textContent=Math.round(P.incl)+"°";
+  document.querySelectorAll("#segArms button").forEach(b=>b.classList.toggle("on",+b.dataset.m===P.arms));
+  $("tOrbits").classList.toggle("on",P.orbits);
+  $("tMat").classList.toggle("on",P.material);
+  $("tAuto").classList.toggle("on",P.autoPal);
+  $("tSN").classList.toggle("on",P.supernova);
+  $("tPar").classList.toggle("on",P.parallax);
+  $("tBand").classList.toggle("on",P.band);
+  $("tFps").classList.toggle("on",P.fpsGuard);
+}
+function markPalette(p){
+  document.querySelectorAll("#palettes button").forEach(b=>b.classList.toggle("on",b.dataset.p===p.id));
+}
+function buildPaletteUI(){
+  const wrap=$("palettes");
+  PALETTES.forEach(p=>{
+    const b=document.createElement("button");
+    b.dataset.p=p.id;
+    b.innerHTML=`<span class="dot" style="background:${p.dot};color:${p.dot}"></span>${p.name}`;
+    b.addEventListener("click",()=>{
+      if(p===curPal&&!nextPal)return;
+      if(nextPal)finishPalette();
+      startPalette(p);
+    });
+    wrap.appendChild(b);
+  });
+  markPalette(curPal);
+  const pw=$("presets");
+  PRESETS.forEach(p=>{
+    const b=document.createElement("button");
+    b.innerHTML=`<span class="dot" style="background:rgba(127,212,255,.5);color:#7fd4ff"></span>${p.name}`;
+    b.addEventListener("click",()=>applyPreset(p));
+    pw.appendChild(b);
+  });
+}
+function wireToggle(id,key,after){
+  $(id).addEventListener("click",()=>{
+    P[key]=!P[key];$(id).classList.toggle("on",P[key]);
+    if(after)after();
+  });
+}
+function bindUI(){
+  $("sHub").addEventListener("input",e=>{P.hub=+e.target.value;buildCDF();refreshEcc();syncUI();});
+  $("sBar").addEventListener("input",e=>{P.bar=+e.target.value/100;refreshEcc();syncUI();});
+  $("sWind").addEventListener("input",e=>{P.wind=+e.target.value;syncUI();});
+  $("sZoom").addEventListener("input",e=>{P.zoom=+e.target.value/100;syncUI();scheduleSprites();});
+  $("sSpd").addEventListener("input",e=>{P.speed=+e.target.value;syncUI();});
+  $("sInc").addEventListener("input",e=>{P.incl=+e.target.value;syncUI();});
+  $("sStars").addEventListener("input",e=>setStars(+e.target.value));
+  document.querySelectorAll("#segArms button").forEach(b=>
+    b.addEventListener("click",()=>{P.arms=+b.dataset.m;syncUI();}));
+  wireToggle("tOrbits","orbits");wireToggle("tMat","material");
+  wireToggle("tAuto","autoPal",()=>{palTimer=100;});
+  wireToggle("tSN","supernova");wireToggle("tPar","parallax",()=>{if(!P.parallax){paraTX=paraTY=0;}});
+  wireToggle("tBand","band",()=>{drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);});
+  wireToggle("tFps","fpsGuard");
+  $("tSound").addEventListener("click",()=>sound.toggle());
+  $("sndBtn").addEventListener("click",()=>sound.toggle());
+  $("tReact").addEventListener("click",()=>{sound.react=!sound.react;$("tReact").classList.toggle("on",sound.react);});
+  const vol=(id,lab,fn)=>$(id).addEventListener("input",e=>{
+    const v=+e.target.value;$(lab).textContent=v+"%";fn(v/100);sound.applyVol();});
+  vol("sMaster","vMaster",v=>sound.mv=v);
+  vol("sL0","vL0",v=>sound.vol[0]=v);
+  vol("sL1","vL1",v=>sound.vol[1]=v);
+  vol("sL2","vL2",v=>sound.vol[2]=v);
+  vol("sL3","vL3",v=>sound.vol[3]=v);
+  $("bShot").addEventListener("click",()=>{setHide(true);setTimeout(()=>{savePNG();setTimeout(()=>setHide(false),400);},60);});
+  $("bLink").addEventListener("click",shareLink);
+  $("bProj").addEventListener("click",()=>setProj(true));
+  $("bHide").addEventListener("click",()=>{setHide(true);toast("Felület elrejtve — H a visszahozáshoz");});
+  $("drawerBtn").addEventListener("click",()=>$("panel").classList.toggle("open"));
+  document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+    document.querySelectorAll(".page").forEach(p=>p.classList.toggle("on",p.dataset.t===b.dataset.t));
+  }));
+  addEventListener("keydown",e=>{
+    if(e.target.tagName==="INPUT")return;
+    const k=e.key.toLowerCase();
+    if(k==="h"){setHide(!document.body.classList.contains("hideui"));}
+    else if(k==="f")toggleFull();
+    else if(k==="p"){setHide(true);setTimeout(()=>{savePNG();setTimeout(()=>setHide(false),400);},60);}
+    else if(k===" "){e.preventDefault();setProj(!proj);}
+    else if(k==="escape"&&proj)setProj(false);
+    else if(k==="m")sound.toggle();
+  });
+  addEventListener("pointerdown",()=>{if(proj)setProj(false);});
+  addEventListener("pointermove",e=>{
+    if(!P.parallax)return;
+    paraTX=(e.clientX/W-0.5)*2;paraTY=(e.clientY/H-0.5)*2;
+  });
+  addEventListener("deviceorientation",e=>{
+    if(!P.parallax||e.gamma==null)return;
+    paraTX=clamp(e.gamma/30,-1,1);paraTY=clamp((e.beta-45)/30,-1,1);
+  });
+  if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× (csökkentett mozgás)";}
+}
+
+/* parallax a háttéren (ellentétes irányban → mélységérzet) */
+function parallaxBG(){
+  const k=P.parallax?1:0;
+  const t=`translate3d(${(-paraX*14*k).toFixed(1)}px,${(-paraY*10*k).toFixed(1)}px,0) scale(1.035)`;
+  bgA.style.transform=t;bgB.style.transform=t;
+  requestAnimationFrame(parallaxBG);
+}
+
+/* ─────────────── indulás ─────────────── */
+buildPaletteUI();bindUI();
+readDPR();resize();populate();buildSets();syncUI();armDprWatch();
+palTimer=110+Math.random()*70;
 addEventListener("resize",resize);
-readDPR();resize();populate();buildSprites();armDprWatch();
-window.__DW={P,get g(){return curG();},get dpr(){return dpr;},get counts(){return{NS,NN,NH,ND};},get sprG(){return sprG;}};
+requestAnimationFrame(parallaxBG);
 requestAnimationFrame(t=>{lastT=t;requestAnimationFrame(frame);});
-requestAnimationFrame(()=>document.getElementById("wrap").classList.add("on"));
+requestAnimationFrame(()=>{
+  $("wrap").classList.add("on");
+  if(!isSmall())setTimeout(()=>{$("hint").classList.add("on");
+    setTimeout(()=>$("hint").classList.remove("on"),9000);},2500);
+});
+window.__DW={P,SN,get g(){return curG();},get dpr(){return dpr;},
+  get counts(){return{NS,NN,NH,ND,NSMAX};},get sprG(){return sprG;},
+  get pal(){return curPal.id;},get mixing(){return!!nextPal;},
+  setPal:id=>startPalette(PALETTES[palIdx(id)]), setStars, sound, savePNG,
+  get limits(){return starLimits();}};
 })();
 </script>
 </body>
