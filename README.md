@@ -4,7 +4,9 @@
 
 Interaktív spirálgalaxis a **sűrűséghullám-elmélet** (Lindblad, 1925) alapján: minden csillag a saját, kissé elforgatott ellipszispályáján kering, a spirálkar pedig nem anyag, hanem „forgalmi dugó", ahol a pályák összesűrűsödnek. Egyetlen HTML-fájl, külső függőség nélkül — Canvas 2D + Web Audio, se könyvtár, se kép- vagy hangfájl.
 
-**Élő demó:** https://galaxy-90m.pages.dev/ (Cloudflare Pages) · tartalék: https://laci141.github.io/galaxy/
+**Élő demó:** https://laci141.github.io/galaxy/ (GitHub Pages) · https://galaxy-90m.pages.dev/ (Cloudflare Pages)
+
+Mindkét cím a `main` ág tartalmát szolgálja ki, és minden commit után automatikusan frissül.
 
 ## Vezérlők
 

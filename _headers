@@ -1,0 +1,13 @@
+# Cloudflare Pages HTTP-fejlécek
+# Az index.html-t mindig újra kell validálni, különben egy frissítés után
+# a böngésző a régi verziót mutatja a gyorsítótárból.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer-when-downgrade
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

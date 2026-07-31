@@ -4,7 +4,9 @@
 
 An interactive spiral galaxy based on **density wave theory** (Lindblad, 1925): every star rides its own slightly rotated elliptical orbit, and the spiral arm is not a structure made of matter but a "traffic jam" where the orbits crowd together. A single HTML file with no external dependencies — Canvas 2D plus Web Audio, no libraries, no image or sound assets.
 
-**Live demo:** https://galaxy-90m.pages.dev/ (Cloudflare Pages) · backup: https://laci141.github.io/galaxy/
+**Live demo:** https://laci141.github.io/galaxy/ (GitHub Pages) · https://galaxy-90m.pages.dev/ (Cloudflare Pages)
+
+Both serve the `main` branch and redeploy automatically on every commit.
 
 ## Controls
 
