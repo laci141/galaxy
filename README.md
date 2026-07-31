@@ -1,8 +1,10 @@
 # Density Wave — spirálgalaxis-szimuláció
 
+[🇬🇧 English version](README.en.md)
+
 Interaktív spirálgalaxis a **sűrűséghullám-elmélet** (Lindblad, 1925) alapján: minden csillag a saját, kissé elforgatott ellipszispályáján kering, a spirálkar pedig nem anyag, hanem „forgalmi dugó", ahol a pályák összesűrűsödnek. Egyetlen HTML-fájl, külső függőség nélkül (Canvas 2D).
 
-**Élő demó:** https://laci141.github.io/galaxy/ *(GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root — az első bekapcsolás után pár perc)*
+**Élő demó:** https://laci141.github.io/galaxy/ *(minden `main`-re kerülő commit után automatikusan frissül GitHub Actions-szel)*
 
 ## Vezérlők
 
