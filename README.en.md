@@ -8,11 +8,21 @@ An interactive spiral galaxy based on **density wave theory** (Lindblad, 1925): 
 
 Both serve the `main` branch and redeploy automatically on every commit.
 
+## Download and run it yourself
+
+The whole application is a single file. Download [index.html](index.html) (or clone the repository) and open it in a browser — no install, no build step, not even an internet connection.
+
+```bash
+git clone https://github.com/laci141/galaxy.git
+```
+
+The link at the bottom of the page always leads back here so anyone can grab a copy.
+
 ## Controls
 
-The panel has three tabs: **Galaxis** (galaxy), **Látvány** (visuals) and **Hang** (sound).
+The panel has three tabs: **Galaxy**, **Visuals** and **Sound**.
 
-### Galaxy
+### Galaxy — the shape of it
 
 | Control | What it does |
 |---|---|
@@ -32,15 +42,15 @@ The panel has three tabs: **Galaxis** (galaxy), **Látvány** (visuals) and **Ha
 | Control | What it does |
 |---|---|
 | **Palette** | 4 colour worlds: Classic · Indigo Dust · Blue-Gold · Violet Sea |
-| **Auto switch** | picks a new palette every 2–3 minutes with a slow 4.5 s crossfade |
+| **Auto-switch** | picks a new palette every 2–3 minutes with a slow 4.5 s crossfade |
 | **Star count** | desktop 5,000–30,000, mobile 3,000–20,000 |
 | **Performance guard** | automatically lowers the star count if the frame rate drops below 35 fps |
-| **Supernovae** | a rare star flares up with an expanding shock ring (and a sound) |
+| **Supernovae** | a rare star flares up inside a softly expanding shell of light (with sound) |
 | **Parallax** | mouse movement / device tilt shifts background and galaxy apart for depth |
 | **Milky Way band** | a diagonal dense star stream with dark dust lanes in the background |
 | **📷 Photo (PNG)** | saves without the UI, at double resolution where it fits |
 | **🔗 Copy link** | encodes every setting into the URL so it can be shared |
-| **🎬 Projector mode** | full-screen slow camera journey with automatic palette changes |
+| **🎬 Projector** | full-screen slow camera journey with automatic palette changes |
 | **👁 Hide UI** | hides the controls |
 
 ### Sound — procedural cosmic soundscape
@@ -71,6 +81,7 @@ The current version:
 - **Crisp sprites:** sprite bitmaps are rebuilt at the current scale × `devicePixelRatio` (an exact 1:1 pixel blit when settled); `devicePixelRatio` changes are tracked with `matchMedia`.
 - **Brightness normalization:** per-star brightness drops as the count rises, so 30,000 stars look denser rather than whiter.
 - **Stable image:** a seeded RNG — resizing, zooming or switching palettes never reshuffles the galaxy.
+- **Two clocks:** orbits advance on a clamped `dt` for numerical stability, while crossfades, supernovae and the projector camera run on real elapsed time, so they never drag on a slow machine.
 - **Off-screen culling:** at high zoom, stars outside the viewport are skipped entirely.
 
 ## Verification
@@ -79,11 +90,11 @@ Playwright + Chromium, screenshots normalized to the same physical resolution at
 
 | Measure | Old | Current |
 |---|---|---|
-| Brightness 50% → 100% zoom | +77% | identical (20.4 → 20.9) |
-| Blown-out white pixel fraction | grew 8× | unchanged (0.043%) |
+| Brightness 50% → 100% zoom | +77% | identical (21.1 → 21.6) |
+| Blown-out white pixel fraction | grew 8× | unchanged (0.042%) |
 | Per-pixel difference across zoom levels | — | ≤ 0.55/255 |
 
-Also verified: star slider 5,000 → 30,000 (brightness 1.38× — rises without blowing out), mobile range 3,000–20,000, four palettes with clearly distinct colours and a working crossfade, bar 0 → 90% visible change, presets, supernova lifecycle, 3200×1800 PNG export, link sharing and restore, sound engine start/stop, performance guard, projector mode, and the mobile drawer and tabs with no horizontal scrolling. No console errors.
+Also verified: star slider 5,000 → 30,000 (brightness 1.39× — rises without blowing out), mobile range 3,000–20,000, minimum colour distance between the four palettes 6.92 (5.71 before the 15% chroma lift), bar 0 → 90% visible change, presets, supernova lifecycle, 3200×1800 PNG export, link sharing and restore, sound engine start/stop, performance guard, projector mode, an English-only interface, credit-link visibility, and the mobile drawer and tabs with no horizontal scrolling. No console errors.
 
 ## Running & testing
 
@@ -93,4 +104,4 @@ URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?f
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Free to use, modify and share.
