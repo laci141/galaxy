@@ -910,7 +910,7 @@ function step(dt,rdt){
   const sdt=dt*P.speed;
   simT+=sdt;
   if(P.material)windup+=sdt; else windup+=(0-windup)*Math.min(1,rdt*1.6);
-  matOn+=((P.material?1:0)-matOn)*Math.min(1,rdt*2);
+  matOn+=((P.material?1:0)-matOn)*Math.min(1,rdt*2.5);
   orbitA+=((P.orbits?1:0)-orbitA)*Math.min(1,rdt*2.5);
   captionEl.classList.toggle("on",P.material&&windup>6);
 
@@ -1217,7 +1217,7 @@ const sound={
     g.gain.linearRampToValueAtTime(this.vol[2]*0.16,t+0.02);
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
     o.connect(g);g.connect(this.nodes.rev);g.connect(this.g[2]);
-    this.g[2].gain.setValueAtTime(1,t);
+    // ★ javítás: nem állítjuk be a csatorna gain-jét, mert azt a applyVol tartja karban
     o.start(t);o.stop(t+dur+0.1);
   },
   pulse(){
@@ -1229,341 +1229,361 @@ const sound={
     g.gain.setValueAtTime(0,t);
     g.gain.linearRampToValueAtTime(this.vol[3]*0.5,t+0.015);
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.55);
-    o.connect(g);g.connect(this.g[3]);this.g[3].gain.setValueAtTime(1,t);
+    o.connect(g);g.connect(this.g[3]);
+    // ★ javítás: nem állítjuk be a csatorna gain-jét
     o.start(t);o.stop(t+0.6);
   },
-  boom(){                       // supernova
+  boom(){
     const ac=this.ac;if(!ac||!this.on)return;
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.type="sine";o.frequency.setValueAtTime(110,ac.currentTime);
-    o.frequency.exponentialRampToValueAtTime(28,ac.currentTime+1.6);
+    const o=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();
+    o.type="triangle";
     const t=ac.currentTime;
+    o.frequency.setValueAtTime(120,t);
+    o.frequency.exponentialRampToValueAtTime(30,t+0.8);
+    f.type="lowpass";f.frequency.setValueAtTime(400,t);
+    f.frequency.exponentialRampToValueAtTime(80,t+0.8);
     g.gain.setValueAtTime(0,t);
-    g.gain.linearRampToValueAtTime(0.22,t+0.05);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+2.2);
-    o.connect(g);g.connect(this.nodes.rev);g.connect(this.master);
-    o.start(t);o.stop(t+2.3);
-    this.chime();
+    g.gain.linearRampToValueAtTime(this.vol[0]*0.4,t+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+1.2);
+    o.connect(f);f.connect(g);g.connect(this.master);
+    o.start(t);o.stop(t+1.25);
   },
   tick(){
-    const ac=this.ac;if(!ac)return;
-    const now=ac.currentTime;
-    if(this.chimeT===0)this.chimeT=now+2;
-    const rate=this.react?clamp(0.5+P.speed*0.7,0.4,2.4):1;
-    if(now>=this.chimeT){
-      this.chime();
-      this.chimeT=now+(2.2+Math.random()*5.5)/rate;
+    if(!this.on||!this.react)return;
+    this.chimeT+=0.016;
+    if(this.chimeT>2.8/Math.max(0.2,P.speed)){
+      this.chimeT=0;
+      if(Math.random()<0.65)this.chime();
     }
-    if(this.vol[3]>0&&(!this.pulseT||now>=this.pulseT)){
-      this.pulse();this.pulseT=now+1.55/(this.react?clamp(P.speed,0.3,2):1);
-    }
-    if(this.react&&this.nodes.lp){   // zoom → a closer, fuller timbre
-      this.nodes.lp.frequency.setTargetAtTime(220+P.zoom*260,now,1.5);
-      this.nodes.bp.frequency.setTargetAtTime(300+P.zoom*380,now,1.5);
-    }
+    if(Math.random()<0.008*P.speed)this.pulse();
   }
 };
 
-/* ─────────────── photo, link, modes ─────────────── */
-let toastT=0;
-function toast(msg,ms){
-  const el=$("toast");el.textContent=msg;el.classList.add("on");
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("on"),ms||2400);
-}
-function savePNG(){
-  const mult=clamp(Math.floor(7600/Math.max(W*dpr,H*dpr)),1,2)||1;
-  const oldDpr=dpr;
-  try{
-    dpr=clamp(oldDpr*mult,0.25,4);
-    sizeCanvases();drawBG(bgFrontCtx,curPal);
-    if(nextPal)drawBG(bgBackCtx,nextPal);
-    buildSets();drawScene(ctx);
-    const out=document.createElement("canvas");
-    out.width=fx.width;out.height=fx.height;
-    const o=out.getContext("2d");
-    o.drawImage(bgFront,0,0);
-    if(nextPal){o.globalAlpha=palMix;o.drawImage(bgBack,0,0);o.globalAlpha=1;}
-    o.drawImage(fx,0,0);
-    out.toBlob(b=>{
-      const u=URL.createObjectURL(b), a=document.createElement("a");
-      a.href=u;a.download=`density-wave-${curPal.id}-${out.width}x${out.height}.png`;
-      a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);
-      toast(t("tSaved").replace("{s}",out.width+"×"+out.height));
-    },"image/png");
-  }finally{
-    dpr=oldDpr;sizeCanvases();
-    drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);
-    buildSets();drawScene(ctx);
-  }
-}
-function shareLink(){
-  const q=new URLSearchParams({
-    hub:P.hub.toFixed(2), bar:P.bar.toFixed(2), wind:P.wind.toFixed(1), arms:P.arms,
-    zoom:Math.round(P.zoom*100), spd:P.speed.toFixed(2), inc:Math.round(P.incl),
-    stars:NS, pal:curPal.id, sat:Math.round((SAT-1)*100), neb:Math.round((AB-1)*100), lang:LANG,
-    auto:P.autoPal?1:0, sn:P.supernova?1:0,
-    px:P.parallax?1:0, band:P.band?1:0, orb:P.orbits?1:0, mat:P.material?1:0, seed:SEED
-  });
-  const url=location.origin+location.pathname+"?"+q.toString();
-  const done=()=>toast(t("tLink"));
-  if(navigator.clipboard&&navigator.clipboard.writeText)
-    navigator.clipboard.writeText(url).then(done,()=>prompt(t("tCopy"),url));
-  else prompt(t("tCopy"),url);
-}
-function setHide(v){document.body.classList.toggle("hideui",v);}
-function setMin(v){document.body.classList.toggle("min",v);}
-function setProj(v){
-  proj=v;setHide(v);
-  if(v){projT=0;P.autoPal=true;$("tAuto").classList.add("on");
-    toast(t("tProjOn"),3600);}
-  else{toast(t("tProjOff"));}
-}
-function toggleFull(){
-  if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-  else document.exitFullscreen&&document.exitFullscreen();
+/* ─────────────── UI Szinkronizáció & Értesítések ─────────────── */
+function hubName(h){
+  if(h<0.2)return "Sa";
+  if(h<0.4)return "Sab";
+  if(h<0.6)return "Sb";
+  if(h<0.8)return "Sbc";
+  return "Sc";
 }
 
-/* ─────────────── presets ─────────────── */
-const PRESETS=[
-  {key:"andromeda", hub:0.42, wind:5.6, arms:2, inc:68, bar:0, zoom:0.9},
-  {key:"whirlpool", hub:0.85, wind:3.4, arms:2, inc:18, bar:0, zoom:1.0},
-  {key:"barred", hub:0.5, wind:4.4, arms:2, inc:24, bar:0.85, zoom:0.85},
-  {key:"pinwheel", hub:0.95, wind:3.0, arms:5, inc:12, bar:0.15, zoom:0.95}
-];
-function applyPreset(p){
-  P.hub=p.hub;P.wind=p.wind;P.arms=p.arms;P.incl=p.inc;P.bar=p.bar;P.zoom=p.zoom;
-  buildCDF();refreshEcc();syncUI();scheduleSprites();
-  toast(t("tApplied").replace("{name}",t("pre_"+p.key)));
+let toastTimer=0;
+function toast(msg){
+  const el=$("toast");
+  if(!el)return;
+  el.textContent=msg;
+  el.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("on"),2800);
 }
 
-/* ─────────────── language switch ─────────────── */
-function applyLang(l){
-  LANG=I18N[l]?l:"en";
-  document.documentElement.lang = LANG;   // update html lang attribute
-  document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
-  document.querySelectorAll("[data-i18n-title]").forEach(e=>{
-    e.title=t(e.dataset.i18nTitle);e.setAttribute("aria-label",t(e.dataset.i18nTitle));});
-  document.querySelectorAll("#langs button").forEach(b=>b.classList.toggle("on",b.dataset.l===LANG));
-  setStars(NS||starLimits().def);          // re-format the number for the locale
-  syncUI();
-  if(reduced)$("vSpd").textContent="0.0× "+t("reducedMotion");
-  try{localStorage.setItem("dw-lang",LANG);}catch(e){}
-}
-
-/* ─────────────── user interface ─────────────── */
-const hubName=t=>t<0.2?"Sa":t<0.4?"Sab":t<0.6?"Sb":t<0.8?"Sbc":"Sc";
 function syncUI(){
-  $("sHub").value=P.hub;
-  $("vHub").textContent=(P.bar>0.25?"SB":"S")+hubName(P.hub).slice(1);
-  $("sBar").value=Math.round(P.bar*100);$("vBar").textContent=Math.round(P.bar*100)+"%";
-  $("sWind").value=P.wind;$("vWind").textContent=P.wind.toFixed(1);
-  $("sZoom").value=Math.round(P.zoom*100);$("vZoom").textContent=Math.round(P.zoom*100)+"%";
-  $("sSpd").value=P.speed;$("vSpd").textContent=P.speed.toFixed(1)+"×";
-  $("sInc").value=Math.round(P.incl);$("vInc").textContent=Math.round(P.incl)+"°";
-  const sv=Math.round((SAT-1)*100), nv=Math.round((AB-1)*100);
-  $("sSat").value=sv;$("vSat").textContent="+"+sv+"%";
-  $("sNeb").value=nv;$("vNeb").textContent="+"+nv+"%";
-  document.querySelectorAll("#segArms button").forEach(b=>b.classList.toggle("on",+b.dataset.m===P.arms));
-  // toggle states: update class and aria-checked
-  const setToggle = (id, state) => {
-    const el = $(id);
-    el.classList.toggle("on", state);
-    el.setAttribute("aria-checked", state ? "true" : "false");
-  };
-  setToggle("tOrbits", P.orbits);
-  setToggle("tMat", P.material);
-  setToggle("tAuto", P.autoPal);
-  setToggle("tSN", P.supernova);
-  setToggle("tPar", P.parallax);
-  setToggle("tBand", P.band);
-  setToggle("tFps", P.fpsGuard);
-  setToggle("tReact", sound.react);
-}
-function markPalette(p){
-  document.querySelectorAll("#palettes button").forEach(b=>b.classList.toggle("on",b.dataset.p===p.id));
-}
-function buildPaletteUI(){
-  const wrap=$("palettes");
-  PALETTES.forEach(p=>{
-    const b=document.createElement("button");
-    b.dataset.p=p.id;
-    b.innerHTML=`<span class="dot" style="background:${p.dot};color:${p.dot}"></span>`+
-      `<span data-i18n="pal_${p.id}"></span>`;
-    b.addEventListener("click",()=>{
-      if(p===curPal&&!nextPal)return;
-      if(nextPal)finishPalette();
-      startPalette(p);
-    });
-    wrap.appendChild(b);
-  });
-  markPalette(curPal);
-  const pw=$("presets");
-  PRESETS.forEach(p=>{
-    const b=document.createElement("button");
-    b.innerHTML=`<span class="dot" style="background:rgba(127,212,255,.5);color:#7fd4ff"></span>`+
-      `<span data-i18n="pre_${p.key}"></span>`;
-    b.addEventListener("click",()=>applyPreset(p));
-    pw.appendChild(b);
-  });
-}
-function wireToggle(id,key,after){
-  const el=$(id);
-
-  const toggle = ()=>{
-    P[key]=!P[key];
-    const state=P[key];
-    el.classList.toggle("on",state);
-    el.setAttribute("aria-checked", state ? "true" : "false");
-    if(after) after();
-  };
-
-  el.addEventListener("click", toggle);
-
-  // keyboard support: Enter and Space
-  el.addEventListener("keydown", e=>{
-    if(e.key===" " || e.key==="Enter"){
-      e.preventDefault();
-      toggle();
-    }
-  });
-}
-function bindUI(){
-  $("sHub").addEventListener("input",e=>{P.hub=+e.target.value;buildCDF();refreshEcc();syncUI();});
-  $("sBar").addEventListener("input",e=>{P.bar=+e.target.value/100;refreshEcc();syncUI();});
-  $("sWind").addEventListener("input",e=>{P.wind=+e.target.value;syncUI();});
-  $("sZoom").addEventListener("input",e=>{P.zoom=+e.target.value/100;syncUI();scheduleSprites();});
-  $("sSpd").addEventListener("input",e=>{P.speed=+e.target.value;syncUI();});
-  $("sInc").addEventListener("input",e=>{P.incl=+e.target.value;syncUI();});
-  $("sStars").addEventListener("input",e=>setStars(+e.target.value));
-  $("sSat").addEventListener("input",e=>{
-    const v=+e.target.value;SAT=1+v/100;$("vSat").textContent="+"+v+"%";scheduleLook();});
-  $("sNeb").addEventListener("input",e=>{
-    const v=+e.target.value;AB=1+v/100;$("vNeb").textContent="+"+v+"%";scheduleLook();});
-  document.querySelectorAll("#segArms button").forEach(b=>
-    b.addEventListener("click",()=>{P.arms=+b.dataset.m;syncUI();}));
-  wireToggle("tOrbits","orbits");
-  wireToggle("tMat","material");
-  wireToggle("tAuto","autoPal",()=>{palTimer=100;});
-  wireToggle("tSN","supernova");
-  wireToggle("tPar","parallax",()=>{if(!P.parallax){paraTX=paraTY=0;}});
-  wireToggle("tBand","band",()=>{drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);});
-  wireToggle("tFps","fpsGuard");
-  // Sound toggle is handled by sound.toggle, but we need to sync aria-checked
-  $("tSound").addEventListener("click",()=>sound.toggle());
-  $("sndBtn").addEventListener("click",()=>sound.toggle());
-  document.querySelectorAll("#langs button").forEach(b=>
-    b.addEventListener("click",()=>applyLang(b.dataset.l)));
-  $("minBtn").addEventListener("click",()=>setMin(true));
-  $("restoreBtn").addEventListener("click",()=>setMin(false));
-  $("tReact").addEventListener("click",()=>{
-    sound.react=!sound.react;
-    const el=$("tReact");
-    el.classList.toggle("on",sound.react);
-    el.setAttribute("aria-checked", sound.react ? "true" : "false");
-  });
-  const vol=(id,lab,fn)=>$(id).addEventListener("input",e=>{
-    const v=+e.target.value;$(lab).textContent=v+"%";fn(v/100);sound.applyVol();});
-  vol("sMaster","vMaster",v=>sound.mv=v);
-  vol("sL0","vL0",v=>sound.vol[0]=v);
-  vol("sL1","vL1",v=>sound.vol[1]=v);
-  vol("sL2","vL2",v=>sound.vol[2]=v);
-  vol("sL3","vL3",v=>sound.vol[3]=v);
-  $("bShot").addEventListener("click",()=>{setHide(true);setTimeout(()=>{savePNG();setTimeout(()=>setHide(false),400);},60);});
-  $("bLink").addEventListener("click",shareLink);
-  $("bProj").addEventListener("click",()=>setProj(true));
-  $("bHide").addEventListener("click",()=>{setHide(true);toast(t("tHidden"));});
-  $("drawerBtn").addEventListener("click",()=>$("panel").classList.toggle("open"));
-  document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
-    document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
-    document.querySelectorAll(".page").forEach(p=>p.classList.toggle("on",p.dataset.t===b.dataset.t));
-  }));
-  // Reset simulation – now also resets sound to defaults
-  function resetSimulation(){
-    P.hub = 0.5; P.bar = 0; P.wind = 5; P.arms = 2;
-    P.zoom = 0.8; P.speed = 1; P.incl = 0;
-    SAT = 1.15; AB = 1.15;
-    setStars(12000);
-    P.orbits = false; P.material = false; P.autoPal = true;
-    P.supernova = true; P.parallax = true; P.band = true; P.fpsGuard = true;
-    // Reset sound settings to default
-    sound.mv = 0.55;
-    sound.vol = [0.6, 0.45, 0.4, 0];
-    sound.react = true;
-    sound.on = false;
-    sound.applyVol();
-    // Update sound UI sliders and toggle states
-    $("sMaster").value = 55; $("vMaster").textContent = "55%";
-    $("sL0").value = 60; $("vL0").textContent = "60%";
-    $("sL1").value = 45; $("vL1").textContent = "45%";
-    $("sL2").value = 40; $("vL2").textContent = "40%";
-    $("sL3").value = 0; $("vL3").textContent = "0%";
-    const tReact = $("tReact");
-    tReact.classList.toggle("on", sound.react);
-    tReact.setAttribute("aria-checked", sound.react ? "true" : "false");
-    const tSound = $("tSound");
-    tSound.classList.toggle("on", sound.on);
-    tSound.setAttribute("aria-checked", sound.on ? "true" : "false");
-    $("sndBtn").classList.toggle("on", sound.on);
-    $("sndBtn").textContent = sound.on ? "🔊" : "🔈";
-    // Rebuild simulation
-    buildCDF(); refreshEcc(); syncUI(); scheduleSprites(); applyBoost(); buildSets();
-    drawBG(bgFrontCtx, curPal); if(nextPal) drawBG(bgBackCtx, nextPal);
-    if(nextPal){ nextPal = null; palMix = 0; setA = buildSet(curPal); setB = null; }
-    toast(t("tReset"));
+  if($("sHub")){
+    $("sHub").value=P.hub;
+    $("vHub").textContent=(P.bar>0.25?"SB":"S")+hubName(P.hub).slice(1);
   }
-  $("bReset").addEventListener("click", resetSimulation);
+  if($("sBar")){
+    $("sBar").value=Math.round(P.bar*100);
+    $("vBar").textContent=Math.round(P.bar*100)+"%";
+  }
+  if($("sWind")){
+    $("sWind").value=P.wind;
+    $("vWind").textContent=P.wind.toFixed(1);
+  }
+  if($("sZoom")){
+    $("sZoom").value=Math.round(P.zoom*100);
+    $("vZoom").textContent=Math.round(P.zoom*100)+"%";
+  }
+  if($("sSpd")){
+    $("sSpd").value=P.speed;
+    $("vSpd").textContent=P.speed.toFixed(2)+"×";
+  }
+  if($("sInc")){
+    $("sInc").value=P.incl;
+    $("vInc").textContent=P.incl+"°";
+  }
+  if($("sSat")){
+    $("sSat").value=Math.round((SAT-1)*100);
+    $("vSat").textContent=(SAT>=1?"+":"")+Math.round((SAT-1)*100)+"%";
+  }
+  if($("sNeb")){
+    $("sNeb").value=Math.round((AB-1)*100);
+    $("vNeb").textContent=(AB>=1?"+":"")+Math.round((AB-1)*100)+"%";
+  }
 
-  addEventListener("keydown",e=>{
-    if(e.target.tagName==="INPUT")return;
-    const k=e.key.toLowerCase();
-    if(k==="h"){setHide(!document.body.classList.contains("hideui"));}
-    else if(k==="f")toggleFull();
-    else if(k==="p"){setHide(true);setTimeout(()=>{savePNG();setTimeout(()=>setHide(false),400);},60);}
-    else if(k===" "){e.preventDefault();setProj(!proj);}
-    else if(k==="escape"&&proj)setProj(false);
-    else if(k==="m")sound.toggle();
+  const setTg=(id,val)=>{
+    const el=$(id);
+    if(el){
+      el.classList.toggle("on",val);
+      el.setAttribute("aria-checked",val?"true":"false");
+    }
+  };
+  setTg("tOrbits",P.orbits);
+  setTg("tMat",P.material);
+  setTg("tAuto",P.autoPal);
+  setTg("tFps",P.fpsGuard);
+  setTg("tSN",P.supernova);
+  setTg("tPar",P.parallax);
+  setTg("tBand",P.band);
+
+  document.querySelectorAll("#segArms button").forEach(b=>{
+    b.classList.toggle("on",parseInt(b.dataset.m,10)===P.arms);
   });
-  addEventListener("pointerdown",e=>{if(proj&&!e.target.closest("#credit"))setProj(false);});
-  addEventListener("pointermove",e=>{
+}
+
+/* ─────────────── Színvilágok & Előbeállítások ─────────────── */
+function renderPalettes(){
+  const container=$("palettes");
+  if(!container)return;
+  container.innerHTML="";
+  PALETTES.forEach(p=>{
+    const btn=document.createElement("button");
+    btn.dataset.pal=p.id;
+    if(p===curPal)btn.classList.add("on");
+    btn.innerHTML=`<span class="dot" style="background:${p.dot}"></span><span>${t("pal_"+p.id)||"pal_"+p.id}</span>`;
+    btn.onclick=()=>{
+      P.autoPal=false;
+      startPalette(p);
+      syncUI();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function markPalette(p){
+  document.querySelectorAll("#palettes button").forEach(b=>{
+    b.classList.toggle("on",b.dataset.pal===p.id);
+  });
+}
+
+function renderPresets(){
+  const container=$("presets");
+  if(!container)return;
+  container.innerHTML="";
+  const list=[
+    {id:"andromeda", key:"pre_andromeda", hub:0.3, bar:0.1, wind:4.2, arms:2, inc:77, zoom:0.75, pal:"classic"},
+    {id:"whirlpool", key:"pre_whirlpool", hub:0.6, bar:0, wind:6.5, arms:2, inc:20, zoom:0.95, pal:"classic"},
+    {id:"barred", key:"pre_barred", hub:0.5, bar:0.7, wind:5.0, arms:2, inc:35, zoom:0.85, pal:"gold"},
+    {id:"pinwheel", key:"pre_pinwheel", hub:0.8, bar:0, wind:4.8, arms:4, inc:15, zoom:0.8, pal:"violet"}
+  ];
+  list.forEach(item=>{
+    const btn=document.createElement("button");
+    btn.textContent=t(item.key);
+    btn.onclick=()=>{
+      P.hub=item.hub;P.bar=item.bar;P.wind=item.wind;P.arms=item.arms;
+      P.incl=item.inc;P.zoom=item.zoom;
+      refreshEcc();
+      if(item.pal)startPalette(PALETTES[palIdx(item.pal)]);
+      syncUI();
+      toast(t("tApplied").replace("{name}",t(item.key)));
+    };
+    container.appendChild(btn);
+  });
+}
+
+/* ─────────────── Nyelvváltás ─────────────── */
+function setLang(lang){
+  if(!I18N[lang])return;
+  LANG=lang;
+  try{localStorage.setItem("dw-lang",lang);}catch(e){}
+  document.querySelectorAll("#langs button").forEach(b=>{
+    b.classList.toggle("on",b.dataset.l===lang);
+  });
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k=el.dataset.i18n;
+    if(k)el.textContent=t(k);
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach(el=>{
+    const k=el.dataset.i18nTitle;
+    if(k)el.title=t(k);
+  });
+  renderPalettes();
+  renderPresets();
+  syncUI();
+}
+
+/* ─────────────── Műveletek (Fotó & Link) ─────────────── */
+function takePhoto(){
+  const out=document.createElement("canvas");
+  out.width=W*dpr;
+  out.height=H*dpr;
+  const octx=out.getContext("2d");
+  octx.drawImage(bgFront,0,0);
+  if(bgBack.style.opacity==="1"||palMix>0){
+    octx.globalAlpha=palMix;
+    octx.drawImage(bgBack,0,0);
+    octx.globalAlpha=1;
+  }
+  octx.drawImage(fx,0,0);
+  
+  const link=document.createElement("a");
+  const ts=new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
+  link.download=`galaxy-density-wave-${ts}.png`;
+  link.href=out.toDataURL("image/png");
+  link.click();
+  toast(t("tSaved").replace("{s}",link.download));
+}
+
+function copyLink(){
+  const url=new URL(location.href);
+  url.searchParams.set("hub",P.hub.toFixed(2));
+  url.searchParams.set("bar",P.bar.toFixed(2));
+  url.searchParams.set("wind",P.wind.toFixed(1));
+  url.searchParams.set("arms",P.arms);
+  url.searchParams.set("zoom",Math.round(P.zoom*100));
+  url.searchParams.set("spd",P.speed.toFixed(2));
+  url.searchParams.set("inc",P.incl);
+  url.searchParams.set("pal",curPal.id);
+  url.searchParams.set("stars",NS);
+  url.searchParams.set("lang",LANG);
+  navigator.clipboard.writeText(url.toString()).then(()=>{
+    toast(t("tLink"));
+  }).catch(()=>{
+    prompt(t("tCopy"),url.toString());
+  });
+}
+
+/* ─────────────── Eseménykezelők Csatolása ─────────────── */
+function bindEvents(){
+  // Fülek (Tabs)
+  document.querySelectorAll("#tabs button").forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("on"));
+      document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on");
+      const page=document.querySelector(`.page[data-t="${b.dataset.t}"]`);
+      if(page)page.classList.add("on");
+    };
+  });
+
+  // Nyelvváltó
+  document.querySelectorAll("#langs button").forEach(b=>{
+    b.onclick=()=>setLang(b.dataset.l);
+  });
+
+  // Galaxis csúszkák
+  if($("sHub"))$("sHub").oninput=e=>{P.hub=parseFloat(e.target.value);refreshEcc();syncUI();};
+  if($("sBar"))$("sBar").oninput=e=>{P.bar=parseFloat(e.target.value)/100;refreshEcc();syncUI();};
+  if($("sWind"))$("sWind").oninput=e=>{P.wind=parseFloat(e.target.value);syncUI();};
+  if($("sZoom"))$("sZoom").oninput=e=>{P.zoom=parseFloat(e.target.value)/100;scheduleSprites();syncUI();};
+  if($("sSpd"))$("sSpd").oninput=e=>{P.speed=parseFloat(e.target.value);syncUI();};
+  if($("sInc"))$("sInc").oninput=e=>{P.incl=parseFloat(e.target.value);syncUI();};
+
+  // Karok száma (Segment)
+  document.querySelectorAll("#segArms button").forEach(b=>{
+    b.onclick=()=>{P.arms=parseInt(b.dataset.m,10);syncUI();};
+  });
+
+  // Kapcsolók (Toggles)
+  const bindTg=(id,prop,fn)=>{
+    const el=$(id);
+    if(!el)return;
+    el.onclick=()=>{
+      P[prop]=!P[prop];
+      if(fn)fn(P[prop]);
+      syncUI();
+    };
+  };
+  bindTg("tOrbits","orbits");
+  bindTg("tMat","material");
+  bindTg("tAuto","autoPal");
+  bindTg("tFps","fpsGuard");
+  bindTg("tSN","supernova");
+  bindTg("tPar","parallax");
+  bindTg("tBand","band",()=>drawBG(bgFrontCtx,curPal));
+
+  // Látvány csúszkák
+  if($("sSat"))$("sSat").oninput=e=>{SAT=1+parseFloat(e.target.value)/100;scheduleLook();syncUI();};
+  if($("sNeb"))$("sNeb").oninput=e=>{AB=1+parseFloat(e.target.value)/100;scheduleLook();syncUI();};
+  if($("sStars"))$("sStars").oninput=e=>{setStars(parseFloat(e.target.value));};
+
+  // Akció gombok
+  if($("bShot"))$("bShot").onclick=takePhoto;
+  if($("bLink"))$("bLink").onclick=copyLink;
+  if($("bProj"))$("bProj").onclick=()=>{
+    proj=!proj;
+    toast(proj?t("tProjOn"):t("tProjOff"));
+  };
+  if($("bHide"))$("bHide").onclick=()=>{
+    document.body.classList.toggle("hideui");
+    toast(t("tHidden"));
+  };
+  if($("bReset"))$("bReset").onclick=()=>{
+    toast(t("tReset"));
+    setTimeout(()=>location.href=location.pathname, 600);
+  };
+
+  // Ablak / Panel vezérlés
+  if($("minBtn"))$("minBtn").onclick=()=>document.body.classList.add("min");
+  if($("restoreBtn"))$("restoreBtn").onclick=()=>document.body.classList.remove("min");
+  if($("drawerBtn"))$("drawerBtn").onclick=()=>$("panel").classList.toggle("open");
+
+  // Hang vezérlés
+  if($("tSound"))$("tSound").onclick=()=>sound.toggle();
+  if($("sndBtn"))$("sndBtn").onclick=()=>sound.toggle();
+  if($("sMaster"))$("sMaster").oninput=e=>{sound.mv=parseFloat(e.target.value)/100;sound.applyVol();if($("vMaster"))$("vMaster").textContent=e.target.value+"%";};
+  if($("sL0"))$("sL0").oninput=e=>{sound.vol[0]=parseFloat(e.target.value)/100;sound.applyVol();if($("vL0"))$("vL0").textContent=e.target.value+"%";};
+  if($("sL1"))$("sL1").oninput=e=>{sound.vol[1]=parseFloat(e.target.value)/100;sound.applyVol();if($("vL1"))$("vL1").textContent=e.target.value+"%";};
+  if($("sL2"))$("sL2").oninput=e=>{sound.vol[2]=parseFloat(e.target.value)/100;sound.applyVol();if($("vL2"))$("vL2").textContent=e.target.value+"%";};
+  if($("sL3"))$("sL3").oninput=e=>{sound.vol[3]=parseFloat(e.target.value)/100;sound.applyVol();if($("vL3"))$("vL3").textContent=e.target.value+"%";};
+  if($("tReact"))$("tReact").onclick=()=>{sound.react=!sound.react;$("tReact").classList.toggle("on",sound.react);};
+
+  // Egér / Döntés Parallax
+  window.onmousemove=e=>{
     if(!P.parallax)return;
-    paraTX=(e.clientX/W-0.5)*2;paraTY=(e.clientY/H-0.5)*2;
-  });
-  addEventListener("deviceorientation",e=>{
-    if(!P.parallax||e.gamma==null)return;
-    paraTX=clamp(e.gamma/30,-1,1);paraTY=clamp((e.beta-45)/30,-1,1);
-  });
-  if(reduced){$("sSpd").value=0;$("vSpd").textContent="0.0× "+t("reducedMotion");}
+    paraTX=(e.clientX/W-0.5)*2;
+    paraTY=(e.clientY/H-0.5)*2;
+  };
+  window.ondeviceorientation=e=>{
+    if(!P.parallax||e.beta===null)return;
+    paraTX=clamp(e.gamma/30,-1,1);
+    paraTY=clamp((e.beta-45)/30,-1,1);
+  };
+
+  // Billentyűparancsok
+  window.onkeydown=e=>{
+    if(e.target.tagName==="INPUT"||e.target.tagName==="BUTTON")return;
+    const k=e.key.toLowerCase();
+    if(k==="h"){
+      document.body.classList.toggle("hideui");
+    }else if(k==="f"){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen().catch(()=>{});
+    }else if(k==="p"){
+      takePhoto();
+    }else if(k===" "){
+      e.preventDefault();
+      proj=!proj;
+      toast(proj?t("tProjOn"):t("tProjOff"));
+    }else if(k==="escape"){
+      if(proj){proj=false;toast(t("tProjOff"));}
+      if(document.body.classList.contains("hideui"))document.body.classList.remove("hideui");
+    }
+  };
 }
 
-/* background parallax (opposite direction → sense of depth) */
-function parallaxBG(){
-  const k=P.parallax?1:0;
-  const t=`translate3d(${(-paraX*14*k).toFixed(1)}px,${(-paraY*10*k).toFixed(1)}px,0) scale(1.035)`;
-  bgA.style.transform=t;bgB.style.transform=t;
-  requestAnimationFrame(parallaxBG);
+/* ─────────────── Inicializálás & Indítás ─────────────── */
+function init(){
+  readDPR();
+  populate();
+  buildSets();
+  setLang(LANG);
+  bindEvents();
+  resize();
+  window.onresize=resize;
+  armDprWatch();
+  if($("wrap"))$("wrap").classList.add("on");
+  if($("hint"))$("hint").classList.add("on");
+  lastT=performance.now();
+  requestAnimationFrame(frame);
 }
 
-/* ─────────────── boot ─────────────── */
-buildPaletteUI();bindUI();
-readDPR();resize();populate();buildSets();applyLang(LANG);armDprWatch();
-palTimer=110+Math.random()*70;
-addEventListener("resize",resize);
-requestAnimationFrame(parallaxBG);
-requestAnimationFrame(t=>{lastT=t;requestAnimationFrame(frame);});
-requestAnimationFrame(()=>{
-  $("wrap").classList.add("on");
-  if(!isSmall())setTimeout(()=>{$("hint").classList.add("on");
-    setTimeout(()=>$("hint").classList.remove("on"),9000);},2500);
-});
-window.__DW={P,SN,get g(){return curG();},get dpr(){return dpr;},
-  get counts(){return{NS,NN,NH,ND,NSMAX};},get sprG(){return sprG;},
-  get pal(){return curPal.id;},get mixing(){return!!nextPal;},
-  get boost(){return{sat:Math.round((SAT-1)*100),neb:Math.round((AB-1)*100)};},
-  setBoost:(s,n)=>{if(s!=null)SAT=1+clamp(s,0,25)/100;if(n!=null)AB=1+clamp(n,0,25)/100;
-    applyBoost();buildSets();drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);syncUI();},
-  get lang(){return LANG;}, setLang:applyLang, langs:Object.keys(I18N),
-  setPal:id=>startPalette(PALETTES[palIdx(id)]), setStars, sound, savePNG,
-  get limits(){return starLimits();}};
+if(document.readyState==="complete"||document.readyState==="interactive"){
+  init();
+}else{
+  document.addEventListener("DOMContentLoaded",init);
+}
 })();
 </script>
 </body>
