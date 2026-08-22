@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Density Wave — a spiral galaxy from nested orbits</title>
 <meta name="description" content="Interactive spiral galaxy simulation built on density wave theory: colour palettes, a procedural cosmic soundscape, supernovae and photo export.">
+
+<!-- SEO / Open Graph / Twitter / JSON-LD -->
+<link rel="canonical" href="https://galaxy-90m.pages.dev/">
+<meta property="og:title" content="Density Wave — a spiral galaxy from nested orbits">
+<meta property="og:description" content="Interactive spiral galaxy simulation built on density wave theory: colour palettes, a procedural cosmic soundscape, supernovae and photo export.">
+<!-- og:image is intentionally omitted because no valid image asset exists -->
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Density Wave",
+  "description": "Interactive spiral galaxy simulation built on density wave theory.",
+  "applicationCategory": "Simulation",
+  "browserRequirements": "Requires JavaScript and Web Audio",
+  "url": "https://galaxy-90m.pages.dev/"
+}
+</script>
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2305070d'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23ffd9a8'/%3E%3Cpath d='M50,50 C64,46 72,56 68,68' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3Cpath d='M50,50 C36,54 28,44 32,32' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
 <style>
   html,body{margin:0;height:100%;background:#05070d;overflow:hidden;
@@ -58,13 +77,15 @@
   .seg button:hover{background:rgba(255,255,255,.12)}
   .seg button.on{background:rgba(127,212,255,.22);border-color:rgba(127,212,255,.55);color:#dff3ff}
   .toggles{display:flex;flex-direction:column;gap:7px;margin:11px 0 4px}
-  .tg{display:flex;align-items:center;gap:9px;font-size:11.5px;cursor:pointer;user-select:none;color:rgba(232,238,247,.85)}
-  .tg .sw{width:30px;height:17px;border-radius:9px;background:rgba(255,255,255,.14);
+  /* toggle buttons – a11y: now real buttons with role="switch" */
+  button.tg{display:flex;align-items:center;gap:9px;font-size:11.5px;cursor:pointer;user-select:none;
+    background:none;border:none;padding:0;width:100%;text-align:left;font:inherit;color:rgba(232,238,247,.85)}
+  button.tg .sw{width:30px;height:17px;border-radius:9px;background:rgba(255,255,255,.14);
     border:1px solid rgba(255,255,255,.18);position:relative;transition:background .25s;flex:none}
-  .tg .sw::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;
+  button.tg .sw::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;
     background:#cfd9e6;transition:transform .25s}
-  .tg.on .sw{background:rgba(127,212,255,.55)}
-  .tg.on .sw::after{transform:translateX(13px);background:#fff}
+  button.tg.on .sw{background:rgba(127,212,255,.55)}
+  button.tg.on .sw::after{transform:translateX(13px);background:#fff}
   .dim{color:rgba(232,238,247,.45)}
 
   /* language switch + tabs */
@@ -136,6 +157,15 @@
     #sndBtn{width:38px;height:38px;left:14px;top:14px}
   }
   @media (prefers-reduced-motion: reduce){canvas.layer{transition:none}}
+
+  /* science tab styling */
+  .science-content{font-size:12px;line-height:1.6;color:rgba(232,238,247,.85)}
+  .science-content h2{font-size:13px;font-weight:600;margin:10px 0 4px;color:#dff3ff}
+  .science-content h3{font-size:12px;font-weight:600;margin:8px 0 3px;color:#b0d4ee}
+  .science-content p,.science-content ul{margin:4px 0 6px;padding-left:0;list-style:none}
+  .science-content ul li::before{content:"• ";color:#7fd4ff}
+  .science-content a{color:#7fd4ff;text-decoration:none}
+  .science-content a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -172,29 +202,30 @@
     <button data-t="gal" class="on" data-i18n="tabGal"></button>
     <button data-t="look" data-i18n="tabLook"></button>
     <button data-t="snd" data-i18n="tabSnd"></button>
+    <button data-t="science" data-i18n="tabScience"></button>
   </div>
 
   <!-- ============ GALAXY ============ -->
   <div class="page on" data-t="gal">
-    <div class="ctl"><label><span data-i18n="hubble"></span> <span class="val" id="vHub">Sb</span></label>
+    <div class="ctl"><label for="sHub"><span data-i18n="hubble"></span> <span class="val" id="vHub">Sb</span></label>
       <input id="sHub" type="range" min="0" max="1" step="0.01" value="0.5"></div>
-    <div class="ctl"><label><span data-i18n="bar"></span> <span class="val" id="vBar">0%</span></label>
+    <div class="ctl"><label for="sBar"><span data-i18n="bar"></span> <span class="val" id="vBar">0%</span></label>
       <input id="sBar" type="range" min="0" max="100" step="5" value="0"></div>
-    <div class="ctl"><label><span data-i18n="winding"></span> <span class="val" id="vWind">5.0</span></label>
+    <div class="ctl"><label for="sWind"><span data-i18n="winding"></span> <span class="val" id="vWind">5.0</span></label>
       <input id="sWind" type="range" min="2" max="9" step="0.1" value="5"></div>
     <div class="ctl"><label><span data-i18n="arms"></span></label>
       <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button><button data-m="6">6</button></div></div>
-    <div class="ctl"><label><span data-i18n="zoom"></span> <span class="val" id="vZoom">80%</span></label>
+    <div class="ctl"><label for="sZoom"><span data-i18n="zoom"></span> <span class="val" id="vZoom">80%</span></label>
       <input id="sZoom" type="range" min="20" max="200" step="5" value="80"></div>
-    <div class="ctl"><label><span data-i18n="speed"></span> <span class="val" id="vSpd">1.0×</span></label>
+    <div class="ctl"><label for="sSpd"><span data-i18n="speed"></span> <span class="val" id="vSpd">1.0×</span></label>
       <input id="sSpd" type="range" min="0" max="3" step="0.02" value="1"></div>
-    <div class="ctl"><label><span data-i18n="incl"></span> <span class="val" id="vInc">0°</span></label>
+    <div class="ctl"><label for="sInc"><span data-i18n="incl"></span> <span class="val" id="vInc">0°</span></label>
       <input id="sInc" type="range" min="0" max="80" step="1" value="0"></div>
     <div class="grp" data-i18n="presets"></div>
     <div class="pal" id="presets"></div>
     <div class="toggles">
-      <div class="tg" id="tOrbits"><span class="sw"></span><span data-i18n="orbits"></span></div>
-      <div class="tg" id="tMat"><span class="sw"></span><span data-i18n="material"></span> <span class="dim" data-i18n="windProb"></span></div>
+      <button class="tg" id="tOrbits" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="orbits"></span></button>
+      <button class="tg" id="tMat" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="material"></span> <span class="dim" data-i18n="windProb"></span></button>
     </div>
   </div>
 
@@ -203,20 +234,20 @@
     <div class="grp" data-i18n="palette"></div>
     <div class="pal" id="palettes"></div>
     <div class="toggles" style="margin-top:9px">
-      <div class="tg on" id="tAuto"><span class="sw"></span><span data-i18n="autoSw"></span> <span class="dim" data-i18n="crossfade"></span></div>
+      <button class="tg on" id="tAuto" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="autoSw"></span> <span class="dim" data-i18n="crossfade"></span></button>
     </div>
-    <div class="ctl" style="margin-top:11px"><label><span data-i18n="colBoost"></span> <span class="val" id="vSat">+15%</span></label>
+    <div class="ctl" style="margin-top:11px"><label for="sSat"><span data-i18n="colBoost"></span> <span class="val" id="vSat">+15%</span></label>
       <input id="sSat" type="range" min="0" max="25" step="1" value="15"></div>
-    <div class="ctl"><label><span data-i18n="nebDens"></span> <span class="val" id="vNeb">+15%</span></label>
+    <div class="ctl"><label for="sNeb"><span data-i18n="nebDens"></span> <span class="val" id="vNeb">+15%</span></label>
       <input id="sNeb" type="range" min="0" max="25" step="1" value="15"></div>
     <div class="grp" data-i18n="starsGrp"></div>
-    <div class="ctl"><label><span data-i18n="starCount"></span> <span class="val" id="vStars">12,000</span></label>
+    <div class="ctl"><label for="sStars"><span data-i18n="starCount"></span> <span class="val" id="vStars">12,000</span></label>
       <input id="sStars" type="range" min="3000" max="30000" step="500" value="12000"></div>
     <div class="toggles">
-      <div class="tg on" id="tFps"><span class="sw"></span><span data-i18n="perfGuard"></span> <span class="dim" data-i18n="auto"></span></div>
-      <div class="tg on" id="tSN"><span class="sw"></span><span data-i18n="supernovae"></span></div>
-      <div class="tg on" id="tPar"><span class="sw"></span><span data-i18n="parallax"></span> <span class="dim" data-i18n="mouseTilt"></span></div>
-      <div class="tg on" id="tBand"><span class="sw"></span><span data-i18n="band"></span></div>
+      <button class="tg on" id="tFps" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="perfGuard"></span> <span class="dim" data-i18n="auto"></span></button>
+      <button class="tg on" id="tSN" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="supernovae"></span></button>
+      <button class="tg on" id="tPar" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="parallax"></span> <span class="dim" data-i18n="mouseTilt"></span></button>
+      <button class="tg on" id="tBand" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="band"></span></button>
     </div>
     <div class="grp" data-i18n="actions"></div>
     <div class="btns">
@@ -224,6 +255,7 @@
       <button id="bLink">🔗 <span data-i18n="copyLink"></span></button>
       <button id="bProj">🎬 <span data-i18n="projector"></span></button>
       <button id="bHide">👁 <span data-i18n="hideUI"></span></button>
+      <button id="bReset">↺ <span data-i18n="reset"></span></button>
     </div>
   </div>
 
@@ -231,21 +263,83 @@
   <div class="page" data-t="snd">
     <p class="sub" style="margin:2px 0 10px" data-i18n="sndSub"></p>
     <div class="toggles" style="margin-top:0">
-      <div class="tg" id="tSound"><span class="sw"></span><span data-i18n="enableSnd"></span></div>
+      <button class="tg" id="tSound" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="enableSnd"></span></button>
     </div>
-    <div class="ctl"><label><span data-i18n="master"></span> <span class="val" id="vMaster">55%</span></label>
+    <div class="ctl"><label for="sMaster"><span data-i18n="master"></span> <span class="val" id="vMaster">55%</span></label>
       <input id="sMaster" type="range" min="0" max="100" step="1" value="55"></div>
     <div class="grp" data-i18n="layers"></div>
-    <div class="ctl"><label><span data-i18n="drone"></span> <span class="val" id="vL0">60%</span></label>
+    <div class="ctl"><label for="sL0"><span data-i18n="drone"></span> <span class="val" id="vL0">60%</span></label>
       <input id="sL0" type="range" min="0" max="100" step="1" value="60"></div>
-    <div class="ctl"><label><span data-i18n="wind"></span> <span class="val" id="vL1">45%</span></label>
+    <div class="ctl"><label for="sL1"><span data-i18n="wind"></span> <span class="val" id="vL1">45%</span></label>
       <input id="sL1" type="range" min="0" max="100" step="1" value="45"></div>
-    <div class="ctl"><label><span data-i18n="chimes"></span> <span class="val" id="vL2">40%</span></label>
+    <div class="ctl"><label for="sL2"><span data-i18n="chimes"></span> <span class="val" id="vL2">40%</span></label>
       <input id="sL2" type="range" min="0" max="100" step="1" value="40"></div>
-    <div class="ctl"><label><span data-i18n="pulsar"></span> <span class="val" id="vL3">0%</span></label>
+    <div class="ctl"><label for="sL3"><span data-i18n="pulsar"></span> <span class="val" id="vL3">0%</span></label>
       <input id="sL3" type="range" min="0" max="100" step="1" value="0"></div>
     <div class="toggles">
-      <div class="tg on" id="tReact"><span class="sw"></span><span data-i18n="follow"></span> <span class="dim" data-i18n="zoomTempo"></span></div>
+      <button class="tg on" id="tReact" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="follow"></span> <span class="dim" data-i18n="zoomTempo"></span></button>
+    </div>
+  </div>
+
+  <!-- ============ SCIENCE ============ -->
+  <div class="page" data-t="science">
+    <div class="science-content">
+      <h2 data-i18n="sciTitle">Scientific basis</h2>
+      <p data-i18n="sciIntro">This simulation is inspired by density‑wave models of spiral structure. Early dynamical work by Bertil Lindblad helped establish this line of thinking, which was later developed into more complete density‑wave theories by C. C. Lin, Frank Shu and others.</p>
+      <h3 data-i18n="sciHow">How the model works</h3>
+      <p data-i18n="sciHowText">The simulation uses nested elliptical orbits with a common major axis. Each star follows a slightly eccentric orbit; the orientation of the orbits twists with radius, creating the spiral pattern. The bar is formed by aligning the inner orbits, while the outer disc retains the usual winding. The parameters (Hubble‑like morphology, bar strength, winding, inclination, etc.) are visual approximations, not a physical N‑body simulation.</p>
+      <h3 data-i18n="sciLimits">Limitations</h3>
+      <ul>
+        <li data-i18n="sciLim1">No gravitational interactions between stars are simulated.</li>
+        <li data-i18n="sciLim2">The spiral pattern is purely kinematic – there is no self‑consistent density wave.</li>
+        <li data-i18n="sciLim3">“Supernovae” are visual effects only (bright flares and expanding shells).</li>
+        <li data-i18n="sciLim4">The “Milky Way‑inspired band” is a generated background, not a real star map.</li>
+        <li data-i18n="sciLim5">Presets like “Andromeda‑like” are morphological matches, not precise physical models.</li>
+      </ul>
+      <h3 data-i18n="sciSources">Sources</h3>
+      <ul>
+        <li>
+          Lindblad, B. (1925).
+          <em>On the Cause of Star-Streaming</em>.
+          <em>Astrophysical Journal</em>, 62, 191–197.
+          <a href="https://adsabs.harvard.edu/pdf/1925ApJ....62..191L"
+             target="_blank"
+             rel="noopener noreferrer">
+            NASA ADS / ApJ
+          </a>
+        </li>
+        <li>
+          Lin, C. C. &amp; Shu, F. H. (1964).
+          <em>On the Spiral Structure of Disk Galaxies</em>.
+          <em>Astrophysical Journal</em>, 140, 646.
+          <a href="https://doi.org/10.1086/147955"
+             target="_blank"
+             rel="noopener noreferrer">
+            DOI
+          </a>
+        </li>
+        <li>
+          Binney, J. &amp; Tremaine, S. (2008).
+          <em>Galactic Dynamics: Second Edition</em>.
+          Princeton University Press.
+          <a href="https://doi.org/10.1515/9781400828722"
+             target="_blank"
+             rel="noopener noreferrer">
+            DOI / kiadói oldal
+          </a>
+        </li>
+        <li>
+          Shu, F. H. (1982).
+          <em>The Physical Universe: An Introduction to Astronomy</em>.
+          University Science Books.
+          ISBN 978-0-935702-05-7.
+          <a href="https://uscibooks.aip.org/books/the-physical-universe-an-introduction-to-astronomy/"
+             target="_blank"
+             rel="noopener noreferrer">
+            Kiadói oldal
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
@@ -273,16 +367,16 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;
 
 /* ─────────────── translations (EN · HU · RO · DE) ─────────────── */
 const I18N={
- en:{tabGal:"Galaxy",tabLook:"Visuals",tabSnd:"Sound",controls:"Controls",
+ en:{tabGal:"Galaxy",tabLook:"Visuals",tabSnd:"Sound",tabScience:"Science",controls:"Controls",
   sub:"Every star rides its own tilted orbit. The spiral is a traffic jam, not a structure.",
-  hubble:"Hubble type",bar:"Bar",winding:"Winding",arms:"Spiral arms",zoom:"Zoom",
+  hubble:"Hubble-like morphology",bar:"Bar",winding:"Winding",arms:"Spiral arms",zoom:"Zoom",
   speed:"Time speed",incl:"Inclination",presets:"Presets",
   orbits:"Show orbits",material:"Material arms",windProb:"(the winding problem)",
   palette:"Palette",autoSw:"Auto-switch",crossfade:"(with crossfade)",
   colBoost:"Colour boost",nebDens:"Nebula density",
   starsGrp:"Stars",starCount:"Star count",perfGuard:"Performance guard",auto:"(auto)",
-  supernovae:"Supernovae",parallax:"Parallax",mouseTilt:"(mouse / tilt)",band:"Milky Way band",
-  actions:"Actions",photo:"Photo (PNG)",copyLink:"Copy link",projector:"Projector",hideUI:"Hide UI",
+  supernovae:"Supernova visual effect",parallax:"Parallax",mouseTilt:"(mouse / tilt)",band:"Milky Way-inspired band",
+  actions:"Actions",photo:"Photo (PNG)",copyLink:"Copy link",projector:"Projector",hideUI:"Hide UI",reset:"Reset simulation",
   sndSub:"A procedural cosmic soundscape — no audio files, every layer is generated live.",
   enableSnd:"Enable sound",master:"Master volume",layers:"Layers",
   drone:"Deep-space drone",wind:"Solar wind",chimes:"Stardust chimes",pulsar:"Pulsar pulse",
@@ -292,23 +386,35 @@ const I18N={
   creditPre:"Made by",creditPost:"— source & download on GitHub ↗",
   sndTitle:"Cosmic sound on/off",minTitle:"Minimise panel",restoreTitle:"Show controls",
   pal_classic:"Classic",pal_indigo:"Indigo Dust",pal_gold:"Blue-Gold",pal_violet:"Violet Sea",
-  pre_andromeda:"Andromeda",pre_whirlpool:"Whirlpool M51",pre_barred:"Barred SBb",pre_pinwheel:"Pinwheel",
+  pre_andromeda:"Andromeda-like",pre_whirlpool:"Whirlpool M51",pre_barred:"Barred SBb",pre_pinwheel:"Pinwheel",
   tGuard:"Performance guard: star count {n}",tSaved:"Image saved — {s}",
   tLink:"Link copied — with every setting included",tCopy:"Copy the link:",
   tProjOn:"Projector mode — exit with Space, Esc or a click",tProjOff:"Projector mode off",
   tApplied:"{name} applied",tHidden:"UI hidden — press H to bring it back",
-  tNoAudio:"This browser does not support Web Audio",reducedMotion:"(reduced motion)"},
+  tNoAudio:"This browser does not support Web Audio",reducedMotion:"(reduced motion)",
+  tReset:"Simulation reset to default",
+  sciTitle:"Scientific basis",
+  sciIntro:"This simulation is inspired by density‑wave models of spiral structure. Early dynamical work by Bertil Lindblad helped establish this line of thinking, which was later developed into more complete density‑wave theories by C. C. Lin, Frank Shu and others.",
+  sciHow:"How the model works",
+  sciHowText:"The simulation uses nested elliptical orbits with a common major axis. Each star follows a slightly eccentric orbit; the orientation of the orbits twists with radius, creating the spiral pattern. The bar is formed by aligning the inner orbits, while the outer disc retains the usual winding. The parameters (Hubble‑like morphology, bar strength, winding, inclination, etc.) are visual approximations, not a physical N‑body simulation.",
+  sciLimits:"Limitations",
+  sciLim1:"No gravitational interactions between stars are simulated.",
+  sciLim2:"The spiral pattern is purely kinematic – there is no self‑consistent density wave.",
+  sciLim3:"“Supernovae” are visual effects only (bright flares and expanding shells).",
+  sciLim4:"The “Milky Way‑inspired band” is a generated background, not a real star map.",
+  sciLim5:"Presets like “Andromeda‑like” are morphological matches, not precise physical models.",
+  sciSources:"Sources"},
 
- hu:{tabGal:"Galaxis",tabLook:"Látvány",tabSnd:"Hang",controls:"Vezérlők",
+ hu:{tabGal:"Galaxis",tabLook:"Látvány",tabSnd:"Hang",tabScience:"Tudomány",controls:"Vezérlők",
   sub:"Minden csillag a saját, döntött pályáján kering. A spirál forgalmi dugó, nem szerkezet.",
-  hubble:"Hubble-típus",bar:"Küllő",winding:"Feltekeredés",arms:"Spirálkarok",zoom:"Zoom",
+  hubble:"Hubble-szerű morfológia",bar:"Küllő",winding:"Feltekeredés",arms:"Spirálkarok",zoom:"Zoom",
   speed:"Idősebesség",incl:"Dőlésszög",presets:"Készletek",
   orbits:"Pályák megjelenítése",material:"Anyagi karok",windProb:"(feltekeredési probléma)",
   palette:"Színvilág",autoSw:"Automatikus váltás",crossfade:"(áttűnéssel)",
   colBoost:"Színerősítés",nebDens:"Ködsűrűség",
   starsGrp:"Csillagok",starCount:"Csillagszám",perfGuard:"Teljesítményőr",auto:"(auto)",
-  supernovae:"Szupernóvák",parallax:"Parallax",mouseTilt:"(egér / döntés)",band:"Tejút-sáv",
-  actions:"Műveletek",photo:"Fotó (PNG)",copyLink:"Link másolása",projector:"Vetítő",hideUI:"Felület el",
+  supernovae:"Szupernóva-effektus",parallax:"Parallax",mouseTilt:"(egér / döntés)",band:"Tejút ihlette háttérsáv",
+  actions:"Műveletek",photo:"Fotó (PNG)",copyLink:"Link másolása",projector:"Vetítő",hideUI:"Felület el",reset:"Visszaállítás",
   sndSub:"Procedurális kozmikus hangtér — nincs hangfájl, minden réteg élőben generálódik.",
   enableSnd:"Hang bekapcsolása",master:"Fő hangerő",layers:"Rétegek",
   drone:"Mélyűr-drón",wind:"Szoláris szél",chimes:"Csillagpor-csengők",pulsar:"Pulzár-lüktetés",
@@ -318,23 +424,35 @@ const I18N={
   creditPre:"Készítette:",creditPost:"— forráskód és letöltés a GitHubon ↗",
   sndTitle:"Kozmikus hang be/ki",minTitle:"Panel kicsinyítése",restoreTitle:"Vezérlők megjelenítése",
   pal_classic:"Klasszikus",pal_indigo:"Indigó por",pal_gold:"Kék-arany",pal_violet:"Ibolya-tenger",
-  pre_andromeda:"Androméda",pre_whirlpool:"Örvény M51",pre_barred:"Küllős SBb",pre_pinwheel:"Szélkerék",
+  pre_andromeda:"Androméda-szerű",pre_whirlpool:"Örvény M51",pre_barred:"Küllős SBb",pre_pinwheel:"Szélkerék",
   tGuard:"Teljesítményőr: csillagszám {n}",tSaved:"Kép mentve — {s}",
   tLink:"Link a vágólapon — minden beállítással",tCopy:"Másold ki a linket:",
   tProjOn:"Vetítő mód — kilépés: Space, Esc vagy kattintás",tProjOff:"Vetítő mód kikapcsolva",
   tApplied:"{name} beállítva",tHidden:"Felület elrejtve — H a visszahozáshoz",
-  tNoAudio:"A böngésző nem támogatja a Web Audiót",reducedMotion:"(csökkentett mozgás)"},
+  tNoAudio:"A böngésző nem támogatja a Web Audiót",reducedMotion:"(csökkentett mozgás)",
+  tReset:"Szimuláció visszaállítva",
+  sciTitle:"Tudományos alapok",
+  sciIntro:"A szimuláció a spirálgalaxisok szerkezetéről szóló dinamikai és sűrűséghullám-elméletek által inspirált, egyszerűsített vizuális modellt használ. Nem önkonzisztens fizikai sűrűséghullám- vagy N-test szimuláció.",
+  sciHow:"Hogyan működik a modell",
+  sciHowText:"A szimuláció egymásba ágyazott elliptikus pályákat használ közös nagytengellyel. Minden csillag egy enyhén excentrikus pályán mozog; a pályák iránya sugárirányban csavarodik, létrehozva a spirálmintázatot. A küllőt a belső pályák összehangolása alkotja, míg a külső korong megtartja a szokásos feltekeredést. A paraméterek (Hubble-szerű morfológia, küllőerősség, feltekeredés, dőlésszög stb.) vizuális közelítések, nem fizikai N-test szimuláció.",
+  sciLimits:"Korlátok",
+  sciLim1:"A csillagok között nincs gravitációs kölcsönhatás szimulálva.",
+  sciLim2:"A spirálmintázat pusztán kinematikai – nincs önkonzisztens sűrűséghullám.",
+  sciLim3:"A „szupernóvák” csak vizuális effektek (fényes fellángolások és táguló héjak).",
+  sciLim4:"A „Tejút ihlette háttérsáv” generált háttér, nem valódi csillagtérkép.",
+  sciLim5:"Az olyan előbeállítások, mint az „Androméda-szerű”, morfológiai egyezések, nem pontos fizikai modellek.",
+  sciSources:"Források"},
 
- ro:{tabGal:"Galaxie",tabLook:"Aspect",tabSnd:"Sunet",controls:"Comenzi",
+ ro:{tabGal:"Galaxie",tabLook:"Aspect",tabSnd:"Sunet",tabScience:"Știință",controls:"Comenzi",
   sub:"Fiecare stea își urmează propria orbită înclinată. Spirala este un ambuteiaj, nu o structură.",
-  hubble:"Tip Hubble",bar:"Bară",winding:"Înfășurare",arms:"Brațe spirale",zoom:"Zoom",
+  hubble:"Morfologie asemănătoare Hubble",bar:"Bară",winding:"Înfășurare",arms:"Brațe spirale",zoom:"Zoom",
   speed:"Viteza timpului",incl:"Înclinare",presets:"Presetări",
   orbits:"Arată orbitele",material:"Brațe materiale",windProb:"(problema înfășurării)",
   palette:"Paletă",autoSw:"Schimbare automată",crossfade:"(cu tranziție)",
   colBoost:"Intensitate culori",nebDens:"Densitate nebuloase",
   starsGrp:"Stele",starCount:"Număr de stele",perfGuard:"Protecție performanță",auto:"(auto)",
-  supernovae:"Supernove",parallax:"Paralaxă",mouseTilt:"(mouse / înclinare)",band:"Banda Căii Lactee",
-  actions:"Acțiuni",photo:"Foto (PNG)",copyLink:"Copiază linkul",projector:"Proiector",hideUI:"Ascunde UI",
+  supernovae:"Efect vizual de supernovă",parallax:"Paralaxă",mouseTilt:"(mouse / înclinare)",band:"Banda Căii Lactee (inspirat)",
+  actions:"Acțiuni",photo:"Foto (PNG)",copyLink:"Copiază linkul",projector:"Proiector",hideUI:"Ascunde UI",reset:"Resetează simularea",
   sndSub:"Un peisaj sonor cosmic procedural — fără fișiere audio, fiecare strat este generat live.",
   enableSnd:"Activează sunetul",master:"Volum principal",layers:"Straturi",
   drone:"Dronă din spațiu",wind:"Vânt solar",chimes:"Clopoței de praf stelar",pulsar:"Puls de pulsar",
@@ -344,23 +462,35 @@ const I18N={
   creditPre:"Realizat de",creditPost:"— sursă și descărcare pe GitHub ↗",
   sndTitle:"Sunet cosmic pornit/oprit",minTitle:"Minimizează panoul",restoreTitle:"Arată comenzile",
   pal_classic:"Clasic",pal_indigo:"Praf indigo",pal_gold:"Albastru-auriu",pal_violet:"Marea violetă",
-  pre_andromeda:"Andromeda",pre_whirlpool:"Vârtejul M51",pre_barred:"SBb cu bară",pre_pinwheel:"Morișca",
+  pre_andromeda:"Andromeda-similar",pre_whirlpool:"Vârtejul M51",pre_barred:"SBb cu bară",pre_pinwheel:"Morișca",
   tGuard:"Protecție performanță: {n} stele",tSaved:"Imagine salvată — {s}",
   tLink:"Link copiat — cu toate setările",tCopy:"Copiază linkul:",
   tProjOn:"Mod proiector — ieșire cu Space, Esc sau clic",tProjOff:"Mod proiector oprit",
   tApplied:"{name} aplicat",tHidden:"UI ascuns — apasă H pentru a-l readuce",
-  tNoAudio:"Acest browser nu suportă Web Audio",reducedMotion:"(mișcare redusă)"},
+  tNoAudio:"Acest browser nu suportă Web Audio",reducedMotion:"(mișcare redusă)",
+  tReset:"Simularea resetată",
+  sciTitle:"Baze științifice",
+  sciIntro:"Această simulare este inspirată de modelele de undă de densitate ale structurii spirale. Lucrările dinamice timpurii ale lui Bertil Lindblad au contribuit la stabilirea acestei linii de gândire, care mai târziu a fost dezvoltată în teorii mai complete ale undelor de densitate de C. C. Lin, Frank Shu și alții.",
+  sciHow:"Cum funcționează modelul",
+  sciHowText:"Simularea folosește orbite eliptice imbricate cu o axă majoră comună. Fiecare stea urmează o orbită ușor excentrică; orientarea orbitelor se răsucește cu raza, creând modelul spiral. Bara este formată prin alinierea orbitelor interioare, în timp ce discul exterior păstrează înfășurarea obișnuită. Parametrii (morfologie asemănătoare Hubble, forța barei, înfășurare, înclinare etc.) sunt aproximări vizuale, nu o simulare fizică N-body.",
+  sciLimits:"Limitări",
+  sciLim1:"Nu sunt simulate interacțiuni gravitaționale între stele.",
+  sciLim2:"Modelul spiral este pur cinematic – nu există o undă de densitate auto-consistentă.",
+  sciLim3:"„Supernovele” sunt doar efecte vizuale (flare luminoase și învelișuri în expansiune).",
+  sciLim4:"„Banda Căii Lactee” este un fundal generat, nu o hartă stelară reală.",
+  sciLim5:"Preconfigurările precum „Andromeda-similar” sunt potriviri morfologice, nu modele fizice precise.",
+  sciSources:"Surse"},
 
- de:{tabGal:"Galaxie",tabLook:"Ansicht",tabSnd:"Klang",controls:"Steuerung",
+ de:{tabGal:"Galaxie",tabLook:"Ansicht",tabSnd:"Klang",tabScience:"Wissenschaft",controls:"Steuerung",
   sub:"Jeder Stern folgt seiner eigenen geneigten Bahn. Die Spirale ist ein Stau, keine Struktur.",
-  hubble:"Hubble-Typ",bar:"Balken",winding:"Aufwicklung",arms:"Spiralarme",zoom:"Zoom",
+  hubble:"Hubble-ähnliche Morphologie",bar:"Balken",winding:"Aufwicklung",arms:"Spiralarme",zoom:"Zoom",
   speed:"Zeitgeschwindigkeit",incl:"Neigung",presets:"Vorlagen",
   orbits:"Bahnen zeigen",material:"Materielle Arme",windProb:"(das Aufwicklungsproblem)",
   palette:"Palette",autoSw:"Autom. Wechsel",crossfade:"(mit Überblendung)",
   colBoost:"Farbverstärkung",nebDens:"Nebeldichte",
   starsGrp:"Sterne",starCount:"Sternenzahl",perfGuard:"Leistungswächter",auto:"(auto)",
-  supernovae:"Supernovae",parallax:"Parallaxe",mouseTilt:"(Maus / Neigung)",band:"Milchstraßenband",
-  actions:"Aktionen",photo:"Foto (PNG)",copyLink:"Link kopieren",projector:"Projektor",hideUI:"UI ausblenden",
+  supernovae:"Supernova‑visueller Effekt",parallax:"Parallaxe",mouseTilt:"(Maus / Neigung)",band:"Milchstraßen-inspiriertes Band",
+  actions:"Aktionen",photo:"Foto (PNG)",copyLink:"Link kopieren",projector:"Projektor",hideUI:"UI ausblenden",reset:"Zurücksetzen",
   sndSub:"Eine prozedurale kosmische Klangwelt — keine Audiodateien, jede Schicht entsteht live.",
   enableSnd:"Ton einschalten",master:"Gesamtlautstärke",layers:"Ebenen",
   drone:"Tiefraum-Drone",wind:"Sonnenwind",chimes:"Sternenstaub-Glocken",pulsar:"Pulsar-Puls",
@@ -370,12 +500,24 @@ const I18N={
   creditPre:"Erstellt von",creditPost:"— Quellcode & Download auf GitHub ↗",
   sndTitle:"Kosmischer Klang an/aus",minTitle:"Panel minimieren",restoreTitle:"Steuerung anzeigen",
   pal_classic:"Klassisch",pal_indigo:"Indigostaub",pal_gold:"Blau-Gold",pal_violet:"Violettes Meer",
-  pre_andromeda:"Andromeda",pre_whirlpool:"Strudel M51",pre_barred:"Balken SBb",pre_pinwheel:"Feuerrad",
+  pre_andromeda:"Andromeda-ähnlich",pre_whirlpool:"Strudel M51",pre_barred:"Balken SBb",pre_pinwheel:"Feuerrad",
   tGuard:"Leistungswächter: Sternenzahl {n}",tSaved:"Bild gespeichert — {s}",
   tLink:"Link kopiert — mit allen Einstellungen",tCopy:"Link kopieren:",
   tProjOn:"Projektormodus — Beenden mit Space, Esc oder Klick",tProjOff:"Projektormodus aus",
   tApplied:"{name} angewendet",tHidden:"UI ausgeblendet — H holt es zurück",
-  tNoAudio:"Dieser Browser unterstützt Web Audio nicht",reducedMotion:"(reduzierte Bewegung)"}
+  tNoAudio:"Dieser Browser unterstützt Web Audio nicht",reducedMotion:"(reduzierte Bewegung)",
+  tReset:"Simulation zurückgesetzt",
+  sciTitle:"Wissenschaftliche Grundlagen",
+  sciIntro:"Diese Simulation ist von Dichtewellenmodellen der Spiralstruktur inspiriert. Die frühen dynamischen Arbeiten von Bertil Lindblad halfen, diese Denkrichtung zu etablieren, die später von C. C. Lin, Frank Shu und anderen zu vollständigeren Dichtewellentheorien weiterentwickelt wurde.",
+  sciHow:"Wie das Modell funktioniert",
+  sciHowText:"Die Simulation verwendet ineinander verschachtelte elliptische Bahnen mit einer gemeinsamen Hauptachse. Jeder Stern folgt einer leicht exzentrischen Bahn; die Orientierung der Bahnen dreht sich mit dem Radius und erzeugt so das Spiralbild. Der Balken entsteht durch die Ausrichtung der inneren Bahnen, während die äußere Scheibe die übliche Aufwicklung beibehält. Die Parameter (Hubble-ähnliche Morphologie, Balkenstärke, Aufwicklung, Neigung usw.) sind visuelle Annäherungen, keine physikalische N‑Körper-Simulation.",
+  sciLimits:"Einschränkungen",
+  sciLim1:"Es werden keine gravitativen Wechselwirkungen zwischen den Sternen simuliert.",
+  sciLim2:"Das Spiralbild ist rein kinematisch – es gibt keine selbstkonsistente Dichtewelle.",
+  sciLim3:"„Supernovae“ sind nur visuelle Effekte (helle Blitze und expandierende Hüllen).",
+  sciLim4:"Das „Milchstraßen-inspirierte Band“ ist ein generierter Hintergrund, keine echte Sternenkarte.",
+  sciLim5:"Voreinstellungen wie „Andromeda-ähnlich“ sind morphologische Übereinstimmungen, keine präzisen physikalischen Modelle.",
+  sciSources:"Quellen"}
 };
 const LOCALE={en:"en-US",hu:"hu-HU",ro:"ro-RO",de:"de-DE"};
 const stored=(()=>{try{return localStorage.getItem("dw-lang");}catch(e){return null;}})();
@@ -1058,9 +1200,11 @@ const sound={
     this.on=v===undefined?!this.on:v;
     if(this.on&&this.ac.state==="suspended")this.ac.resume();
     this.applyVol();
+    const tEl=$("tSound");
+    tEl.classList.toggle("on",this.on);
+    tEl.setAttribute("aria-checked", this.on ? "true" : "false");
     $("sndBtn").classList.toggle("on",this.on);
     $("sndBtn").textContent=this.on?"🔊":"🔈";
-    $("tSound").classList.toggle("on",this.on);
   },
   chime(){
     const ac=this.ac;if(!ac||this.vol[2]<=0)return;
@@ -1195,7 +1339,7 @@ function applyPreset(p){
 /* ─────────────── language switch ─────────────── */
 function applyLang(l){
   LANG=I18N[l]?l:"en";
-  document.documentElement.lang=LANG;
+  document.documentElement.lang = LANG;   // update html lang attribute
   document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
   document.querySelectorAll("[data-i18n-title]").forEach(e=>{
     e.title=t(e.dataset.i18nTitle);e.setAttribute("aria-label",t(e.dataset.i18nTitle));});
@@ -1220,13 +1364,20 @@ function syncUI(){
   $("sSat").value=sv;$("vSat").textContent="+"+sv+"%";
   $("sNeb").value=nv;$("vNeb").textContent="+"+nv+"%";
   document.querySelectorAll("#segArms button").forEach(b=>b.classList.toggle("on",+b.dataset.m===P.arms));
-  $("tOrbits").classList.toggle("on",P.orbits);
-  $("tMat").classList.toggle("on",P.material);
-  $("tAuto").classList.toggle("on",P.autoPal);
-  $("tSN").classList.toggle("on",P.supernova);
-  $("tPar").classList.toggle("on",P.parallax);
-  $("tBand").classList.toggle("on",P.band);
-  $("tFps").classList.toggle("on",P.fpsGuard);
+  // toggle states: update class and aria-checked
+  const setToggle = (id, state) => {
+    const el = $(id);
+    el.classList.toggle("on", state);
+    el.setAttribute("aria-checked", state ? "true" : "false");
+  };
+  setToggle("tOrbits", P.orbits);
+  setToggle("tMat", P.material);
+  setToggle("tAuto", P.autoPal);
+  setToggle("tSN", P.supernova);
+  setToggle("tPar", P.parallax);
+  setToggle("tBand", P.band);
+  setToggle("tFps", P.fpsGuard);
+  setToggle("tReact", sound.react);
 }
 function markPalette(p){
   document.querySelectorAll("#palettes button").forEach(b=>b.classList.toggle("on",b.dataset.p===p.id));
@@ -1256,9 +1407,24 @@ function buildPaletteUI(){
   });
 }
 function wireToggle(id,key,after){
-  $(id).addEventListener("click",()=>{
-    P[key]=!P[key];$(id).classList.toggle("on",P[key]);
-    if(after)after();
+  const el=$(id);
+
+  const toggle = ()=>{
+    P[key]=!P[key];
+    const state=P[key];
+    el.classList.toggle("on",state);
+    el.setAttribute("aria-checked", state ? "true" : "false");
+    if(after) after();
+  };
+
+  el.addEventListener("click", toggle);
+
+  // keyboard support: Enter and Space
+  el.addEventListener("keydown", e=>{
+    if(e.key===" " || e.key==="Enter"){
+      e.preventDefault();
+      toggle();
+    }
   });
 }
 function bindUI(){
@@ -1275,18 +1441,26 @@ function bindUI(){
     const v=+e.target.value;AB=1+v/100;$("vNeb").textContent="+"+v+"%";scheduleLook();});
   document.querySelectorAll("#segArms button").forEach(b=>
     b.addEventListener("click",()=>{P.arms=+b.dataset.m;syncUI();}));
-  wireToggle("tOrbits","orbits");wireToggle("tMat","material");
+  wireToggle("tOrbits","orbits");
+  wireToggle("tMat","material");
   wireToggle("tAuto","autoPal",()=>{palTimer=100;});
-  wireToggle("tSN","supernova");wireToggle("tPar","parallax",()=>{if(!P.parallax){paraTX=paraTY=0;}});
+  wireToggle("tSN","supernova");
+  wireToggle("tPar","parallax",()=>{if(!P.parallax){paraTX=paraTY=0;}});
   wireToggle("tBand","band",()=>{drawBG(bgFrontCtx,curPal);if(nextPal)drawBG(bgBackCtx,nextPal);});
   wireToggle("tFps","fpsGuard");
+  // Sound toggle is handled by sound.toggle, but we need to sync aria-checked
   $("tSound").addEventListener("click",()=>sound.toggle());
   $("sndBtn").addEventListener("click",()=>sound.toggle());
   document.querySelectorAll("#langs button").forEach(b=>
     b.addEventListener("click",()=>applyLang(b.dataset.l)));
   $("minBtn").addEventListener("click",()=>setMin(true));
   $("restoreBtn").addEventListener("click",()=>setMin(false));
-  $("tReact").addEventListener("click",()=>{sound.react=!sound.react;$("tReact").classList.toggle("on",sound.react);});
+  $("tReact").addEventListener("click",()=>{
+    sound.react=!sound.react;
+    const el=$("tReact");
+    el.classList.toggle("on",sound.react);
+    el.setAttribute("aria-checked", sound.react ? "true" : "false");
+  });
   const vol=(id,lab,fn)=>$(id).addEventListener("input",e=>{
     const v=+e.target.value;$(lab).textContent=v+"%";fn(v/100);sound.applyVol();});
   vol("sMaster","vMaster",v=>sound.mv=v);
@@ -1303,6 +1477,42 @@ function bindUI(){
     document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
     document.querySelectorAll(".page").forEach(p=>p.classList.toggle("on",p.dataset.t===b.dataset.t));
   }));
+  // Reset simulation – now also resets sound to defaults
+  function resetSimulation(){
+    P.hub = 0.5; P.bar = 0; P.wind = 5; P.arms = 2;
+    P.zoom = 0.8; P.speed = 1; P.incl = 0;
+    SAT = 1.15; AB = 1.15;
+    setStars(12000);
+    P.orbits = false; P.material = false; P.autoPal = true;
+    P.supernova = true; P.parallax = true; P.band = true; P.fpsGuard = true;
+    // Reset sound settings to default
+    sound.mv = 0.55;
+    sound.vol = [0.6, 0.45, 0.4, 0];
+    sound.react = true;
+    sound.on = false;
+    sound.applyVol();
+    // Update sound UI sliders and toggle states
+    $("sMaster").value = 55; $("vMaster").textContent = "55%";
+    $("sL0").value = 60; $("vL0").textContent = "60%";
+    $("sL1").value = 45; $("vL1").textContent = "45%";
+    $("sL2").value = 40; $("vL2").textContent = "40%";
+    $("sL3").value = 0; $("vL3").textContent = "0%";
+    const tReact = $("tReact");
+    tReact.classList.toggle("on", sound.react);
+    tReact.setAttribute("aria-checked", sound.react ? "true" : "false");
+    const tSound = $("tSound");
+    tSound.classList.toggle("on", sound.on);
+    tSound.setAttribute("aria-checked", sound.on ? "true" : "false");
+    $("sndBtn").classList.toggle("on", sound.on);
+    $("sndBtn").textContent = sound.on ? "🔊" : "🔈";
+    // Rebuild simulation
+    buildCDF(); refreshEcc(); syncUI(); scheduleSprites(); applyBoost(); buildSets();
+    drawBG(bgFrontCtx, curPal); if(nextPal) drawBG(bgBackCtx, nextPal);
+    if(nextPal){ nextPal = null; palMix = 0; setA = buildSet(curPal); setB = null; }
+    toast(t("tReset"));
+  }
+  $("bReset").addEventListener("click", resetSimulation);
+
   addEventListener("keydown",e=>{
     if(e.target.tagName==="INPUT")return;
     const k=e.key.toLowerCase();
