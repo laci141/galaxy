@@ -214,9 +214,9 @@
     <div class="ctl"><label for="sWind"><span data-i18n="winding"></span> <span class="val" id="vWind">5.0</span></label>
       <input id="sWind" type="range" min="2" max="9" step="0.1" value="5"></div>
     <div class="ctl"><label><span data-i18n="arms"></span></label>
-      <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button><button data-m="6">6</button></div></div>
+      <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button></div></div>
     <div class="ctl"><label for="sZoom"><span data-i18n="zoom"></span> <span class="val" id="vZoom">80%</span></label>
-      <input id="sZoom" type="range" min="20" max="200" step="5" value="80"></div>
+      <input id="sZoom" type="range" min="20" max="100" step="5" value="80"></div>
     <div class="ctl"><label for="sSpd"><span data-i18n="speed"></span> <span class="val" id="vSpd">1.0×</span></label>
       <input id="sSpd" type="range" min="0" max="3" step="0.02" value="1"></div>
     <div class="ctl"><label for="sInc"><span data-i18n="incl"></span> <span class="val" id="vInc">0°</span></label>
@@ -242,7 +242,7 @@
       <input id="sNeb" type="range" min="0" max="25" step="1" value="15"></div>
     <div class="grp" data-i18n="starsGrp"></div>
     <div class="ctl"><label for="sStars"><span data-i18n="starCount"></span> <span class="val" id="vStars">12,000</span></label>
-      <input id="sStars" type="range" min="3000" max="30000" step="500" value="12000"></div>
+      <input id="sStars" type="range" min="3000" max="24000" step="500" value="12000"></div>
     <div class="toggles">
       <button class="tg on" id="tFps" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="perfGuard"></span> <span class="dim" data-i18n="auto"></span></button>
       <button class="tg on" id="tSN" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="supernovae"></span></button>
@@ -521,8 +521,14 @@ const I18N={
 };
 const LOCALE={en:"en-US",hu:"hu-HU",ro:"ro-RO",de:"de-DE"};
 const stored=(()=>{try{return localStorage.getItem("dw-lang");}catch(e){return null;}})();
-const navLang=(navigator.language||"en").slice(0,2).toLowerCase();
-let LANG=(l=>I18N[l]?l:"en")((QS.get("lang")||stored||navLang||"en").toLowerCase());
+// Force English as default (ignore browser language) — user can still switch via UI
+let LANG = "en";
+// Override if URL parameter or stored value is valid
+const urlLang = QS.get("lang");
+if (urlLang && I18N[urlLang]) LANG = urlLang;
+else if (stored && I18N[stored]) LANG = stored;
+// (otherwise stays "en")
+
 const t=k=>(I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;
 
 const $=id=>document.getElementById(id);
@@ -610,10 +616,10 @@ const P={
   hub:clamp(qnum("hub",0.5),0,1),
   bar:clamp(qnum("bar",0),0,1),
   wind:clamp(qnum("wind",5),2,9),
-  arms:clamp(Math.round(qnum("arms",2)),1,6),
+  arms:clamp(Math.round(qnum("arms",2)),1,5),   // max 5 instead of 6
   speed:(reduced||FREEZE)?0:clamp(qnum("spd",1),0,3),
   incl:clamp(qnum("inc",0),0,80),
-  zoom:clamp(qnum("zoom",80),20,200)/100,
+  zoom:clamp(qnum("zoom",80),20,100)/100,        // max 100%
   orbits:qbool("orb",false), material:qbool("mat",false),
   autoPal:qbool("auto",true), supernova:qbool("sn",true),
   parallax:qbool("px",true), band:qbool("band",true), fpsGuard:qbool("fps",true)
@@ -732,9 +738,9 @@ let NDMAX=0,ND=0, dA,dE,dPhi,dZ,dSz,dJit;
 const isSmall=()=>(screen.width||innerWidth)<600;
 const isMed=()=>(screen.width||innerWidth)<1000;
 function starLimits(){
-  if(isSmall())return{min:3000,max:20000,def:5000};
-  if(isMed())return{min:3000,max:25000,def:9000};
-  return{min:5000,max:30000,def:12000};
+  if(isSmall())return{min:3000,max:18000,def:5000};
+  if(isMed())return{min:3000,max:22000,def:9000};
+  return{min:5000,max:24000,def:12000};   // max 24000
 }
 function populate(){
   buildCDF();
@@ -895,7 +901,7 @@ function armDprWatch(){          // precise tracking of page zoom / display chan
 /* ─────────────── state ─────────────── */
 let windup=0, orbitA=0, matOn=0, simT=0, lastT=0;
 let paraX=0,paraY=0,paraTX=0,paraTY=0;
-let palTimer=0;
+let palTimer=120;                                 // initial delay before first auto-switch (seconds)
 const SN=[];                      // active supernovae
 let snTimer=8+Math.random()*14;
 let proj=false, projT=0, projUI=0;
@@ -922,9 +928,9 @@ function step(dt,rdt){
   paraX+=(paraTX-paraX)*Math.min(1,rdt*2.4);
   paraY+=(paraTY-paraY)*Math.min(1,rdt*2.4);
 
-  // palette crossfade
+  // palette crossfade – slower and smoother (8 seconds)
   if(nextPal){
-    palMix=Math.min(1,palMix+rdt/4.5);
+    palMix=Math.min(1,palMix+rdt/8.0);
     if(palMix>=1)finishPalette();
   }else if(P.autoPal&&!FREEZE){
     palTimer-=rdt;
@@ -945,7 +951,7 @@ function step(dt,rdt){
 
   if(proj){                       // projector mode: slow camera journey
     projT+=rdt;
-    P.zoom=clamp(0.8+0.55*Math.sin(projT*0.08),0.2,2);
+    P.zoom=clamp(0.8+0.55*Math.sin(projT*0.08),0.2,1.0);   // max 100%
     P.incl=clamp(28+26*Math.sin(projT*0.031+1.1),0,80);
     scheduleSprites();
     if((projUI-=rdt)<=0){projUI=0.25;syncUI();}  // throttled UI refresh
@@ -967,7 +973,8 @@ function finishPalette(){
   bgBack.style.transition="none";bgBack.style.opacity="0";
   requestAnimationFrame(()=>{bgBack.style.transition="";});
   bgFront.style.transition="none";bgFront.style.opacity="1";
-  palTimer=110+Math.random()*70;
+  // longer interval between auto‑switches (150–240s)
+  palTimer=150+Math.random()*90;
   markPalette(curPal);
 }
 
@@ -1217,7 +1224,6 @@ const sound={
     g.gain.linearRampToValueAtTime(this.vol[2]*0.16,t+0.02);
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
     o.connect(g);g.connect(this.nodes.rev);g.connect(this.g[2]);
-    // ★ javítás: nem állítjuk be a csatorna gain-jét, mert azt a applyVol tartja karban
     o.start(t);o.stop(t+dur+0.1);
   },
   pulse(){
@@ -1230,7 +1236,6 @@ const sound={
     g.gain.linearRampToValueAtTime(this.vol[3]*0.5,t+0.015);
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.55);
     o.connect(g);g.connect(this.g[3]);
-    // ★ javítás: nem állítjuk be a csatorna gain-jét
     o.start(t);o.stop(t+0.6);
   },
   boom(){
