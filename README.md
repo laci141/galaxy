@@ -6,7 +6,7 @@ An interactive spiral galaxy based on **density wave theory** (Lindblad, 1925): 
 
 **Live demo:** https://laci141.github.io/galaxy/ (GitHub Pages) · https://galaxy-90m.pages.dev/ (Cloudflare Pages)
 
-Both serve the `main` branch and redeploy automatically on every commit.
+Both serve the `main` branch and redeploy automatically on every commit. The interface speaks four languages (EN · HU · RO · DE), switchable from the buttons at the top of the panel.
 
 ## Download and run it yourself
 
@@ -24,7 +24,7 @@ The control panel sits in the **top-right corner**. Its header carries two butto
 
 Below the header sits the **language switch — EN · HU · RO · DE**. It translates every string in the interface, including tooltips, notifications and the palette and preset names, and it also switches number formatting (12,000 / 12 000 / 12.000). The choice is remembered in `localStorage`, travels in the share link (`?lang=de`), and on a first visit the browser language is picked automatically when it is one of the four.
 
-Inside are three tabs: **Galaxy**, **Visuals** and **Sound**.
+Inside are four tabs: **Galaxy**, **Visuals**, **Sound** and **Science**.
 
 ### Galaxy — the shape of it
 
@@ -33,13 +33,33 @@ Inside are three tabs: **Galaxy**, **Visuals** and **Sound**.
 | **Hubble type** | Sa → Sc: bigger bulge + tighter arms ↔ smaller bulge + more open arms |
 | **Bar** | 0–100%: inner orbits align to a shared major axis, producing a barred (SB) galaxy |
 | **Winding** | how tightly the arms are wound |
-| **Spiral arms** | number of arms (1–6) |
-| **Zoom** | true camera zoom, 20–200% (star sizes scale along with it) |
+| **Spiral arms** | number of arms (1–5) |
+| **Zoom** | true camera zoom, 10–100% (star sizes scale along with it) |
 | **Time speed** | simulation speed (0–3×) |
 | **Inclination** | viewing angle (0° = face-on) |
 | **Presets** | Andromeda · Whirlpool M51 · Barred SBb · Pinwheel — one-click setups |
 | **Show orbits** | reveal the hidden elliptical orbits |
 | **Material arms** | "what if the arms were made of matter" — a demo of the winding problem |
+
+#### Automatic cycling
+
+Three of those sliders can drive themselves. Directly beneath **Zoom**, **Time speed** and **Inclination** sits a small switch plus its own **Cycle time** slider, so the view can drift on its own — useful for a screensaver, a projection or a recording, without anyone touching the panel.
+
+| Switch | Sweeps between | Cycle time | Default |
+|---|---|---|---|
+| **Auto zoom** | 10% ↔ 90% | 30 s – 3 min | 2:00 |
+| **Auto time speed** | 0.2× ↔ 2.8× | 30 s – 3 min | 2:00 |
+| **Auto inclination** | 10° ↔ 70° | 30 s – 3 min | 3:00 |
+
+The cycle time is the **full round trip** — out to one end, back to the other — and it is shown as `M:SS` next to the slider, so 3:00 means the galaxy takes a minute and a half to tilt from 10° to 70° and another minute and a half to come back.
+
+A few details that keep it from feeling mechanical:
+
+- **Cosine easing.** The value follows `min + (max−min)·(0.5 − 0.5·cos 2πφ)`, so it slows down and lingers near both extremes instead of bouncing off them.
+- **No jump when you switch it on.** The phase is seeded from the slider's current value (`φ = acos(1−2u)/2π`), so cycling starts from exactly where you left the slider.
+- **Real elapsed time.** The phase advances on the wall clock, not on simulation steps, so changing the cycle time mid-sweep stretches the motion rather than snapping it, and a slow machine does not slow the drift.
+- **Grabbing the slider wins.** Moving Zoom, Time speed or Inclination by hand switches its cycler off, so manual control is never fought over.
+- Each switch and its cycle time travel in the share link, and all of it is translated into the four interface languages.
 
 ### Visuals
 
@@ -73,9 +93,17 @@ No audio files: every layer is generated live by the Web Audio API, each with it
 
 Sound can also be toggled with the 🔊 button in the panel header or the **M** key — browsers only allow audio to start after a user gesture.
 
+### Science — what the model does and does not claim
+
+The fourth tab is plain reading: how the model works (nested elliptical orbits with a radius-dependent twist, a bar built by aligning the inner orbits), what it deliberately leaves out (no gravity between stars, no self-consistent density wave, supernovae and the Milky Way band are visual effects, the presets are morphological matches rather than physical models), and the sources it leans on — Lindblad 1925, Lin & Shu 1964, Binney & Tremaine 2008 and Shu 1982, each linked to ADS, a DOI or the publisher.
+
+Below the galaxy there is also a scrollable article covering the same ground at more length — reachable with the **Scroll for the science ↓** button at the bottom of the screen. It is real text in the HTML, so search engines and readers without JavaScript get it too.
+
 ### Keys
 
-`H` hide/show UI · `F` fullscreen · `P` photo · `Space` projector mode · `Esc` exit · `M` sound
+`H` hide/show UI · `F` fullscreen · `P` photo · `V` projector mode · `Esc` exit · `M` sound
+
+Space is deliberately left alone so it still scrolls the page, and none of these fire while a slider, button or select has focus.
 
 ## Why does it look the same at every zoom level and screen?
 
@@ -87,7 +115,7 @@ The current version:
 - **Crisp sprites:** sprite bitmaps are rebuilt at the current scale × `devicePixelRatio` (an exact 1:1 pixel blit when settled); `devicePixelRatio` changes are tracked with `matchMedia`.
 - **Brightness normalization:** per-star brightness drops as the count rises, so 30,000 stars look denser rather than whiter.
 - **Stable image:** a seeded RNG — resizing, zooming or switching palettes never reshuffles the galaxy.
-- **Two clocks:** orbits advance on a clamped `dt` for numerical stability, while crossfades, supernovae and the projector camera run on real elapsed time, so they never drag on a slow machine.
+- **Two clocks:** orbits advance on a clamped `dt` for numerical stability, while crossfades, supernovae, the projector camera and the auto-cycling sliders run on real elapsed time, so they never drag on a slow machine.
 - **Off-screen culling:** at high zoom, stars outside the viewport are skipped entirely.
 
 ## Verification
@@ -100,13 +128,21 @@ Playwright + Chromium, screenshots normalized to the same physical resolution at
 | Blown-out white pixel fraction | grew 8× | unchanged (0.042%) |
 | Per-pixel difference across zoom levels | — | ≤ 0.55/255 |
 
-Also verified: star slider 5,000 → 30,000 (brightness 1.39× — rises without blowing out), mobile range 3,000–20,000, minimum colour distance between the four palettes 6.92 (5.71 before the 15% chroma lift), bar 0 → 90% visible change, presets, supernova lifecycle, 3200×1800 PNG export, link sharing and restore, sound engine start/stop, performance guard, projector mode, the panel anchored top-right with the sound button in its header, minimise/restore, all four languages translating every one of the 56 interface strings with none left empty or untranslated, credit-link visibility, and the mobile drawer and tabs with no horizontal scrolling. No console errors.
+Also verified: star slider 5,000 → 30,000 (brightness 1.39× — rises without blowing out), mobile range 3,000–20,000, minimum colour distance between the four palettes 6.92 (5.71 before the 15% chroma lift), bar 0 → 90% visible change, presets, supernova lifecycle, 3200×1800 PNG export, link sharing and restore, sound engine start/stop, performance guard, projector mode, the panel anchored top-right with the sound button in its header, minimise/restore, credit-link visibility, and the mobile drawer and tabs with no horizontal scrolling. No console errors.
+
+The auto-cycle controls are covered by their own run: inclination sweeping 11° → 58° and staying inside 10–70°, zoom 65% → 90% inside 10–90%, time speed 1.18× → 2.78× inside 0.2–2.8×, a 90 s period rendering as `1:30`, dragging the inclination slider by hand switching its cycler off and holding 45°, and the switch plus its period surviving a share-link round trip. Structure and access alongside it: a single `<h1>`, the 547-word article present in the served HTML, all 17 sliders carrying a `label[for]`, all 12 toggles being `button[role="switch"]`, `Space` scrolling the page instead of triggering a shortcut, `V` starting projector mode, and all four languages rendering with zero empty nodes.
+
+## Accessibility and findability
+
+- Every slider has a real `<label for>`, every toggle is a `<button role="switch">` with `aria-checked`, and keyboard focus is always visible (`:focus-visible` ring).
+- Keyboard shortcuts never fire from a focused control, and `prefers-reduced-motion` is honoured for scrolling and layer transitions.
+- `robots.txt` and `sitemap.xml` are served from the site root; the page carries a canonical URL, Open Graph and Twitter card metadata with `og-image.png` (1200×630), and JSON-LD describing it as an `EducationalApplication` in four languages with its three key citations.
 
 ## Running & testing
 
 Open `index.html` in a browser (or `python3 -m http.server` and visit http://localhost:8000).
 
-URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) — this is exactly what the **🔗 Copy link** button produces.
+URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
 
 ## License
 
