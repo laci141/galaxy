@@ -3,32 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Density Wave — a spiral galaxy from nested orbits</title>
-<meta name="description" content="Interactive spiral galaxy simulation built on density wave theory: colour palettes, a procedural cosmic soundscape, supernovae and photo export.">
+<title>Density Wave — Interactive Spiral Galaxy Simulation</title>
+<meta name="description" content="Interactive spiral galaxy simulation built on density wave theory: watch nested stellar orbits crowd into spiral arms, explore the winding problem, and adjust morphology, colour, star count and a procedural cosmic soundscape.">
 
 <!-- SEO / Open Graph / Twitter / JSON-LD -->
 <link rel="canonical" href="https://galaxy-90m.pages.dev/">
-<meta property="og:title" content="Density Wave — a spiral galaxy from nested orbits">
-<meta property="og:description" content="Interactive spiral galaxy simulation built on density wave theory: colour palettes, a procedural cosmic soundscape, supernovae and photo export.">
-<!-- og:image is intentionally omitted because no valid image asset exists -->
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="author" content="laci141">
+<meta name="theme-color" content="#05070d">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Density Wave">
+<meta property="og:title" content="Density Wave — Interactive Spiral Galaxy Simulation">
+<meta property="og:description" content="Interactive spiral galaxy simulation built on density wave theory: watch nested stellar orbits crowd into spiral arms, explore the winding problem, and adjust morphology, colour, star count and a procedural cosmic soundscape.">
+<meta property="og:url" content="https://galaxy-90m.pages.dev/">
+<meta property="og:image" content="https://galaxy-90m.pages.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A simulated face-on spiral galaxy: a bright golden core, sweeping dusty spiral arms and pink star-forming regions on a deep blue star field.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="hu_HU">
+<meta property="og:locale:alternate" content="ro_RO">
+<meta property="og:locale:alternate" content="de_DE">
+
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Density Wave — Interactive Spiral Galaxy Simulation">
+<meta name="twitter:description" content="Interactive spiral galaxy simulation built on density wave theory: watch nested stellar orbits crowd into spiral arms, explore the winding problem, and adjust morphology, colour, star count and a procedural cosmic soundscape.">
+<meta name="twitter:image" content="https://galaxy-90m.pages.dev/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Density Wave",
-  "description": "Interactive spiral galaxy simulation built on density wave theory.",
-  "applicationCategory": "Simulation",
-  "browserRequirements": "Requires JavaScript and Web Audio",
-  "url": "https://galaxy-90m.pages.dev/"
+  "name": "Density Wave — Interactive Spiral Galaxy Simulation",
+  "url": "https://galaxy-90m.pages.dev/",
+  "description": "Interactive spiral galaxy simulation built on density wave theory: watch nested stellar orbits crowd into spiral arms, explore the winding problem, and adjust morphology, colour, star count and a procedural cosmic soundscape.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Requires JavaScript and HTML5 canvas",
+  "isAccessibleForFree": true,
+  "inLanguage": ["en", "hu", "ro", "de"],
+  "license": "https://opensource.org/licenses/MIT",
+  "image": "https://galaxy-90m.pages.dev/og-image.png",
+  "author": {
+    "@type": "Person",
+    "name": "laci141",
+    "url": "https://github.com/laci141"
+  },
+  "codeRepository": "https://github.com/laci141/galaxy",
+  "about": {
+    "@type": "Thing",
+    "name": "Density wave theory",
+    "description": "The model in which the spiral arms of disc galaxies are standing density waves rather than fixed material structures."
+  },
+  "citation": [
+    "Lin, C. C. & Shu, F. H. (1964). On the Spiral Structure of Disk Galaxies. The Astrophysical Journal, 140, 646.",
+    "Shu, F. H. (2016). Six Decades of Spiral Density Wave Theory. Annual Review of Astronomy and Astrophysics, 54, 667-724.",
+    "Dobbs, C. & Baba, J. (2014). Dawes Review 4: Spiral Structures in Disc Galaxies. Publications of the Astronomical Society of Australia, 31, e035."
+  ]
 }
 </script>
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2305070d'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23ffd9a8'/%3E%3Cpath d='M50,50 C64,46 72,56 68,68' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3Cpath d='M50,50 C36,54 28,44 32,32' stroke='%237fd4ff' stroke-width='4' fill='none'/%3E%3C/svg%3E">
 <style>
-  html,body{margin:0;height:100%;background:#05070d;overflow:hidden;
+  html{scroll-behavior:smooth}
+  html,body{margin:0;background:#05070d;
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#e8eef7;
     -webkit-tap-highlight-color:transparent}
+  /* the canvases stay fixed while the article scrolls over them */
+  body{overflow-x:hidden;overflow-y:auto}
+  #hero{height:100vh;height:100svh}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   #wrap{position:fixed;inset:0;opacity:0;transition:opacity 2s ease}
   #wrap.on{opacity:1}
   canvas.layer{position:absolute;inset:0;width:100%;height:100%;display:block;
@@ -44,7 +88,7 @@
     box-shadow:0 18px 50px -18px rgba(0,0,0,.75);
     padding:16px 16px 14px;transition:opacity .3s ease,transform .3s ease;
     max-height:calc(100vh - 44px);display:flex;flex-direction:column}
-  #panel h1{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:.02em}
+  .brand{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:.02em}
   #panel .sub{margin:0 0 11px;font-size:11px;color:rgba(232,238,247,.55);line-height:1.35}
   /* header: title + sound / minimise buttons */
   .head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -142,7 +186,7 @@
       box-shadow:0 12px 32px -14px rgba(0,0,0,.7);padding:0 14px 12px;
       max-height:82vh;transform:translateY(calc(100% - 44px));transition:transform .35s ease,opacity .3s ease}
     #panel.open{transform:translateY(0)}
-    #panel h1,#panel .sub{display:none}
+    .brand,#panel .sub{display:none}
     .head{padding-bottom:4px}
     body.min #panel{transform:translateY(100%)}
     #restoreBtn{width:40px;height:40px;right:14px;top:14px}
@@ -166,6 +210,46 @@
   .science-content ul li::before{content:"• ";color:#7fd4ff}
   .science-content a{color:#7fd4ff;text-decoration:none}
   .science-content a:hover{text-decoration:underline}
+
+  /* automatic-cycle sub-block under its slider */
+  .auto{margin:-2px 0 10px;padding:7px 9px 3px;border-left:2px solid rgba(127,212,255,.28);
+    background:rgba(127,212,255,.05);border-radius:0 8px 8px 0}
+  .auto .per{margin:5px 0 0;opacity:.45;transition:opacity .25s}
+  .auto.on .per{opacity:1}
+  .auto .per label{font-size:10.5px}
+
+  /* keyboard focus ring — every interactive element */
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+  [tabindex]:focus-visible{outline:2px solid #7fd4ff;outline-offset:2px;border-radius:6px}
+
+  /* ---------- the indexable article below the galaxy ---------- */
+  #scrollHint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:11;
+    background:rgba(12,18,32,.62);border:1px solid rgba(255,255,255,.14);border-radius:999px;
+    backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
+    color:rgba(232,238,247,.72);font:inherit;font-size:11.5px;padding:7px 15px;cursor:pointer;
+    transition:opacity .4s ease,color .2s,border-color .2s}
+  #scrollHint:hover{color:#aee4ff;border-color:rgba(127,212,255,.5)}
+  body.hideui #scrollHint{opacity:0;pointer-events:none}
+  #about{position:relative;z-index:12;background:linear-gradient(180deg,rgba(5,7,13,0) 0,#05070d 90px,#05070d 100%);
+    padding:120px 22px 90px}
+  #about .inner{max-width:720px;margin:0 auto;font-size:15px;line-height:1.68;
+    color:rgba(232,238,247,.8);text-wrap:pretty}
+  #about h1{font-size:clamp(24px,4.2vw,34px);line-height:1.22;margin:0 0 14px;color:#eaf4ff;letter-spacing:-.01em}
+  #about .lead{font-size:17px;line-height:1.6;color:rgba(232,238,247,.92);margin:0 0 34px}
+  #about h2{font-size:clamp(17px,2.6vw,21px);margin:38px 0 10px;color:#dff3ff;letter-spacing:-.005em}
+  #about p{margin:0 0 15px}
+  #about ul{margin:0 0 15px;padding-left:20px}
+  #about li{margin:0 0 8px}
+  #about a{color:#7fd4ff;text-decoration:none;border-bottom:1px solid rgba(127,212,255,.32)}
+  #about a:hover{border-bottom-color:#7fd4ff}
+  #about .refs{font-size:13.5px;line-height:1.55;color:rgba(232,238,247,.66)}
+  #about .foot{margin-top:40px;padding-top:18px;border-top:1px solid rgba(255,255,255,.09);
+    font-size:12.5px;color:rgba(232,238,247,.45)}
+  @media (max-width:700px){
+    #about{padding:90px 18px 70px}
+    #about .inner{font-size:14.5px}
+    #about .lead{font-size:16px}
+  }
 </style>
 </head>
 <body>
@@ -174,6 +258,9 @@
   <canvas id="bgB" class="layer"></canvas>
   <canvas id="fx" class="layer"></canvas>
 </div>
+
+<!-- keeps one full viewport of scroll room above the article; the canvases are fixed behind it -->
+<div id="hero"></div>
 
 <div id="caption" data-i18n="caption"></div>
 <div id="toast"></div>
@@ -185,7 +272,7 @@
   <button id="drawerBtn"><span data-i18n="controls"></span> <span class="chev">▴</span></button>
   <div class="head">
     <div class="txt">
-      <h1>Density Wave</h1>
+      <div class="brand">Density Wave</div>
       <p class="sub" data-i18n="sub"></p>
     </div>
     <div class="hbtns">
@@ -216,11 +303,26 @@
     <div class="ctl"><label><span data-i18n="arms"></span></label>
       <div class="seg" id="segArms"><button data-m="1">1</button><button data-m="2" class="on">2</button><button data-m="3">3</button><button data-m="4">4</button><button data-m="5">5</button></div></div>
     <div class="ctl"><label for="sZoom"><span data-i18n="zoom"></span> <span class="val" id="vZoom">80%</span></label>
-      <input id="sZoom" type="range" min="20" max="100" step="5" value="80"></div>
+      <input id="sZoom" type="range" min="10" max="100" step="5" value="80"></div>
+    <div class="auto">
+      <button class="tg" id="tAutoZoom" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="autoZoom"></span> <span class="dim" data-i18n="autoZoomRange"></span></button>
+      <div class="ctl per"><label for="sAutoZoomT"><span data-i18n="cycleTime"></span> <span class="val" id="vAutoZoomT">2:00</span></label>
+        <input id="sAutoZoomT" type="range" min="30" max="180" step="5" value="120"></div>
+    </div>
     <div class="ctl"><label for="sSpd"><span data-i18n="speed"></span> <span class="val" id="vSpd">1.0×</span></label>
       <input id="sSpd" type="range" min="0" max="3" step="0.02" value="1"></div>
+    <div class="auto">
+      <button class="tg" id="tAutoSpd" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="autoSpd"></span> <span class="dim" data-i18n="autoSpdRange"></span></button>
+      <div class="ctl per"><label for="sAutoSpdT"><span data-i18n="cycleTime"></span> <span class="val" id="vAutoSpdT">2:00</span></label>
+        <input id="sAutoSpdT" type="range" min="30" max="180" step="5" value="120"></div>
+    </div>
     <div class="ctl"><label for="sInc"><span data-i18n="incl"></span> <span class="val" id="vInc">0°</span></label>
       <input id="sInc" type="range" min="0" max="80" step="1" value="0"></div>
+    <div class="auto">
+      <button class="tg" id="tAutoInc" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="autoInc"></span> <span class="dim" data-i18n="autoIncRange"></span></button>
+      <div class="ctl per"><label for="sAutoIncT"><span data-i18n="cycleTime"></span> <span class="val" id="vAutoIncT">3:00</span></label>
+        <input id="sAutoIncT" type="range" min="30" max="180" step="5" value="180"></div>
+    </div>
     <div class="grp" data-i18n="presets"></div>
     <div class="pal" id="presets"></div>
     <div class="toggles">
@@ -344,6 +446,43 @@
   </div>
 </div>
 
+<button id="scrollHint" data-i18n="scrollHint">Scroll for the science ↓</button>
+
+<main id="about">
+  <div class="inner">
+    <h1 data-i18n="ab_h1">Density Wave — Interactive Spiral Galaxy Simulation</h1>
+    <p class="lead" data-i18n="ab_lead">A browser simulation of how the spiral arms of a disc galaxy can appear without any fixed structure holding them together. Every star follows its own elliptical orbit; the arms are simply where those orbits crowd.</p>
+
+    <h2 data-i18n="ab_h2a">What you are looking at</h2>
+    <p data-i18n="ab_p1">Each point is a star on its own slightly rotated elliptical orbit around a common centre, and stars near the core complete an orbit faster than stars further out. Because neighbouring orbits are turned by a small, steadily increasing angle, they bunch together along two or more sweeping curves. Individual stars drift into those crowded regions and out again: the pattern stays, the matter moves through it.</p>
+
+    <h2 data-i18n="ab_h2b">Density waves and the winding problem</h2>
+    <p data-i18n="ab_p2">A disc galaxy does not turn like a solid wheel — the inner parts orbit far faster than the outer parts. If spiral arms were fixed strings of stars and gas, this differential rotation would wind them into a tight coil within a few galactic rotations, and after billions of years no open spiral would be left. Yet the sky is full of galaxies with wide, open arms. This is the winding problem, recognised by Bertil Lindblad in the 1920s.</p>
+    <p data-i18n="ab_p3">Density wave theory, developed by C. C. Lin and Frank Shu in the 1960s, answers it by treating the arms as a wave pattern that rotates at its own steady speed while stars and gas pass through it — closer to a traffic jam than to a wall. Gas compressed at the crest of the wave collapses into new stars, which is why real arms glow with young blue stars and pink hydrogen clouds. Switch on “Material arms” in the panel to watch the winding problem happen.</p>
+
+    <h2 data-i18n="ab_h2c">What this is not</h2>
+    <p data-i18n="ab_p4">This is a visual approximation, not an N-body or hydrodynamic simulation: the orbits are prescribed rather than computed from gravity. The supernova flashes and the Milky Way-inspired background band are decorative effects, not physical models, and the morphology slider approximates the look of the Sa–Sc sequence rather than classifying anything. The origin, lifetime and exact dynamics of spiral arms remain an active research question.</p>
+
+    <h2 data-i18n="ab_h2d">Controls</h2>
+    <ul>
+      <li><strong data-i18n="tabGal">Galaxy</strong> <span data-i18n="ab_c1">— morphology, bar strength, winding, arm count, zoom, time speed and viewing angle, plus one-click presets.</span></li>
+      <li><strong data-i18n="tabLook">Visuals</strong> <span data-i18n="ab_c2">— four colour palettes with automatic crossfade, colour and nebula intensity, star count from 3,000 to 30,000, supernova flashes and parallax.</span></li>
+      <li><strong data-i18n="tabSnd">Sound</strong> <span data-i18n="ab_c3">— a procedural cosmic soundscape generated live by the Web Audio API, with a slider per layer.</span></li>
+      <li><strong data-i18n="ab_keys">Keys</strong> <span data-i18n="ab_c4">— H hides the interface, F is fullscreen, P saves a PNG, V starts projector mode, M toggles sound.</span></li>
+    </ul>
+
+    <h2 data-i18n="ab_h2e">Scientific basis</h2>
+    <p data-i18n="ab_p5">Density wave theory is a serious, observationally supported model, but it is one explanation among several and the nature of spiral structure is not a settled question. These are the primary sources behind the simulation:</p>
+    <p class="refs">
+      Lin, C. C. &amp; Shu, F. H. (1964). <a href="https://ui.adsabs.harvard.edu/abs/1964ApJ...140..646L" target="_blank" rel="noopener">On the Spiral Structure of Disk Galaxies</a>. <i>The Astrophysical Journal</i>, 140, 646.<br>
+      Shu, F. H. (2016). <a href="https://ui.adsabs.harvard.edu/abs/2016ARA%26A..54..667S" target="_blank" rel="noopener">Six Decades of Spiral Density Wave Theory</a>. <i>Annual Review of Astronomy and Astrophysics</i>, 54, 667–724.<br>
+      Dobbs, C. &amp; Baba, J. (2014). <a href="https://ui.adsabs.harvard.edu/abs/2014PASA...31...35D" target="_blank" rel="noopener">Dawes Review 4: Spiral Structures in Disc Galaxies</a>. <i>Publications of the Astronomical Society of Australia</i>, 31, e035.
+    </p>
+
+    <p class="foot"><span data-i18n="ab_foot">Open source, MIT licensed — built by laci141.</span> <a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener" data-i18n="ab_src">Source and download on GitHub ↗</a></p>
+  </div>
+</main>
+
 <script>
 (function(){
 "use strict";
@@ -382,14 +521,14 @@ const I18N={
   drone:"Deep-space drone",wind:"Solar wind",chimes:"Stardust chimes",pulsar:"Pulsar pulse",
   follow:"Follow the simulation",zoomTempo:"(zoom, tempo)",
   caption:"If spiral arms were made of fixed matter, they would wind themselves out of existence within a few galactic rotations. They don't. Lindblad noticed this in 1925.",
-  hint:"H — hide UI · F — fullscreen · P — photo · Space — projector mode",
+  hint:"H — hide UI · F — fullscreen · P — photo · V — projector mode · M — sound",
   creditPre:"Made by",creditPost:"— source & download on GitHub ↗",
   sndTitle:"Cosmic sound on/off",minTitle:"Minimise panel",restoreTitle:"Show controls",
   pal_classic:"Classic",pal_indigo:"Indigo Dust",pal_gold:"Blue-Gold",pal_violet:"Violet Sea",
   pre_andromeda:"Andromeda-like",pre_whirlpool:"Whirlpool M51",pre_barred:"Barred SBb",pre_pinwheel:"Pinwheel",
   tGuard:"Performance guard: star count {n}",tSaved:"Image saved — {s}",
   tLink:"Link copied — with every setting included",tCopy:"Copy the link:",
-  tProjOn:"Projector mode — exit with Space, Esc or a click",tProjOff:"Projector mode off",
+  tProjOn:"Projector mode — exit with V, Esc or a click",tProjOff:"Projector mode off",
   tApplied:"{name} applied",tHidden:"UI hidden — press H to bring it back",
   tNoAudio:"This browser does not support Web Audio",reducedMotion:"(reduced motion)",
   tReset:"Simulation reset to default",
@@ -403,7 +542,30 @@ const I18N={
   sciLim3:"“Supernovae” are visual effects only (bright flares and expanding shells).",
   sciLim4:"The “Milky Way‑inspired band” is a generated background, not a real star map.",
   sciLim5:"Presets like “Andromeda‑like” are morphological matches, not precise physical models.",
-  sciSources:"Sources"},
+  sciSources:"Sources",
+  scrollHint:"Scroll for the science ↓",aboutBtn:"About",ab_keys:"Keys",
+  ab_h1:"Density Wave — Interactive Spiral Galaxy Simulation",
+  ab_lead:"A browser simulation of how the spiral arms of a disc galaxy can appear without any fixed structure holding them together. Every star follows its own elliptical orbit; the arms are simply where those orbits crowd.",
+  ab_h2a:"What you are looking at",
+  ab_p1:"Each point is a star on its own slightly rotated elliptical orbit around a common centre, and stars near the core complete an orbit faster than stars further out. Because neighbouring orbits are turned by a small, steadily increasing angle, they bunch together along two or more sweeping curves. Individual stars drift into those crowded regions and out again: the pattern stays, the matter moves through it.",
+  ab_h2b:"Density waves and the winding problem",
+  ab_p2:"A disc galaxy does not turn like a solid wheel — the inner parts orbit far faster than the outer parts. If spiral arms were fixed strings of stars and gas, this differential rotation would wind them into a tight coil within a few galactic rotations, and after billions of years no open spiral would be left. Yet the sky is full of galaxies with wide, open arms. This is the winding problem, recognised by Bertil Lindblad in the 1920s.",
+  ab_p3:"Density wave theory, developed by C. C. Lin and Frank Shu in the 1960s, answers it by treating the arms as a wave pattern that rotates at its own steady speed while stars and gas pass through it — closer to a traffic jam than to a wall. Gas compressed at the crest of the wave collapses into new stars, which is why real arms glow with young blue stars and pink hydrogen clouds. Switch on “Material arms” in the panel to watch the winding problem happen.",
+  ab_h2c:"What this is not",
+  ab_p4:"This is a visual approximation, not an N-body or hydrodynamic simulation: the orbits are prescribed rather than computed from gravity. The supernova flashes and the Milky Way-inspired background band are decorative effects, not physical models, and the morphology slider approximates the look of the Sa–Sc sequence rather than classifying anything. The origin, lifetime and exact dynamics of spiral arms remain an active research question.",
+  ab_h2d:"Controls",
+  ab_c1:"— morphology, bar strength, winding, arm count, zoom, time speed and viewing angle, plus one-click presets.",
+  ab_c2:"— four colour palettes with automatic crossfade, colour and nebula intensity, star count from 3,000 to 30,000, supernova flashes and parallax.",
+  ab_c3:"— a procedural cosmic soundscape generated live by the Web Audio API, with a slider per layer.",
+  ab_c4:"— H hides the interface, F is fullscreen, P saves a PNG, V starts projector mode, M toggles sound.",
+  ab_h2e:"Scientific basis",
+  ab_p5:"Density wave theory is a serious, observationally supported model, but it is one explanation among several and the nature of spiral structure is not a settled question. These are the primary sources behind the simulation:",
+  ab_foot:"Open source, MIT licensed — built by laci141.",
+  ab_src:"Source and download on GitHub ↗",
+  cycleTime:"Cycle time",
+  autoInc:"Auto inclination",autoIncRange:"(10–70°)",
+  autoZoom:"Auto zoom",autoZoomRange:"(10–90%)",
+  autoSpd:"Auto time speed",autoSpdRange:"(0.2–2.8×)"},
 
  hu:{tabGal:"Galaxis",tabLook:"Látvány",tabSnd:"Hang",tabScience:"Tudomány",controls:"Vezérlők",
   sub:"Minden csillag a saját, döntött pályáján kering. A spirál forgalmi dugó, nem szerkezet.",
@@ -420,14 +582,14 @@ const I18N={
   drone:"Mélyűr-drón",wind:"Szoláris szél",chimes:"Csillagpor-csengők",pulsar:"Pulzár-lüktetés",
   follow:"Kövesse a szimulációt",zoomTempo:"(zoom, tempó)",
   caption:"Ha a spirálkarok rögzített anyagból állnának, néhány galaktikus fordulat alatt feltekerednék magukat a semmibe. Nem teszik. Lindblad 1925-ben figyelt fel erre.",
-  hint:"H — felület el/be · F — teljes képernyő · P — fotó · Space — vetítő mód",
+  hint:"H — felület el/be · F — teljes képernyő · P — fotó · V — vetítő mód · M — hang",
   creditPre:"Készítette:",creditPost:"— forráskód és letöltés a GitHubon ↗",
   sndTitle:"Kozmikus hang be/ki",minTitle:"Panel kicsinyítése",restoreTitle:"Vezérlők megjelenítése",
   pal_classic:"Klasszikus",pal_indigo:"Indigó por",pal_gold:"Kék-arany",pal_violet:"Ibolya-tenger",
   pre_andromeda:"Androméda-szerű",pre_whirlpool:"Örvény M51",pre_barred:"Küllős SBb",pre_pinwheel:"Szélkerék",
   tGuard:"Teljesítményőr: csillagszám {n}",tSaved:"Kép mentve — {s}",
   tLink:"Link a vágólapon — minden beállítással",tCopy:"Másold ki a linket:",
-  tProjOn:"Vetítő mód — kilépés: Space, Esc vagy kattintás",tProjOff:"Vetítő mód kikapcsolva",
+  tProjOn:"Vetítő mód — kilépés: V, Esc vagy kattintás",tProjOff:"Vetítő mód kikapcsolva",
   tApplied:"{name} beállítva",tHidden:"Felület elrejtve — H a visszahozáshoz",
   tNoAudio:"A böngésző nem támogatja a Web Audiót",reducedMotion:"(csökkentett mozgás)",
   tReset:"Szimuláció visszaállítva",
@@ -441,7 +603,30 @@ const I18N={
   sciLim3:"A „szupernóvák” csak vizuális effektek (fényes fellángolások és táguló héjak).",
   sciLim4:"A „Tejút ihlette háttérsáv” generált háttér, nem valódi csillagtérkép.",
   sciLim5:"Az olyan előbeállítások, mint az „Androméda-szerű”, morfológiai egyezések, nem pontos fizikai modellek.",
-  sciSources:"Források"},
+  sciSources:"Források",
+  scrollHint:"Görgess a tudományért ↓",aboutBtn:"Leírás",ab_keys:"Billentyűk",
+  ab_h1:"Density Wave — interaktív spirálgalaxis-szimuláció",
+  ab_lead:"Böngészős szimuláció arról, hogyan jelenhetnek meg egy koronggalaxis spirálkarjai anélkül, hogy bármilyen merev szerkezet tartaná össze őket. Minden csillag a saját ellipszispályáján kering; a karok egyszerűen ott vannak, ahol ezek a pályák összetorlódnak.",
+  ab_h2a:"Mit látsz",
+  ab_p1:"Minden pont egy csillag, amely a saját, kissé elforgatott ellipszispályáján kering egy közös középpont körül, és a mag közelében lévő csillagok gyorsabban kerülik meg, mint a távolabbiak. Mivel a szomszédos pályák kicsi, de egyenletesen növekvő szöggel el vannak forgatva, két vagy több ívelt görbe mentén összesűrűsödnek. Az egyes csillagok besódrodnak ezekbe a sűrű tartományokba, majd ki is lépnek belőlük: a mintázat marad, az anyag áthalad rajta.",
+  ab_h2b:"Sűrűséghullámok és a feltekeredési probléma",
+  ab_p2:"Egy koronggalaxis nem úgy forog, mint egy merev kerék — a belső részek sokkal gyorsabban keringenek, mint a külsők. Ha a spirálkarok csillagok és gáz rögzített füzérei lennének, ez a differenciális forgás néhány galaktikus fordulat alatt szoros tekercsbe csavarná őket, és milliárd évek után nem maradna nyitott spirál. Az égbolt mégis tele van széles, nyitott karú galaxisokkal. Ez a feltekeredési probléma, amelyet Bertil Lindblad ismert fel az 1920-as években.",
+  ab_p3:"A sűrűséghullám-elmélet, amelyet C. C. Lin és Frank Shu dolgozott ki az 1960-as években, úgy válaszol erre, hogy a karokat saját, állandó sebességgel forgó hullámmintázatként kezeli, amelyen a csillagok és a gáz áthaladnak — ez inkább forgalmi dugó, mint fal. A hullámtarón összenyomott gáz új csillagokká omlik össze, ezért ragyognak a valódi karok fiatal kék csillagoktól és rózsaszín hidrogénfelhőktől. Kapcsold be az „Anyagi karok” beállítást a panelen, és megnézheted, ahogy a feltekeredési probléma bekövetkezik.",
+  ab_h2c:"Mi nem ez",
+  ab_p4:"Ez vizuális közelítés, nem N-test vagy hidrodinamikai szimuláció: a pályák előre megadottak, nem a gravitációból számítottak. A szupernóva-villanások és a Tejút ihlette háttérsáv díszítő effektek, nem fizikai modellek, a morfológia-csúszka pedig az Sa–Sc sorozat látványát közelíti, nem osztályoz semmit. A spirálkarok eredete, élettartama és pontos dinamikája továbbra is aktív kutatási kérdés.",
+  ab_h2d:"Vezérlők",
+  ab_c1:"— morfológia, küllőerősség, feltekeredés, karok száma, zoom, idősebesség és rálátási szög, plusz egykattintásos készletek.",
+  ab_c2:"— négy színvilág automatikus áttűnéssel, szín- és ködsűrűség, csillagszám 3 000-től 30 000-ig, szupernóva-villanások és parallax.",
+  ab_c3:"— procedurális kozmikus hangtér, amelyet a Web Audio API generál élőben, rétegenként külön csúszkával.",
+  ab_c4:"— H elrejti a felületet, F teljes képernyő, P PNG-t ment, V indítja a vetítő módot, M kapcsolja a hangot.",
+  ab_h2e:"Tudományos alapok",
+  ab_p5:"A sűrűséghullám-elmélet komoly, megfigyelésekkel alátámasztott modell, de több magyarázat egyike, és a spirálszerkezet természete nem lezárt kérdés. A szimuláció mögött álló elsődleges források:",
+  ab_foot:"Nyílt forrású, MIT licenc — készítette: laci141.",
+  ab_src:"Forráskód és letöltés a GitHubon ↗",
+  cycleTime:"Köridő",
+  autoInc:"Automatikus dőlésszög",autoIncRange:"(10–70°)",
+  autoZoom:"Automatikus zoom",autoZoomRange:"(10–90%)",
+  autoSpd:"Automatikus idősebesség",autoSpdRange:"(0,2–2,8×)"},
 
  ro:{tabGal:"Galaxie",tabLook:"Aspect",tabSnd:"Sunet",tabScience:"Știință",controls:"Comenzi",
   sub:"Fiecare stea își urmează propria orbită înclinată. Spirala este un ambuteiaj, nu o structură.",
@@ -458,14 +643,14 @@ const I18N={
   drone:"Dronă din spațiu",wind:"Vânt solar",chimes:"Clopoței de praf stelar",pulsar:"Puls de pulsar",
   follow:"Urmează simularea",zoomTempo:"(zoom, tempo)",
   caption:"Dacă brațele spirale ar fi făcute din materie fixă, s-ar înfășura până la dispariție în câteva rotații galactice. Nu o fac. Lindblad a observat asta în 1925.",
-  hint:"H — ascunde UI · F — ecran complet · P — foto · Space — mod proiector",
+  hint:"H — ascunde UI · F — ecran complet · P — foto · V — mod proiector · M — sunet",
   creditPre:"Realizat de",creditPost:"— sursă și descărcare pe GitHub ↗",
   sndTitle:"Sunet cosmic pornit/oprit",minTitle:"Minimizează panoul",restoreTitle:"Arată comenzile",
   pal_classic:"Clasic",pal_indigo:"Praf indigo",pal_gold:"Albastru-auriu",pal_violet:"Marea violetă",
   pre_andromeda:"Andromeda-similar",pre_whirlpool:"Vârtejul M51",pre_barred:"SBb cu bară",pre_pinwheel:"Morișca",
   tGuard:"Protecție performanță: {n} stele",tSaved:"Imagine salvată — {s}",
   tLink:"Link copiat — cu toate setările",tCopy:"Copiază linkul:",
-  tProjOn:"Mod proiector — ieșire cu Space, Esc sau clic",tProjOff:"Mod proiector oprit",
+  tProjOn:"Mod proiector — ieșire cu V, Esc sau clic",tProjOff:"Mod proiector oprit",
   tApplied:"{name} aplicat",tHidden:"UI ascuns — apasă H pentru a-l readuce",
   tNoAudio:"Acest browser nu suportă Web Audio",reducedMotion:"(mișcare redusă)",
   tReset:"Simularea resetată",
@@ -479,7 +664,30 @@ const I18N={
   sciLim3:"„Supernovele” sunt doar efecte vizuale (flare luminoase și învelișuri în expansiune).",
   sciLim4:"„Banda Căii Lactee” este un fundal generat, nu o hartă stelară reală.",
   sciLim5:"Preconfigurările precum „Andromeda-similar” sunt potriviri morfologice, nu modele fizice precise.",
-  sciSources:"Surse"},
+  sciSources:"Surse",
+  scrollHint:"Derulează pentru știință ↓",aboutBtn:"Despre",ab_keys:"Taste",
+  ab_h1:"Density Wave — simulare interactivă a unei galaxii spirale",
+  ab_lead:"O simulare în browser care arată cum pot apărea brațele spirale ale unei galaxii-disc fără nicio structură fixă care să le țină laolaltă. Fiecare stea urmează propria orbită eliptică; brațele sunt pur și simplu acolo unde acele orbite se înghesuie.",
+  ab_h2a:"Ce vezi",
+  ab_p1:"Fiecare punct este o stea pe propria orbită eliptică ușor rotită în jurul unui centru comun, iar stelele din apropierea nucleului parcurg o orbită mai repede decât cele mai îndepărtate. Deoarece orbitele vecine sunt rotite cu un unghi mic, dar constant crescător, ele se grupează de-a lungul a două sau mai multe curbe largi. Stelele individuale intră și ies din aceste regiuni aglomerate: modelul rămâne, materia trece prin el.",
+  ab_h2b:"Unde de densitate și problema înfășurării",
+  ab_p2:"O galaxie-disc nu se rotește ca o roată rigidă — părțile interioare orbitează mult mai repede decât cele exterioare. Dacă brațele spirale ar fi șiruri fixe de stele și gaz, această rotație diferențială le-ar înfășura într-o spirală strânsă în câteva rotații galactice, iar după miliarde de ani nu ar mai rămâne nicio spirală deschisă. Totuși, cerul e plin de galaxii cu brațe largi, deschise. Aceasta este problema înfășurării, recunoscută de Bertil Lindblad în anii 1920.",
+  ab_p3:"Teoria undelor de densitate, dezvoltată de C. C. Lin și Frank Shu în anii 1960, răspunde tratând brațele ca pe un tipar de undă care se rotește cu propria viteză constantă, în timp ce stelele și gazul trec prin el — mai apropiat de un ambuteiaj decât de un zid. Gazul comprimat pe creasta undei se prăbușește în stele noi, motiv pentru care brațele reale strălucesc cu stele albastre tinere și nori roz de hidrogen. Activează „Brațe materiale” în panou ca să vezi problema înfășurării în acțiune.",
+  ab_h2c:"Ce nu este",
+  ab_p4:"Este o aproximare vizuală, nu o simulare cu N corpuri sau hidrodinamică: orbitele sunt prescrise, nu calculate din gravitație. Fulgerele de supernovă și banda de fundal inspirată de Calea Lactee sunt efecte decorative, nu modele fizice, iar cursorul de morfologie aproximează aspectul secvenței Sa–Sc, fără a clasifica nimic. Originea, durata de viață și dinamica exactă a brațelor spirale rămân o întrebare de cercetare activă.",
+  ab_h2d:"Controale",
+  ab_c1:"— morfologie, intensitatea barei, înfășurare, număr de brațe, zoom, viteza timpului și unghi de vizualizare, plus setări predefinite.",
+  ab_c2:"— patru palete de culori cu tranziție automată, intensitatea culorii și a nebuloasei, număr de stele de la 3.000 la 30.000, fulgere de supernovă și parallax.",
+  ab_c3:"— un peisaj sonor cosmic procedural generat live de Web Audio API, cu câte un cursor pentru fiecare strat.",
+  ab_c4:"— H ascunde interfața, F este ecran complet, P salvează un PNG, V pornește modul proiector, M comută sunetul.",
+  ab_h2e:"Bază științifică",
+  ab_p5:"Teoria undelor de densitate este un model serios, susținut de observații, dar este una dintre mai multe explicații, iar natura structurii spirale nu este o întrebare închisă. Acestea sunt sursele principale din spatele simulării:",
+  ab_foot:"Sursă deschisă, licență MIT — realizat de laci141.",
+  ab_src:"Cod sursă și descărcare pe GitHub ↗",
+  cycleTime:"Durata ciclului",
+  autoInc:"Înclinare automată",autoIncRange:"(10–70°)",
+  autoZoom:"Zoom automat",autoZoomRange:"(10–90%)",
+  autoSpd:"Viteza timpului automată",autoSpdRange:"(0,2–2,8×)"},
 
  de:{tabGal:"Galaxie",tabLook:"Ansicht",tabSnd:"Klang",tabScience:"Wissenschaft",controls:"Steuerung",
   sub:"Jeder Stern folgt seiner eigenen geneigten Bahn. Die Spirale ist ein Stau, keine Struktur.",
@@ -496,14 +704,14 @@ const I18N={
   drone:"Tiefraum-Drone",wind:"Sonnenwind",chimes:"Sternenstaub-Glocken",pulsar:"Pulsar-Puls",
   follow:"Der Simulation folgen",zoomTempo:"(Zoom, Tempo)",
   caption:"Wären die Spiralarme aus fester Materie, würden sie sich in wenigen galaktischen Umdrehungen selbst aufwickeln und verschwinden. Das tun sie nicht. Lindblad bemerkte das 1925.",
-  hint:"H — UI aus/ein · F — Vollbild · P — Foto · Space — Projektormodus",
+  hint:"H — UI aus/ein · F — Vollbild · P — Foto · V — Projektormodus · M — Ton",
   creditPre:"Erstellt von",creditPost:"— Quellcode & Download auf GitHub ↗",
   sndTitle:"Kosmischer Klang an/aus",minTitle:"Panel minimieren",restoreTitle:"Steuerung anzeigen",
   pal_classic:"Klassisch",pal_indigo:"Indigostaub",pal_gold:"Blau-Gold",pal_violet:"Violettes Meer",
   pre_andromeda:"Andromeda-ähnlich",pre_whirlpool:"Strudel M51",pre_barred:"Balken SBb",pre_pinwheel:"Feuerrad",
   tGuard:"Leistungswächter: Sternenzahl {n}",tSaved:"Bild gespeichert — {s}",
   tLink:"Link kopiert — mit allen Einstellungen",tCopy:"Link kopieren:",
-  tProjOn:"Projektormodus — Beenden mit Space, Esc oder Klick",tProjOff:"Projektormodus aus",
+  tProjOn:"Projektormodus — Beenden mit V, Esc oder Klick",tProjOff:"Projektormodus aus",
   tApplied:"{name} angewendet",tHidden:"UI ausgeblendet — H holt es zurück",
   tNoAudio:"Dieser Browser unterstützt Web Audio nicht",reducedMotion:"(reduzierte Bewegung)",
   tReset:"Simulation zurückgesetzt",
@@ -517,7 +725,30 @@ const I18N={
   sciLim3:"„Supernovae“ sind nur visuelle Effekte (helle Blitze und expandierende Hüllen).",
   sciLim4:"Das „Milchstraßen-inspirierte Band“ ist ein generierter Hintergrund, keine echte Sternenkarte.",
   sciLim5:"Voreinstellungen wie „Andromeda-ähnlich“ sind morphologische Übereinstimmungen, keine präzisen physikalischen Modelle.",
-  sciSources:"Quellen"}
+  sciSources:"Quellen",
+  scrollHint:"Scrollen für die Wissenschaft ↓",aboutBtn:"Über",ab_keys:"Tasten",
+  ab_h1:"Density Wave — interaktive Spiralgalaxien-Simulation",
+  ab_lead:"Eine Browser-Simulation davon, wie die Spiralarme einer Scheibengalaxie entstehen können, ohne dass eine feste Struktur sie zusammenhält. Jeder Stern folgt seiner eigenen elliptischen Bahn; die Arme sind einfach dort, wo sich diese Bahnen drängen.",
+  ab_h2a:"Was Sie sehen",
+  ab_p1:"Jeder Punkt ist ein Stern auf seiner eigenen, leicht gedrehten elliptischen Bahn um ein gemeinsames Zentrum, und Sterne nahe dem Kern umrunden es schneller als weiter außen liegende. Da benachbarte Bahnen um einen kleinen, stetig wachsenden Winkel gedreht sind, drängen sie sich entlang zweier oder mehrerer weit geschwungener Kurven zusammen. Einzelne Sterne treiben in diese dichten Bereiche hinein und wieder hinaus: das Muster bleibt, die Materie zieht hindurch.",
+  ab_h2b:"Dichtewellen und das Aufwickelproblem",
+  ab_p2:"Eine Scheibengalaxie dreht sich nicht wie ein starres Rad — die inneren Bereiche umkreisen das Zentrum weit schneller als die äußeren. Wären Spiralarme feste Ketten aus Sternen und Gas, würde diese differentielle Rotation sie innerhalb weniger galaktischer Umläufe zu einer engen Spirale aufwickeln, und nach Milliarden Jahren bliebe keine offene Spirale übrig. Dennoch ist der Himmel voller Galaxien mit weiten, offenen Armen. Das ist das Aufwickelproblem, das Bertil Lindblad in den 1920er Jahren erkannte.",
+  ab_p3:"Die Dichtewellentheorie, in den 1960er Jahren von C. C. Lin und Frank Shu entwickelt, beantwortet es, indem sie die Arme als Wellenmuster behandelt, das sich mit eigener konstanter Geschwindigkeit dreht, während Sterne und Gas hindurchziehen — eher ein Stau als eine Mauer. Am Wellenkamm verdichtetes Gas kollabiert zu neuen Sternen, weshalb echte Arme von jungen blauen Sternen und rosa Wasserstoffwolken leuchten. Schalten Sie im Panel „Materielle Arme“ ein, um das Aufwickelproblem zu beobachten.",
+  ab_h2c:"Was dies nicht ist",
+  ab_p4:"Dies ist eine visuelle Näherung, keine N-Körper- oder hydrodynamische Simulation: die Bahnen sind vorgegeben und nicht aus der Gravitation berechnet. Die Supernova-Blitze und das von der Milchstraße inspirierte Hintergrundband sind dekorative Effekte, keine physikalischen Modelle, und der Morphologie-Regler nähert das Aussehen der Sa–Sc-Sequenz an, ohne etwas zu klassifizieren. Entstehung, Lebensdauer und genaue Dynamik von Spiralarmen bleiben eine offene Forschungsfrage.",
+  ab_h2d:"Bedienelemente",
+  ab_c1:"— Morphologie, Balkenstärke, Aufwicklung, Armanzahl, Zoom, Zeitgeschwindigkeit und Betrachtungswinkel sowie Voreinstellungen per Klick.",
+  ab_c2:"— vier Farbpaletten mit automatischer Überblendung, Farb- und Nebelintensität, Sternanzahl von 3.000 bis 30.000, Supernova-Blitze und Parallaxe.",
+  ab_c3:"— eine prozedurale kosmische Klanglandschaft, live erzeugt von der Web Audio API, mit einem Regler pro Ebene.",
+  ab_c4:"— H blendet die Oberfläche aus, F ist Vollbild, P speichert ein PNG, V startet den Projektormodus, M schaltet den Ton.",
+  ab_h2e:"Wissenschaftliche Grundlage",
+  ab_p5:"Die Dichtewellentheorie ist ein ernst zu nehmendes, durch Beobachtungen gestütztes Modell, aber sie ist eine Erklärung unter mehreren, und die Natur der Spiralstruktur ist keine abgeschlossene Frage. Dies sind die primären Quellen hinter der Simulation:",
+  ab_foot:"Open Source, MIT-Lizenz — erstellt von laci141.",
+  ab_src:"Quellcode und Download auf GitHub ↗",
+  cycleTime:"Zyklusdauer",
+  autoInc:"Automatische Neigung",autoIncRange:"(10–70°)",
+  autoZoom:"Automatischer Zoom",autoZoomRange:"(10–90 %)",
+  autoSpd:"Automatische Zeitgeschwindigkeit",autoSpdRange:"(0,2–2,8×)"}
 };
 const LOCALE={en:"en-US",hu:"hu-HU",ro:"ro-RO",de:"de-DE"};
 const stored=(()=>{try{return localStorage.getItem("dw-lang");}catch(e){return null;}})();
@@ -619,7 +850,11 @@ const P={
   arms:clamp(Math.round(qnum("arms",2)),1,5),   // max 5 instead of 6
   speed:(reduced||FREEZE)?0:clamp(qnum("spd",1),0,3),
   incl:clamp(qnum("inc",0),0,80),
-  zoom:clamp(qnum("zoom",80),20,100)/100,        // max 100%
+  zoom:clamp(qnum("zoom",80),10,100)/100,        // max 100%
+  // automatic slow cycling; the T values are the full round-trip period in seconds
+  autoInc:qbool("ainc",false),  autoIncT:clamp(qnum("aincT",180),30,180),
+  autoZoom:qbool("azoom",false),autoZoomT:clamp(qnum("azoomT",120),30,180),
+  autoSpd:qbool("aspd",false),  autoSpdT:clamp(qnum("aspdT",120),30,180),
   orbits:qbool("orb",false), material:qbool("mat",false),
   autoPal:qbool("auto",true), supernova:qbool("sn",true),
   parallax:qbool("px",true), band:qbool("band",true), fpsGuard:qbool("fps",true)
@@ -906,6 +1141,31 @@ const SN=[];                      // active supernovae
 let snTimer=8+Math.random()*14;
 let proj=false, projT=0, projUI=0;
 
+/* ── automatic slow cycling of inclination / zoom / time speed ──
+   Each cycler holds a phase in [0,1) advanced by real elapsed time, so changing
+   the period stretches the motion instead of making the value jump. The value
+   eases in and out with a cosine, spending longer near the two extremes. */
+const CYCLERS=[
+  {on:"autoInc", per:"autoIncT", prop:"incl",  min:10,  max:70,  ph:0},
+  {on:"autoZoom",per:"autoZoomT",prop:"zoom",  min:0.10,max:0.90,ph:0},
+  {on:"autoSpd", per:"autoSpdT", prop:"speed", min:0.2, max:2.8, ph:0}
+];
+// Pick the phase that reproduces the current value, so switching on never jumps.
+function seedCycler(c){
+  const u=clamp((P[c.prop]-c.min)/(c.max-c.min),0,1);
+  c.ph=Math.acos(1-2*u)/(2*Math.PI);
+}
+function stepCyclers(rdt){
+  let moved=false;
+  for(const c of CYCLERS){
+    if(!P[c.on])continue;
+    c.ph=(c.ph+rdt/P[c.per])%1;
+    P[c.prop]=c.min+(c.max-c.min)*(0.5-0.5*Math.cos(2*Math.PI*c.ph));
+    moved=true;
+  }
+  return moved;
+}
+
 /* ─────────────── simulation step ─────────────── */
 /* dt drives the orbits and is clamped for numerical stability; rdt is the real
    elapsed time and drives everything that should take a fixed number of
@@ -913,6 +1173,7 @@ let proj=false, projT=0, projUI=0;
    (The CSS background fade runs on wall-clock time, so mixing the two would
    drift them apart on a slow machine.) */
 function step(dt,rdt){
+  if(!FREEZE&&stepCyclers(rdt))syncUI();
   const sdt=dt*P.speed;
   simT+=sdt;
   if(P.material)windup+=sdt; else windup+=(0-windup)*Math.min(1,rdt*1.6);
@@ -1324,6 +1585,16 @@ function syncUI(){
       el.setAttribute("aria-checked",val?"true":"false");
     }
   };
+  const fmtPer=sec=>Math.floor(sec/60)+":"+String(Math.round(sec)%60).padStart(2,"0");
+  [["tAutoInc","autoInc","sAutoIncT","vAutoIncT","autoIncT"],
+   ["tAutoZoom","autoZoom","sAutoZoomT","vAutoZoomT","autoZoomT"],
+   ["tAutoSpd","autoSpd","sAutoSpdT","vAutoSpdT","autoSpdT"]].forEach(([tg,on,sl,vl,per])=>{
+    setTg(tg,P[on]);
+    const box=$(tg)&&$(tg).parentElement;
+    if(box)box.classList.toggle("on",P[on]);
+    if($(sl))$(sl).value=P[per];
+    if($(vl))$(vl).textContent=fmtPer(P[per]);
+  });
   setTg("tOrbits",P.orbits);
   setTg("tMat",P.material);
   setTg("tAuto",P.autoPal);
@@ -1439,6 +1710,12 @@ function copyLink(){
   url.searchParams.set("zoom",Math.round(P.zoom*100));
   url.searchParams.set("spd",P.speed.toFixed(2));
   url.searchParams.set("inc",P.incl);
+  if(P.autoInc)url.searchParams.set("ainc","1");
+  if(P.autoZoom)url.searchParams.set("azoom","1");
+  if(P.autoSpd)url.searchParams.set("aspd","1");
+  url.searchParams.set("aincT",P.autoIncT);
+  url.searchParams.set("azoomT",P.autoZoomT);
+  url.searchParams.set("aspdT",P.autoSpdT);
   url.searchParams.set("pal",curPal.id);
   url.searchParams.set("stars",NS);
   url.searchParams.set("lang",LANG);
@@ -1471,9 +1748,9 @@ function bindEvents(){
   if($("sHub"))$("sHub").oninput=e=>{P.hub=parseFloat(e.target.value);refreshEcc();syncUI();};
   if($("sBar"))$("sBar").oninput=e=>{P.bar=parseFloat(e.target.value)/100;refreshEcc();syncUI();};
   if($("sWind"))$("sWind").oninput=e=>{P.wind=parseFloat(e.target.value);syncUI();};
-  if($("sZoom"))$("sZoom").oninput=e=>{P.zoom=parseFloat(e.target.value)/100;scheduleSprites();syncUI();};
-  if($("sSpd"))$("sSpd").oninput=e=>{P.speed=parseFloat(e.target.value);syncUI();};
-  if($("sInc"))$("sInc").oninput=e=>{P.incl=parseFloat(e.target.value);syncUI();};
+  if($("sZoom"))$("sZoom").oninput=e=>{P.autoZoom=false;P.zoom=parseFloat(e.target.value)/100;scheduleSprites();syncUI();};
+  if($("sSpd"))$("sSpd").oninput=e=>{P.autoSpd=false;P.speed=parseFloat(e.target.value);syncUI();};
+  if($("sInc"))$("sInc").oninput=e=>{P.autoInc=false;P.incl=parseFloat(e.target.value);syncUI();};
 
   // Karok száma (Segment)
   document.querySelectorAll("#segArms button").forEach(b=>{
@@ -1490,6 +1767,13 @@ function bindEvents(){
       syncUI();
     };
   };
+  // an automatic cycler picks up from wherever the slider currently sits
+  bindTg("tAutoInc","autoInc",v=>{if(v)seedCycler(CYCLERS[0]);});
+  bindTg("tAutoZoom","autoZoom",v=>{if(v)seedCycler(CYCLERS[1]);});
+  bindTg("tAutoSpd","autoSpd",v=>{if(v)seedCycler(CYCLERS[2]);});
+  if($("sAutoIncT"))$("sAutoIncT").oninput=e=>{P.autoIncT=parseFloat(e.target.value);syncUI();};
+  if($("sAutoZoomT"))$("sAutoZoomT").oninput=e=>{P.autoZoomT=parseFloat(e.target.value);syncUI();};
+  if($("sAutoSpdT"))$("sAutoSpdT").oninput=e=>{P.autoSpdT=parseFloat(e.target.value);syncUI();};
   bindTg("tOrbits","orbits");
   bindTg("tMat","material");
   bindTg("tAuto","autoPal");
@@ -1517,6 +1801,10 @@ function bindEvents(){
   if($("bReset"))$("bReset").onclick=()=>{
     toast(t("tReset"));
     setTimeout(()=>location.href=location.pathname, 600);
+  };
+  if($("scrollHint"))$("scrollHint").onclick=()=>{
+    const a=$("about");
+    if(a)a.scrollIntoView({behavior:"smooth",block:"start"});
   };
 
   // Ablak / Panel vezérlés
@@ -1548,7 +1836,9 @@ function bindEvents(){
 
   // Billentyűparancsok
   window.onkeydown=e=>{
-    if(e.target.tagName==="INPUT"||e.target.tagName==="BUTTON")return;
+    // Space stays free for page scrolling, and shortcuts never fire from a focused control.
+    const tag=e.target.tagName;
+    if(tag==="INPUT"||tag==="BUTTON"||tag==="SELECT"||tag==="TEXTAREA"||e.target.isContentEditable)return;
     const k=e.key.toLowerCase();
     if(k==="h"){
       document.body.classList.toggle("hideui");
@@ -1557,7 +1847,10 @@ function bindEvents(){
       else document.exitFullscreen().catch(()=>{});
     }else if(k==="p"){
       takePhoto();
-    }else if(k===" "){
+    }else if(k==="m"){
+      const tg=document.getElementById("tSound");
+      if(tg)tg.click();
+    }else if(k==="v"){
       e.preventDefault();
       proj=!proj;
       toast(proj?t("tProjOn"):t("tProjOff"));
