@@ -602,7 +602,7 @@ const I18N={
   hint:"H — hide UI · F — fullscreen · P — photo · V — projector mode · M — sound · click — follow a star",
   creditPre:"Made by",creditPost:"— source & download on GitHub ↗",
   sndTitle:"Cosmic sound on/off",minTitle:"Minimise panel",restoreTitle:"Show controls",
-  pal_classic:"Classic",pal_indigo:"Indigo Dust",pal_gold:"Blue-Gold",pal_violet:"Violet Sea",
+  pal_classic:"Classic",pal_indigo:"Indigo Dust",pal_gold:"Blue-Gold",pal_violet:"Violet Sea",pal_real:"Realistic",
   pre_andromeda:"Andromeda-like",pre_whirlpool:"Whirlpool M51",pre_barred:"Barred SBb",pre_pinwheel:"Pinwheel",
   tGuard:"Performance guard: star count {n}",tSaved:"Image saved — {s}",
   tLink:"Link copied — with every setting included",tCopy:"Copy the link:",
@@ -667,7 +667,7 @@ const I18N={
   hint:"H — felület el/be · F — teljes képernyő · P — fotó · V — vetítő mód · M — hang · kattintás — csillag követése",
   creditPre:"Készítette:",creditPost:"— forráskód és letöltés a GitHubon ↗",
   sndTitle:"Kozmikus hang be/ki",minTitle:"Panel kicsinyítése",restoreTitle:"Vezérlők megjelenítése",
-  pal_classic:"Klasszikus",pal_indigo:"Indigó por",pal_gold:"Kék-arany",pal_violet:"Ibolya-tenger",
+  pal_classic:"Klasszikus",pal_indigo:"Indigó por",pal_gold:"Kék-arany",pal_violet:"Ibolya-tenger",pal_real:"Valósághű",
   pre_andromeda:"Androméda-szerű",pre_whirlpool:"Örvény M51",pre_barred:"Küllős SBb",pre_pinwheel:"Szélkerék",
   tGuard:"Teljesítményőr: csillagszám {n}",tSaved:"Kép mentve — {s}",
   tLink:"Link a vágólapon — minden beállítással",tCopy:"Másold ki a linket:",
@@ -732,7 +732,7 @@ const I18N={
   hint:"H — ascunde UI · F — ecran complet · P — foto · V — mod proiector · M — sunet · clic — urmărește o stea",
   creditPre:"Realizat de",creditPost:"— sursă și descărcare pe GitHub ↗",
   sndTitle:"Sunet cosmic pornit/oprit",minTitle:"Minimizează panoul",restoreTitle:"Arată comenzile",
-  pal_classic:"Clasic",pal_indigo:"Praf indigo",pal_gold:"Albastru-auriu",pal_violet:"Marea violetă",
+  pal_classic:"Clasic",pal_indigo:"Praf indigo",pal_gold:"Albastru-auriu",pal_violet:"Marea violetă",pal_real:"Realist",
   pre_andromeda:"Andromeda-similar",pre_whirlpool:"Vârtejul M51",pre_barred:"SBb cu bară",pre_pinwheel:"Morișca",
   tGuard:"Protecție performanță: {n} stele",tSaved:"Imagine salvată — {s}",
   tLink:"Link copiat — cu toate setările",tCopy:"Copiază linkul:",
@@ -797,7 +797,7 @@ const I18N={
   hint:"H — UI aus/ein · F — Vollbild · P — Foto · V — Projektormodus · M — Ton · Klick — Stern folgen",
   creditPre:"Erstellt von",creditPost:"— Quellcode & Download auf GitHub ↗",
   sndTitle:"Kosmischer Klang an/aus",minTitle:"Panel minimieren",restoreTitle:"Steuerung anzeigen",
-  pal_classic:"Klassisch",pal_indigo:"Indigostaub",pal_gold:"Blau-Gold",pal_violet:"Violettes Meer",
+  pal_classic:"Klassisch",pal_indigo:"Indigostaub",pal_gold:"Blau-Gold",pal_violet:"Violettes Meer",pal_real:"Realistisch",
   pre_andromeda:"Andromeda-ähnlich",pre_whirlpool:"Strudel M51",pre_barred:"Balken SBb",pre_pinwheel:"Feuerrad",
   tGuard:"Leistungswächter: Sternenzahl {n}",tSaved:"Bild gespeichert — {s}",
   tLink:"Link kopiert — mit allen Einstellungen",tCopy:"Link kopieren:",
@@ -903,7 +903,17 @@ const RAW=[
     starTint:[1.05,0.9,1.12],
     neb:[[142,82,226],[180,92,220],[212,102,182],[122,72,212]],
     hii:[255,92,204], dust:[34,18,42],
-    core:[255,216,236], halo:[236,170,232] }
+    core:[255,216,236], halo:[236,170,232] },
+  // after real SDSS colour images (Lupton asinh): an orange-brown galaxy on a near-neutral sky
+  { id:"real", name:"Realistic", dot:"#d9924a",
+    bg:"#07070a",
+    clouds:["70,52,40","86,62,44","58,48,44","96,72,50","48,42,40"],
+    heart:"200,150,100", patch:"6,5,5",
+    band:{glow:"80,62,48", warm:"150,110,70", dust:"8,6,5", star:"235,215,190"},
+    starTint:[1.1,0.93,0.74],
+    neb:[[190,120,60],[170,110,70],[210,140,80],[150,100,70]],
+    hii:[235,110,120], dust:[40,24,12],
+    core:[255,180,100], halo:[235,160,95] }
 ];
 /* On a near-black field the four colour worlds read alike, so the palette gets
    a chroma lift and the cloud layers an opacity lift — both on live sliders
@@ -1649,7 +1659,7 @@ function drawOverlays(c,cx,cy,scl,cosI,sinI,ci,g,m,wnd,E,eb,fi){
 /* Real bulges never burn to white (SDSS cores measure 0% near-white, orange
    centre); summed sprites did. The central sprite is dimmed and a share of
    the innermost stars is left out, fading to none at 1.2 bulge radii. */
-const CORE_A=0.5, CORE_THIN=0.6, BUL_A=0.4;   // BUL_A: Canvas 2D only
+const CORE_A=0.5, CORE_THIN=0.6, BUL_A=0.31;   // BUL_A: Canvas 2D only
 function thinned(i,a){
   const ab=bulgeR(), p=CORE_THIN*(1-smooth(0.3*ab,1.2*ab,a));
   return ((i*0.6180339887)%1)<p;
@@ -1911,7 +1921,7 @@ void main(){
   vec2 p=vec2(r*cos(phi),r*sin(phi));
   float k=1.0,size=5.0,core=0.8,mid=0.5; vec3 col=vec3(255.0);
   if(uMode==0){                                     // stars; the bulge above the disc is drawn after the dust
-    float ab=uBulA/1.3, pth=0.6*(1.0-smoothstep(0.3*ab,1.2*ab,a));   // CORE_THIN
+    float ab=uBulA/1.3, pth=0.67*(1.0-smoothstep(0.3*ab,1.2*ab,a));   // GPU: a little more than CORE_THIN (tuned: core near-white −21%)
     if(fract(float(gl_InstanceID)*0.6180339887)<pth){cull();return;}
     bool front=z>uZCut&&a<uBulA;
     if((uFront==1&&!front)||(uFront==-1&&front)){cull();return;}
@@ -2021,7 +2031,7 @@ void main(){
   // the curve runs on luminance and the colour is scaled with it, so hues keep their saturation
   float L=dot(c,vec3(0.2126,0.7152,0.0722));
   float x=max(L-K,0.0)/(1.0-K);
-  float Lm=L<K?L:K+(1.0-K)*x/(1.0+x);          // Reinhard shoulder: slow, keeps gradation in the core
+  float Lm=L<K?L:K+(0.9-K)*x/(1.0+x);             // shoulder tops out at 0.9: the brightest core stays coloured          // Reinhard shoulder: slow, keeps gradation in the core
   c*=Lm/max(L,1e-5);
   c/=max(1.0,max(c.r,max(c.g,c.b)));             // Lupton: scale all channels together, so a bright core stays orange, not white
   o=vec4(c,clamp(sc.a,0.0,1.0));
