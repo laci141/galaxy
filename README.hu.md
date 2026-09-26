@@ -77,6 +77,7 @@ Néhány részlet, amitől nem gépiesnek hat:
 | **Supernovae** | ritkán felvillanó csillag lágyan táguló fénygömbbel (hanggal is) |
 | **Parallax** | egérmozgásra / mobil-döntésre a háttér és a galaxis elcsúszik → mélységérzet |
 | **Milky Way band** | átlós, sűrű csillagfolyam sötét porcsíkokkal a háttérben |
+| **WebGL renderer** (béta) | a galaxist a GPU rajzolja — asztali gépen akár 200 000, tableten 100 000, telefonon 60 000 csillag; átkapcsoláskor az oldal ugyanazokkal a beállításokkal újratöltődik |
 | **📷 Photo (PNG)** | felület nélküli mentés, ahol fér, kétszeres felbontásban |
 | **🔗 Copy link** | az összes beállítás belekerül az URL-be, így megosztható |
 | **🎬 Projector** | forgatókönyv szerinti filmes túra — öt jelenet (távoli kép, korotáció, a forgó mintát követő kar-közeli, élről látott dudor, eltávolodás) lágy kameramozgással és feliratokkal; a paletták továbbra is váltakoznak |
@@ -111,6 +112,19 @@ A galaxis alatt ugyanez bővebben is olvasható egy legörgethető cikkben, amit
 Döntött nézetben a központi dudor kerek marad, miközben a korong lelapul; a korongsík fölötti dudorcsillagok a por után rajzolódnak, így porsáv húzódik a dudor előtt.
 
 A Space szándékosan szabadon maradt, hogy továbbra is görgesse az oldalt, és egyik gyorsbillentyű sem sül el, amíg csúszkán, gombon vagy legördülőn van a fókusz.
+
+## WebGL-rajzoló (béta)
+
+Alapból ki van kapcsolva; a **Visuals** fülön kapcsolható, vagy `?gl=1`-gyel nyitható. A Canvas 2D marad az alapértelmezett és a tartalék.
+
+- **Ugyanaz a modell, a GPU-n.** Minden populáció példányosított négyszög; a vertex shader megismétli a pályaszámítást (elfordulás, küllő, forgó minta, anyagi feltekeredés, ütközés-keverés) és a H II régiók, fiatal csillagok és a por karfázis szerinti fényességét. A fázisokat, az ütközés integrálását és a kijelölést továbbra is a CPU végzi; a pályák, a korotációs kör és a követett csillag a fölötte lévő 2D vásznon rajzolódik.
+- **HDR, a látvány megváltoztatása nélkül.** A fény ugyanabban a térben adódik össze, mint a vászon `lighter` módjában, csak félpontos lebegőpontos pufferbe, amely 1,0 fölött is számol tovább. A lágy térdű görbe 0,75 alatt semmihez sem nyúl, fölötte Reinhard-vállal simít, így a sűrű mag nem ég ki fehérre. Előbb a lineáris fényösszeadás és az ACES is ki lett próbálva: a halvány fényudvarok eltűntek a fényesebb részek előtt, az ACES talpa pedig elnyelte a ragyogást.
+- **Bloom:** kettős szűrős elmosás hat szinten le és vissza, a **Glow** csúszkával súlyozva.
+- **A por a hátteret is takarja:** a fedettsége az alfa-csatornába kerül, így a porsávok a galaxis mögötti eget is sötétítik, mint Canvas 2D-ben.
+- **Telefon:** a vászon felbontása legfeljebb 2× eszközpixel, és az ütközés legfeljebb 30 000 csillagot integrál (a többi addig elhalványul, visszatekeréskor visszatér) — 6× lassított CPU-n 60 000 integrált csillag kb. 43 ms képkockánként, korláttal kb. 27 ms.
+- **Tartalék:** ha nincs WebGL2, egy shader nem fordul le, vagy elvész a kontextus, az oldal szól, és Canvas 2D-vel folytatja.
+
+Mérés Canvas 2D-hez képest 12 000 csillagnál (Playwright, szoftveres GPU): átlagos fényesség 40,2 vs 42,3, kiégett pixelek 0,10% vs 0,19%; 60 000 csillagnál 0,07%.
 
 ## Miért néz ki minden zoomon/képernyőn ugyanúgy?
 
@@ -149,7 +163,7 @@ Az automatikus mozgatásnak külön futása van: a dőlésszög 11° → 58° k�
 
 Nyisd meg az `index.html`-t böngészőben (vagy `python3 -m http.server` és http://localhost:8000).
 
-URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · `?lang=en|hu|ro|de` felületnyelv · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`) · és az automatikák a köridejükkel másodpercben (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — ezt állítja elő a **🔗 Copy link** gomb.
+URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · `?lang=en|hu|ro|de` felületnyelv · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`, `gl`) · és az automatikák a köridejükkel másodpercben (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — ezt állítja elő a **🔗 Copy link** gomb.
 
 ## Licenc
 

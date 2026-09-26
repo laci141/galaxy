@@ -77,6 +77,7 @@ A few details that keep it from feeling mechanical:
 | **Supernovae** | a rare star flares up inside a softly expanding shell of light (with sound) |
 | **Parallax** | mouse movement / device tilt shifts background and galaxy apart for depth |
 | **Milky Way band** | a diagonal dense star stream with dark dust lanes in the background |
+| **WebGL renderer** (beta) | draws the galaxy on the GPU — up to 200,000 stars on desktop, 100,000 on tablets, 60,000 on phones; switching reloads the page with the same settings |
 | **📷 Photo (PNG)** | saves without the UI, at double resolution where it fits |
 | **🔗 Copy link** | encodes every setting into the URL so it can be shared |
 | **🎬 Projector** | a scripted cinematic tour — five shots (wide view, corotation, an arm close-up that tracks the turning pattern, edge-on bulge, pull-out) with eased camera moves and a caption each; palettes keep changing |
@@ -111,6 +112,19 @@ Below the galaxy there is also a scrollable article covering the same ground at 
 Tilt the galaxy and the bulge stays round while the disc flattens; bulge stars above the disc plane are drawn after the dust, so a dust lane crosses in front of the bulge.
 
 Space is deliberately left alone so it still scrolls the page, and none of these fire while a slider, button or select has focus.
+
+## WebGL renderer (beta)
+
+Off by default; switch it on in **Visuals** or open the page with `?gl=1`. The Canvas 2D renderer stays the default and the fallback.
+
+- **Same model, on the GPU.** Every population is an instanced quad; the vertex shader repeats the orbit maths (tilt, bar, pattern rotation, material winding, the encounter blend) and the arm-phase brightness of H II regions, young stars and dust. The CPU still advances the phases, integrates the encounter and handles picking; orbits, the corotation circle and the followed star are drawn on the 2D canvas above it.
+- **HDR, without changing the look.** Light adds in the same space as the canvas's `lighter` mode, but into a half-float buffer that keeps counting past 1.0. A soft-knee curve leaves everything below 0.75 untouched and rolls the rest off with a Reinhard shoulder, so dense cores keep their structure instead of burning to white. Linear-light adding and ACES were both tried first: faint halos vanished over brighter regions and the ACES toe swallowed the glow.
+- **Bloom** is a dual-filter blur down a six-level chain and back up, weighted by the **Glow** slider.
+- **Dust hides the background too:** its coverage goes into the alpha channel, so the lanes darken the sky behind the galaxy as they do in Canvas 2D.
+- **Phones:** the canvas resolution is capped at 2× device pixels, and the encounter integrates at most 30,000 stars (the rest fade out for its duration and back in on rewind) — at a 6× CPU slowdown 60,000 integrated stars cost ~43 ms per frame, capped ~27 ms.
+- **Fallback:** if WebGL2 is missing, a shader fails to compile or the context is lost, the page says so and carries on with Canvas 2D.
+
+Measured against Canvas 2D at 12,000 stars (Playwright, software GPU): mean brightness 40.2 vs 42.3, blown-out pixels 0.10% vs 0.19%; at 60,000 stars 0.07%.
 
 ## Why does it look the same at every zoom level and screen?
 
@@ -149,7 +163,7 @@ The auto-cycle controls are covered by their own run: inclination sweeping 11° 
 
 Open `index.html` in a browser (or `python3 -m http.server` and visit http://localhost:8000).
 
-URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
+URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`, `gl`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
 
 ## License
 
