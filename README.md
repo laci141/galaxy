@@ -38,8 +38,10 @@ Inside are four tabs: **Galaxy**, **Visuals**, **Sound** and **Science**.
 | **Time speed** | simulation speed (0–3×) |
 | **Inclination** | viewing angle (0° = face-on) |
 | **Presets** | Andromeda · Whirlpool M51 · Barred SBb · Pinwheel — one-click setups |
-| **Show orbits** | reveal the hidden elliptical orbits |
+| **Rotating pattern** | the spiral pattern turns rigidly; stars overtake the arms inside corotation and fall behind outside it, and the dust lane / H II / young blue star sequence flips sides across it |
+| **Show orbits** | reveal the hidden elliptical orbits (plus the dashed corotation circle while the pattern rotates) |
 | **Material arms** | "what if the arms were made of matter" — a demo of the winding problem |
+| **💥 Galaxy encounter** | a companion galaxy swings past on a prograde, near-parabolic orbit and pulls out tidal tails and a bridge (test particles in the galaxy's potential plus one companion mass, after Toomre & Toomre 1972); **End encounter** rewinds every star back into the spiral |
 
 #### Automatic cycling
 
@@ -69,6 +71,7 @@ A few details that keep it from feeling mechanical:
 | **Auto-switch** | picks a new palette every 2–3 minutes with a slow 4.5 s crossfade |
 | **Colour boost** | 0–25% chroma lift on the palette (default 15%) — 0% is the original, restrained colouring |
 | **Nebula density** | 0–25% opacity lift on the cloud and nebula layers (default 15%) |
+| **Glow** | 0–100% diffuse light from the galaxy itself (default 50%), built by halving the frame down to 1/16 and adding it back — the unresolved starlight that turns loose grains into glowing arms |
 | **Star count** | desktop 5,000–30,000, mobile 3,000–20,000 |
 | **Performance guard** | automatically lowers the star count if the frame rate drops below 35 fps |
 | **Supernovae** | a rare star flares up inside a softly expanding shell of light (with sound) |
@@ -76,7 +79,7 @@ A few details that keep it from feeling mechanical:
 | **Milky Way band** | a diagonal dense star stream with dark dust lanes in the background |
 | **📷 Photo (PNG)** | saves without the UI, at double resolution where it fits |
 | **🔗 Copy link** | encodes every setting into the URL so it can be shared |
-| **🎬 Projector** | full-screen slow camera journey with automatic palette changes |
+| **🎬 Projector** | a scripted cinematic tour — five shots (wide view, corotation, an arm close-up that tracks the turning pattern, edge-on bulge, pull-out) with eased camera moves and a caption each; palettes keep changing |
 | **👁 Hide UI** | hides the controls |
 
 ### Sound — procedural cosmic soundscape
@@ -102,6 +105,10 @@ Below the galaxy there is also a scrollable article covering the same ground at 
 ### Keys
 
 `H` hide/show UI · `F` fullscreen · `P` photo · `V` projector mode · `Esc` exit · `M` sound
+
+**Click a star** to follow it: a ring marks it, a fading trail shows its path, and a label says whether it is overtaking the arms, being overtaken, or keeping pace near corotation. Click empty space or press `Esc` to let go.
+
+Tilt the galaxy and the bulge stays round while the disc flattens; bulge stars above the disc plane are drawn after the dust, so a dust lane crosses in front of the bulge.
 
 Space is deliberately left alone so it still scrolls the page, and none of these fire while a slider, button or select has focus.
 
@@ -142,7 +149,7 @@ The auto-cycle controls are covered by their own run: inclination sweeping 11° 
 
 Open `index.html` in a browser (or `python3 -m http.server` and visit http://localhost:8000).
 
-URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
+URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
 
 ## License
 

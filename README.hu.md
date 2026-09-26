@@ -38,8 +38,10 @@ Belül négy fül található: **Galaxis**, **Látvány**, **Hang**, **Tudomány
 | **Time speed** | szimulációs sebesség (0–3×) |
 | **Inclination** | rálátási szög (0° = szemből) |
 | **Presets** | Andromeda · Whirlpool M51 · Barred SBb · Pinwheel — egy kattintásos beállítás-csomagok |
-| **Show orbits** | a rejtett ellipszispályák kirajzolása |
+| **Rotating pattern** | a spirálminta merev testként forog; a korotáción belül a csillagok előzik a karokat, kívül a karok a csillagokat, és a porsáv → H II → fiatal kék csillag sorrend a korotáción túl oldalt vált |
+| **Show orbits** | a rejtett ellipszispályák kirajzolása (forgó mintánál a szaggatott korotációs körrel) |
 | **Material arms** | „mi lenne, ha a kar anyagból állna" — a feltekeredési probléma demója |
+| **💥 Galaxy encounter** | egy kísérőgalaxis elhalad mellette prográd, közel parabolikus pályán, és árapálycsóvákat meg hidat húz ki (tesztrészecskék a galaxis potenciáljában egy kísérőtömeggel, Toomre & Toomre 1972 nyomán); az **End encounter** minden csillagot visszatekercsel a spirálba |
 
 #### Automatikus mozgatás
 
@@ -69,6 +71,7 @@ Néhány részlet, amitől nem gépiesnek hat:
 | **Auto-switch** | 2–3 percenként lassú, 4,5 másodperces áttűnéssel új palettát sorsol |
 | **Colour boost** | 0–25%: a palettaszínek telítettsége (alap: 15%) — 0%-on az eredeti, visszafogott színek |
 | **Nebula density** | 0–25%: a köd- és felhőrétegek fedettsége (alap: 15%) |
+| **Glow** | 0–100%: a galaxis saját szórt fénye (alap: 50%) — a képkockát 1/16-ig felezve, majd visszaadva; ettől lesz a pöttyökből ragyogó kar |
 | **Star count** | desktop 5 000–30 000, mobil 3 000–20 000 |
 | **Performance guard** | ha az fps 35 alá esik, automatikusan visszaveszi a csillagszámot |
 | **Supernovae** | ritkán felvillanó csillag lágyan táguló fénygömbbel (hanggal is) |
@@ -76,7 +79,7 @@ Néhány részlet, amitől nem gépiesnek hat:
 | **Milky Way band** | átlós, sűrű csillagfolyam sötét porcsíkokkal a háttérben |
 | **📷 Photo (PNG)** | felület nélküli mentés, ahol fér, kétszeres felbontásban |
 | **🔗 Copy link** | az összes beállítás belekerül az URL-be, így megosztható |
-| **🎬 Projector** | teljes képernyős, lassú kamera-utazás automatikus palettaváltással |
+| **🎬 Projector** | forgatókönyv szerinti filmes túra — öt jelenet (távoli kép, korotáció, a forgó mintát követő kar-közeli, élről látott dudor, eltávolodás) lágy kameramozgással és feliratokkal; a paletták továbbra is váltakoznak |
 | **👁 Hide UI** | vezérlők elrejtése |
 
 ### Hang — procedurális kozmikus hangtér
@@ -102,6 +105,10 @@ A galaxis alatt ugyanez bővebben is olvasható egy legörgethető cikkben, amit
 ### Billentyűk
 
 `H` felület el/be · `F` teljes képernyő · `P` fotó · `V` vetítő mód · `Esc` kilépés · `M` hang
+
+**Kattints egy csillagra**, és követi: gyűrű jelöli, halványuló nyom mutatja az útját, a felirat pedig megmondja, hogy előzi-e a karokat, a karok előzik-e, vagy a korotáció közelében együtt halad velük. Üres helyre kattintva vagy `Esc`-kel elengeded.
+
+Döntött nézetben a központi dudor kerek marad, miközben a korong lelapul; a korongsík fölötti dudorcsillagok a por után rajzolódnak, így porsáv húzódik a dudor előtt.
 
 A Space szándékosan szabadon maradt, hogy továbbra is görgesse az oldalt, és egyik gyorsbillentyű sem sül el, amíg csúszkán, gombon vagy legördülőn van a fókusz.
 
@@ -142,7 +149,7 @@ Az automatikus mozgatásnak külön futása van: a dőlésszög 11° → 58° k�
 
 Nyisd meg az `index.html`-t böngészőben (vagy `python3 -m http.server` és http://localhost:8000).
 
-URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · `?lang=en|hu|ro|de` felületnyelv · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) · és az automatikák a köridejükkel másodpercben (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — ezt állítja elő a **🔗 Copy link** gomb.
+URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · `?lang=en|hu|ro|de` felületnyelv · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`) · és az automatikák a köridejükkel másodpercben (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — ezt állítja elő a **🔗 Copy link** gomb.
 
 ## Licenc
 

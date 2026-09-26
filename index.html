@@ -43,7 +43,7 @@
   "isAccessibleForFree": true,
   "inLanguage": ["en", "hu", "ro", "de"],
   "license": "https://opensource.org/licenses/MIT",
-  "dateModified": "2026-09-06",
+  "dateModified": "2026-09-26",
   "image": "https://galaxy-90m.pages.dev/og-image.png",
   "author": {
     "@type": "Person",
@@ -163,6 +163,11 @@
     font-size:14px;line-height:1.5;color:rgba(255,220,180,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;padding:0 20px;z-index:9;text-wrap:pretty}
   #caption.on{opacity:1}
+  #tourCap{position:fixed;left:50%;top:13%;transform:translateX(-50%);max-width:600px;width:calc(100% - 40px);text-align:center;
+    font-size:17px;line-height:1.5;color:rgba(232,240,255,.94);text-shadow:0 1px 10px rgba(0,0,0,.95);
+    opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:9;text-wrap:pretty;box-sizing:border-box}
+  #tourCap.on{opacity:1}
+  @media (max-width:700px){#tourCap{font-size:14px;top:9%}}
   #toast{position:fixed;left:50%;top:24px;transform:translate(-50%,-14px);z-index:20;
     background:rgba(12,18,32,.72);border:1px solid rgba(255,255,255,.13);border-radius:11px;
     backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);
@@ -306,6 +311,7 @@
 <div id="hero"></div>
 
 <div id="caption" data-i18n="caption"></div>
+<div id="tourCap" aria-live="polite"></div>
 <div id="toast"></div>
 <div id="hint" data-i18n="hint"></div>
 <div id="credit"><a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener"><span data-i18n="creditPre"></span> <b>laci141</b> <span data-i18n="creditPost"></span></a></div>
@@ -377,8 +383,12 @@
     <div class="grp" data-i18n="presets"></div>
     <div class="pal" id="presets"></div>
     <div class="toggles">
+      <button class="tg on" id="tPat" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="pattern"></span> <span class="dim" data-i18n="corotDim"></span></button>
       <button class="tg" id="tOrbits" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="orbits"></span></button>
       <button class="tg" id="tMat" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="material"></span> <span class="dim" data-i18n="windProb"></span></button>
+    </div>
+    <div class="btns">
+      <button id="bEnc">💥 <span data-i18n="encStart"></span></button>
     </div>
   </div>
 
@@ -393,6 +403,8 @@
       <input id="sSat" type="range" min="0" max="25" step="1" value="15"></div>
     <div class="ctl"><label for="sNeb"><span data-i18n="nebDens"></span> <span class="val" id="vNeb">+15%</span></label>
       <input id="sNeb" type="range" min="0" max="25" step="1" value="15"></div>
+    <div class="ctl"><label for="sGlow"><span data-i18n="glow"></span> <span class="val" id="vGlow">50%</span></label>
+      <input id="sGlow" type="range" min="0" max="100" step="5" value="50"></div>
     <div class="grp" data-i18n="starsGrp"></div>
     <div class="ctl"><label for="sStars"><span data-i18n="starCount"></span> <span class="val" id="vStars">12,000</span></label>
       <input id="sStars" type="range" min="3000" max="24000" step="500" value="12000"></div>
@@ -441,6 +453,7 @@
       <p data-i18n="sciIntro">This simulation is inspired by density‑wave models of spiral structure. Early dynamical work by Bertil Lindblad helped establish this line of thinking, which was later developed into more complete density‑wave theories by C. C. Lin, Frank Shu and others.</p>
       <h3 data-i18n="sciHow">How the model works</h3>
       <p data-i18n="sciHowText">The simulation uses nested elliptical orbits with a common major axis. Each star follows a slightly eccentric orbit; the orientation of the orbits twists with radius, creating the spiral pattern. The bar is formed by aligning the inner orbits, while the outer disc retains the usual winding. The parameters (Hubble‑like morphology, bar strength, winding, inclination, etc.) are visual approximations, not a physical N‑body simulation.</p>
+      <p data-i18n="sciPattern">The spiral pattern itself rotates slowly and rigidly, like a bar. Only at the corotation radius (dashed circle when orbits are shown) do stars keep pace with it: inside, stars overtake the arms; outside, the arms overtake the stars. Gas is compressed where it enters an arm, so the dark dust lanes sit on the upstream edge, pink H II regions just downstream, and short-lived blue stars a little further on — and this order flips across corotation.</p>
       <h3 data-i18n="sciLimits">Limitations</h3>
       <ul>
         <li data-i18n="sciLim1">No gravitational interactions between stars are simulated.</li>
@@ -448,6 +461,7 @@
         <li data-i18n="sciLim3">“Supernovae” are visual effects only (bright flares and expanding shells).</li>
         <li data-i18n="sciLim4">The “Milky Way‑inspired band” is a generated background, not a real star map.</li>
         <li data-i18n="sciLim5">Presets like “Andromeda‑like” are morphological matches, not precise physical models.</li>
+        <li data-i18n="sciLim6">The galaxy encounter uses test particles in a fixed potential plus one companion mass, in the spirit of Toomre &amp; Toomre (1972); the disc has no self-gravity.</li>
       </ul>
       <h3 data-i18n="sciSources">Sources</h3>
       <ul>
@@ -492,6 +506,16 @@
             Kiadói oldal
           </a>
         </li>
+        <li>
+          Toomre, A. &amp; Toomre, J. (1972).
+          <em>Galactic Bridges and Tails</em>.
+          <em>Astrophysical Journal</em>, 178, 623–666.
+          <a href="https://doi.org/10.1086/151823"
+             target="_blank"
+             rel="noopener noreferrer">
+            DOI
+          </a>
+        </li>
       </ul>
     </div>
   </div>
@@ -530,7 +554,7 @@
       Dobbs, C. &amp; Baba, J. (2014). <a href="https://ui.adsabs.harvard.edu/abs/2014PASA...31...35D" target="_blank" rel="noopener">Dawes Review 4: Spiral Structures in Disc Galaxies</a>. <i>Publications of the Astronomical Society of Australia</i>, 31, e035.
     </p>
 
-    <p class="foot"><span data-i18n="ab_foot">Open source, MIT licensed — built by laci141.</span> <a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener" data-i18n="ab_src">Source and download on GitHub ↗</a> <span class="build">build 2026-09-06</span></p>
+    <p class="foot"><span data-i18n="ab_foot">Open source, MIT licensed — built by laci141.</span> <a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener" data-i18n="ab_src">Source and download on GitHub ↗</a> <span class="build">build 2026-09-26</span></p>
   </div>
 </main>
 
@@ -572,7 +596,7 @@ const I18N={
   drone:"Deep-space drone",wind:"Solar wind",chimes:"Stardust chimes",pulsar:"Pulsar pulse",
   follow:"Follow the simulation",zoomTempo:"(zoom, tempo)",
   caption:"If spiral arms were made of fixed matter, they would wind themselves out of existence within a few galactic rotations. They don't. Lindblad noticed this in 1925.",
-  hint:"H — hide UI · F — fullscreen · P — photo · V — projector mode · M — sound",
+  hint:"H — hide UI · F — fullscreen · P — photo · V — projector mode · M — sound · click — follow a star",
   creditPre:"Made by",creditPost:"— source & download on GitHub ↗",
   sndTitle:"Cosmic sound on/off",minTitle:"Minimise panel",restoreTitle:"Show controls",
   pal_classic:"Classic",pal_indigo:"Indigo Dust",pal_gold:"Blue-Gold",pal_violet:"Violet Sea",
@@ -615,6 +639,9 @@ const I18N={
   ab_src:"Source and download on GitHub ↗",
   cycleTime:"Cycle time",
   autoInc:"Auto inclination",autoIncRange:"(10–70°)",
+  pattern:"Rotating pattern",corotDim:"(corotation)",glow:"Glow",corot:"corotation",
+  sciPattern:"The spiral pattern itself rotates slowly and rigidly, like a bar. Only at the corotation radius (dashed circle when orbits are shown) do stars keep pace with it: inside, stars overtake the arms; outside, the arms overtake the stars. Gas is compressed where it enters an arm, so the dark dust lanes sit on the upstream edge, pink H II regions just downstream, and short-lived blue stars a little further on — and this order flips across corotation.",
+  encStart:"Galaxy encounter",encEnd:"End encounter",tEnc:"A companion galaxy is on its way — watch the tidal tails form",tEncEnd:"Rewinding to the undisturbed spiral",tFollow:"Following a star — click empty space or press Esc to let go",tUnfollow:"Star released",fIn:"overtaking the arms",fOut:"the arms overtake it",fCo:"near corotation — keeping pace",fEnc:"pulled by the companion",sciLim6:"The galaxy encounter uses test particles in a fixed potential plus one companion mass, in the spirit of Toomre & Toomre (1972); the disc has no self-gravity.",tour1:"Every star rides its own slightly tilted orbit. The spiral arms are simply where those orbits crowd together.",tour2:"Inside the dashed corotation circle the stars overtake the arms; outside it, the arms overtake the stars.",tour3:"Gas is squeezed as it enters an arm: dust darkens the upstream edge, and new stars light up pink and blue just behind it.",tour4:"From the side, the round bulge rises out of the thin disc, and a dust lane crosses in front of it.",tour5:"The pattern turns once every few hundred million years, yet no star ever stays in an arm.",
   autoZoom:"Auto zoom",autoZoomRange:"(10–90%)",
   autoSpd:"Auto time speed",autoSpdRange:"(0.2–2.8×)"},
 
@@ -633,7 +660,7 @@ const I18N={
   drone:"Mélyűr-drón",wind:"Szoláris szél",chimes:"Csillagpor-csengők",pulsar:"Pulzár-lüktetés",
   follow:"Kövesse a szimulációt",zoomTempo:"(zoom, tempó)",
   caption:"Ha a spirálkarok rögzített anyagból állnának, néhány galaktikus fordulat alatt feltekerednék magukat a semmibe. Nem teszik. Lindblad 1925-ben figyelt fel erre.",
-  hint:"H — felület el/be · F — teljes képernyő · P — fotó · V — vetítő mód · M — hang",
+  hint:"H — felület el/be · F — teljes képernyő · P — fotó · V — vetítő mód · M — hang · kattintás — csillag követése",
   creditPre:"Készítette:",creditPost:"— forráskód és letöltés a GitHubon ↗",
   sndTitle:"Kozmikus hang be/ki",minTitle:"Panel kicsinyítése",restoreTitle:"Vezérlők megjelenítése",
   pal_classic:"Klasszikus",pal_indigo:"Indigó por",pal_gold:"Kék-arany",pal_violet:"Ibolya-tenger",
@@ -676,6 +703,9 @@ const I18N={
   ab_src:"Forráskód és letöltés a GitHubon ↗",
   cycleTime:"Köridő",
   autoInc:"Automatikus dőlésszög",autoIncRange:"(10–70°)",
+  pattern:"Forgó mintázat",corotDim:"(korotáció)",glow:"Ragyogás",corot:"korotáció",
+  sciPattern:"Maga a spirálmintázat is lassan, merev testként forog, akár egy küllő. Csak a korotációs sugárnál (szaggatott kör, ha a pályák láthatók) tartanak vele lépést a csillagok: belül a csillagok előzik meg a karokat, kívül a karok a csillagokat. A gáz ott sűrűsödik össze, ahol belép egy karba, ezért a sötét porsávok a belépő oldalon ülnek, a rózsaszín H II régiók közvetlenül mögöttük, a rövid életű kék csillagok pedig még kicsit távolabb — és ez a sorrend a korotáción túl megfordul.",
+  encStart:"Galaxis-találkozás",encEnd:"Találkozás vége",tEnc:"Egy kísérőgalaxis közeledik — figyeld, ahogy kialakulnak az árapálycsóvák",tEncEnd:"Visszatekerés a zavartalan spirálhoz",tFollow:"Egy csillag követése — kattints üres helyre vagy nyomd meg az Esc-et az elengedéshez",tUnfollow:"Csillag elengedve",fIn:"előzi a karokat",fOut:"a karok előzik",fCo:"korotáció közelében — együtt halad",fEnc:"a kísérő húzza magával",sciLim6:"A galaxis-találkozás tesztrészecskéket használ rögzített potenciálban egy kísérőtömeggel, Toomre & Toomre (1972) szellemében; a korongnak nincs saját gravitációja.",tour1:"Minden csillag a saját, kissé elfordított pályáján kering. A spirálkarok ott vannak, ahol ezek a pályák összesűrűsödnek.",tour2:"A szaggatott korotációs körön belül a csillagok előzik meg a karokat, kívül a karok a csillagokat.",tour3:"A gáz összepréselődik, amikor belép egy karba: a por elsötétíti a belépő oldalt, mögötte pedig rózsaszín és kék új csillagok gyúlnak.",tour4:"Oldalról nézve a kerek központi dudor kiemelkedik a vékony korongból, előtte pedig porsáv húzódik.",tour5:"A mintázat néhány százmillió évente fordul körbe, mégsem marad egyetlen csillag sem tartósan a karban.",
   autoZoom:"Automatikus zoom",autoZoomRange:"(10–90%)",
   autoSpd:"Automatikus idősebesség",autoSpdRange:"(0,2–2,8×)"},
 
@@ -694,7 +724,7 @@ const I18N={
   drone:"Dronă din spațiu",wind:"Vânt solar",chimes:"Clopoței de praf stelar",pulsar:"Puls de pulsar",
   follow:"Urmează simularea",zoomTempo:"(zoom, tempo)",
   caption:"Dacă brațele spirale ar fi făcute din materie fixă, s-ar înfășura până la dispariție în câteva rotații galactice. Nu o fac. Lindblad a observat asta în 1925.",
-  hint:"H — ascunde UI · F — ecran complet · P — foto · V — mod proiector · M — sunet",
+  hint:"H — ascunde UI · F — ecran complet · P — foto · V — mod proiector · M — sunet · clic — urmărește o stea",
   creditPre:"Realizat de",creditPost:"— sursă și descărcare pe GitHub ↗",
   sndTitle:"Sunet cosmic pornit/oprit",minTitle:"Minimizează panoul",restoreTitle:"Arată comenzile",
   pal_classic:"Clasic",pal_indigo:"Praf indigo",pal_gold:"Albastru-auriu",pal_violet:"Marea violetă",
@@ -737,6 +767,9 @@ const I18N={
   ab_src:"Cod sursă și descărcare pe GitHub ↗",
   cycleTime:"Durata ciclului",
   autoInc:"Înclinare automată",autoIncRange:"(10–70°)",
+  pattern:"Model rotativ",corotDim:"(corotație)",glow:"Strălucire",corot:"corotație",
+  sciPattern:"Modelul spiral se rotește și el, lent și rigid, ca o bară. Doar la raza de corotație (cercul punctat când orbitele sunt afișate) stelele țin pasul cu el: în interior stelele depășesc brațele, în exterior brațele depășesc stelele. Gazul se comprimă acolo unde intră într-un braț, așa că benzile întunecate de praf stau pe marginea de intrare, regiunile roz H II imediat după ele, iar stelele albastre de viață scurtă puțin mai departe — iar ordinea se inversează dincolo de corotație.",
+  encStart:"Întâlnire galactică",encEnd:"Oprește întâlnirea",tEnc:"O galaxie însoțitoare se apropie — urmărește cum se formează cozile mareice",tEncEnd:"Revenire la spirala neperturbată",tFollow:"Urmărești o stea — clic pe un loc gol sau Esc pentru a o elibera",tUnfollow:"Stea eliberată",fIn:"depășește brațele",fOut:"brațele o depășesc",fCo:"lângă corotație — ține pasul",fEnc:"trasă de însoțitoare",sciLim6:"Întâlnirea galactică folosește particule-test într-un potențial fix plus o masă însoțitoare, în spiritul lui Toomre & Toomre (1972); discul nu are autogravitație.",tour1:"Fiecare stea parcurge propria orbită, ușor rotită. Brațele spirale sunt doar locurile unde aceste orbite se aglomerează.",tour2:"În interiorul cercului punctat de corotație stelele depășesc brațele; în afara lui, brațele depășesc stelele.",tour3:"Gazul se comprimă când intră într-un braț: praful întunecă marginea de intrare, iar imediat în spatele ei se aprind stele noi, roz și albastre.",tour4:"Din lateral, bulbul rotund se ridică din discul subțire, iar o bandă de praf trece prin fața lui.",tour5:"Modelul face o rotație la fiecare câteva sute de milioane de ani, dar nicio stea nu rămâne mereu într-un braț.",
   autoZoom:"Zoom automat",autoZoomRange:"(10–90%)",
   autoSpd:"Viteza timpului automată",autoSpdRange:"(0,2–2,8×)"},
 
@@ -755,7 +788,7 @@ const I18N={
   drone:"Tiefraum-Drone",wind:"Sonnenwind",chimes:"Sternenstaub-Glocken",pulsar:"Pulsar-Puls",
   follow:"Der Simulation folgen",zoomTempo:"(Zoom, Tempo)",
   caption:"Wären die Spiralarme aus fester Materie, würden sie sich in wenigen galaktischen Umdrehungen selbst aufwickeln und verschwinden. Das tun sie nicht. Lindblad bemerkte das 1925.",
-  hint:"H — UI aus/ein · F — Vollbild · P — Foto · V — Projektormodus · M — Ton",
+  hint:"H — UI aus/ein · F — Vollbild · P — Foto · V — Projektormodus · M — Ton · Klick — Stern folgen",
   creditPre:"Erstellt von",creditPost:"— Quellcode & Download auf GitHub ↗",
   sndTitle:"Kosmischer Klang an/aus",minTitle:"Panel minimieren",restoreTitle:"Steuerung anzeigen",
   pal_classic:"Klassisch",pal_indigo:"Indigostaub",pal_gold:"Blau-Gold",pal_violet:"Violettes Meer",
@@ -798,6 +831,9 @@ const I18N={
   ab_src:"Quellcode und Download auf GitHub ↗",
   cycleTime:"Zyklusdauer",
   autoInc:"Automatische Neigung",autoIncRange:"(10–70°)",
+  pattern:"Rotierendes Muster",corotDim:"(Korotation)",glow:"Leuchten",corot:"Korotation",
+  sciPattern:"Das Spiralmuster selbst rotiert langsam und starr, wie ein Balken. Nur am Korotationsradius (gestrichelter Kreis, wenn die Bahnen sichtbar sind) halten die Sterne mit ihm Schritt: innen überholen die Sterne die Arme, außen überholen die Arme die Sterne. Gas wird dort verdichtet, wo es in einen Arm eintritt, deshalb liegen die dunklen Staubbahnen an der Eintrittskante, die rosa H-II-Regionen direkt dahinter und kurzlebige blaue Sterne etwas weiter — und diese Reihenfolge kehrt sich jenseits der Korotation um.",
+  encStart:"Galaxienbegegnung",encEnd:"Begegnung beenden",tEnc:"Eine Begleitgalaxie nähert sich — sieh zu, wie Gezeitenschweife entstehen",tEncEnd:"Zurückspulen zur ungestörten Spirale",tFollow:"Einem Stern folgen — klicke ins Leere oder drücke Esc zum Loslassen",tUnfollow:"Stern losgelassen",fIn:"überholt die Arme",fOut:"die Arme überholen ihn",fCo:"nahe der Korotation — hält Schritt",fEnc:"vom Begleiter mitgerissen",sciLim6:"Die Galaxienbegegnung nutzt Testteilchen in einem festen Potential plus eine Begleitmasse, im Sinne von Toomre & Toomre (1972); die Scheibe hat keine Eigengravitation.",tour1:"Jeder Stern zieht auf seiner eigenen, leicht gedrehten Bahn. Die Spiralarme sind nur die Stellen, an denen sich diese Bahnen drängen.",tour2:"Innerhalb des gestrichelten Korotationskreises überholen die Sterne die Arme; außerhalb überholen die Arme die Sterne.",tour3:"Gas wird beim Eintritt in einen Arm zusammengepresst: Staub verdunkelt die Eintrittskante, und gleich dahinter leuchten neue Sterne rosa und blau auf.",tour4:"Von der Seite ragt der runde Bulge aus der dünnen Scheibe, und ein Staubband zieht vor ihm vorbei.",tour5:"Das Muster dreht sich alle paar hundert Millionen Jahre einmal, doch kein Stern bleibt dauerhaft in einem Arm.",
   autoZoom:"Automatischer Zoom",autoZoomRange:"(10–90 %)",
   autoSpd:"Automatische Zeitgeschwindigkeit",autoSpdRange:"(0,2–2,8×)"}
 };
@@ -814,7 +850,7 @@ else if (stored && I18N[stored]) LANG = stored;
 const t=k=>(I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;
 
 const $=id=>document.getElementById(id);
-const bgA=$("bgA"), bgB=$("bgB"), fx=$("fx"), captionEl=$("caption");
+const bgA=$("bgA"), bgB=$("bgB"), fx=$("fx"), captionEl=$("caption"), tourCapEl=$("tourCap");
 const actx=bgA.getContext("2d"), bctx2=bgB.getContext("2d"), ctx=fx.getContext("2d");
 let bgFront=bgA, bgBack=bgB, bgFrontCtx=actx, bgBackCtx=bctx2;
 let W=0,H=0,CX=0,CY=0,SC=1,dpr=1;
@@ -906,7 +942,8 @@ const P={
   autoInc:qbool("ainc",false),  autoIncT:clamp(qnum("aincT",180),30,180),
   autoZoom:qbool("azoom",false),autoZoomT:clamp(qnum("azoomT",120),30,180),
   autoSpd:qbool("aspd",false),  autoSpdT:clamp(qnum("aspdT",120),30,180),
-  orbits:qbool("orb",false), material:qbool("mat",false),
+  orbits:qbool("orb",false), material:qbool("mat",false), pattern:qbool("pat",true),
+  glow:clamp(qnum("glow",50),0,100)/100,
   autoPal:qbool("auto",true), supernova:qbool("sn",true),
   parallax:qbool("px",true), band:qbool("band",true), fpsGuard:qbool("fps",true)
 };
@@ -916,6 +953,12 @@ let nextPal=null, palMix=0;                   // palette crossfade 0→1
 const REF=700;                                // reference galaxy radius (px)
 const VMAX=0.0733, RC=0.26;
 const omOf=r=>VMAX/Math.sqrt(r*r+RC*RC);
+/* The spiral pattern turns rigidly at OMP. At the corotation radius RCR the
+   stars keep pace with it; inside they overtake the arms, outside the arms
+   overtake them. */
+const RCR=1.15, OMP=omOf(RCR);
+// +1 where the flow enters the arms from behind, −1 where the arms catch up, ~0 at corotation
+const flowOf=a=>clamp((1-OMP*patOn/omOf(a))*4,-1,1);
 const bulgeR=()=>lerp(0.42,0.16,P.hub);
 const windEff=()=>P.wind*lerp(1.3,0.72,P.hub);
 const EMAX=0.42;
@@ -971,8 +1014,8 @@ function darkSprite(px,r,g,b){
   const c=document.createElement("canvas");c.width=c.height=px;
   const x=c.getContext("2d"),h=px/2;
   const gr=x.createRadialGradient(h,h,0,h,h,h);
-  gr.addColorStop(0,`rgba(${r},${g},${b},0.42)`);
-  gr.addColorStop(0.6,`rgba(${r},${g},${b},0.2)`);
+  gr.addColorStop(0,`rgba(${r},${g},${b},0.56)`);
+  gr.addColorStop(0.6,`rgba(${r},${g},${b},0.26)`);
   gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
   x.fillStyle=gr;x.fillRect(0,0,px,px);return c;
 }
@@ -1017,10 +1060,13 @@ function scheduleLook(){
 }
 
 /* ─────────────── populations ─────────────── */
-let NSMAX=0,NS=0, sA,sE,sPhi,sZ,sT,sSz,sJit;
+let NSMAX=0,NS=0, sA,sE,sPhi,sZ,sZn,sT,sSz,sJit;
+// vertical scale: thin disc, rising to a round bulge inside bulgeR()
+const zScale=a=>{const ab=bulgeR();return 0.045*(1+a*0.4)+0.9*a*(1-smooth(0.5*ab,1.3*ab,a));};
 let NNMAX=0,NN=0, nA,nE,nPhi,nZ,nCol,nSz;
 let NH=0, hA,hE,hPhi,hZ,hSeed;
 let NDMAX=0,ND=0, dA,dE,dPhi,dZ,dSz,dJit;
+let NYMAX=0,NY=0, yA,yE,yPhi,yZ,ySz,ySeed;
 const isSmall=()=>(screen.width||innerWidth)<600;
 const isMed=()=>(screen.width||innerWidth)<1000;
 function starLimits(){
@@ -1032,12 +1078,13 @@ function populate(){
   buildCDF();
   const rnd=mulberry32(SEED^0x1b873593);
   const L=starLimits();
-  NSMAX=L.max; NNMAX=Math.round(400*NSMAX/11000); NDMAX=Math.round(1500*NSMAX/11000); NH=120;
-  sA=new Float32Array(NSMAX);sE=new Float32Array(NSMAX);sPhi=new Float32Array(NSMAX);sZ=new Float32Array(NSMAX);
+  NSMAX=L.max; NNMAX=Math.round(400*NSMAX/11000); NDMAX=Math.round(2200*NSMAX/11000); NH=120;
+  sA=new Float32Array(NSMAX);sE=new Float32Array(NSMAX);sPhi=new Float32Array(NSMAX);sZ=new Float32Array(NSMAX);sZn=new Float32Array(NSMAX);
+  FRONT=new Int32Array(NSMAX);FRONT_X=new Float32Array(NSMAX);FRONT_Y=new Float32Array(NSMAX);
   sT=new Uint8Array(NSMAX);sSz=new Uint8Array(NSMAX);sJit=new Float32Array(NSMAX);
   for(let i=0;i<NSMAX;i++){
     const a=sampleR(rnd);sA[i]=a;sE[i]=eccOf(a);sPhi[i]=rnd()*TAU;
-    sZ[i]=(rnd()+rnd()+rnd()-1.5)*0.045*(1+a*0.4);
+    sZn[i]=rnd()+rnd()+rnd()-1.5;sZ[i]=sZn[i]*zScale(a);
     sJit[i]=(rnd()-0.5)*0.32;
     const t=clamp(0.05+0.9*(a/1.3)+(rnd()-0.5)*0.45,0,1);
     sT[i]=Math.min(7,t*8|0);
@@ -1061,6 +1108,17 @@ function populate(){
     const a=0.2+Math.pow(rnd(),0.85)*1.2;
     dA[i]=a;dE[i]=eccOf(a);dPhi[i]=rnd()*TAU;dZ[i]=(rnd()-0.5)*0.03;dSz[i]=rnd()*2|0;dJit[i]=(rnd()-0.5)*0.25;
   }
+  /* young blue stars: born where the arm compresses the gas, gone before the
+     next arm — own RNG so the rest of the seeded galaxy stays unchanged */
+  const yr=mulberry32(SEED^0x27d4eb2f);
+  NYMAX=Math.round(900*NSMAX/11000);
+  yA=new Float32Array(NYMAX);yE=new Float32Array(NYMAX);yPhi=new Float32Array(NYMAX);yZ=new Float32Array(NYMAX);
+  ySz=new Uint8Array(NYMAX);ySeed=new Float32Array(NYMAX);
+  for(let i=0;i<NYMAX;i++){
+    const a=0.3+Math.pow(yr(),0.8)*1.15;
+    yA[i]=a;yE[i]=eccOf(a);yPhi[i]=yr()*TAU;yZ[i]=(yr()-0.5)*0.03;
+    ySz[i]=yr()>0.8?2:1;ySeed[i]=yr();
+  }
   setStars(clamp(qnum("stars",L.def),L.min,L.max));
 }
 /* The full population is generated once; the slider only sets how many of
@@ -1068,17 +1126,18 @@ function populate(){
 function setStars(n){
   const L=starLimits();
   NS=clamp(Math.round(n),L.min,L.max);
-  NN=Math.round(NNMAX*NS/NSMAX); ND=Math.round(NDMAX*NS/NSMAX);
+  NN=Math.round(NNMAX*NS/NSMAX); ND=Math.round(NDMAX*NS/NSMAX); NY=Math.round(NYMAX*NS/NSMAX);
   const el=$("sStars"); el.min=L.min; el.max=L.max; el.value=NS;
   $("vStars").textContent=NS.toLocaleString(LOCALE[LANG]);
 }
 // more stars means more additive light: scale per-star brightness back down
 const starAlpha=()=>clamp(Math.pow(12000/Math.max(1,NS),0.4),0.42,1);
 function refreshEcc(){
-  for(let i=0;i<NSMAX;i++)sE[i]=eccOf(sA[i]);
+  for(let i=0;i<NSMAX;i++){sE[i]=eccOf(sA[i]);sZ[i]=sZn[i]*zScale(sA[i]);}
   for(let i=0;i<NNMAX;i++)nE[i]=eccOf(nA[i]);
   for(let i=0;i<NH;i++)hE[i]=eccOf(hA[i]);
   for(let i=0;i<NDMAX;i++)dE[i]=eccOf(dA[i]);
+  for(let i=0;i<NYMAX;i++)yE[i]=eccOf(yA[i]);
 }
 
 /* ─────────────── background layer (static, seeded) ─────────────── */
@@ -1169,7 +1228,42 @@ function drawBand(c,pal,rnd,bs,blob){
 /* ─────────────── layout ─────────────── */
 function sizeCanvases(){
   for(const c of [bgA,bgB,fx]){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);}
+  for(let i=0;i<GLOW.length;i++){
+    const k=2<<i;
+    GLOW[i].c.width=Math.max(1,Math.round(fx.width/k));GLOW[i].c.height=Math.max(1,Math.round(fx.height/k));
+  }
+  GLOWSUM.c.width=GLOW[1].c.width;GLOWSUM.c.height=GLOW[1].c.height;
 }
+/* Diffuse light: halve the frame four times (1/2 … 1/16), stack the smaller
+   copies into one quarter-size image, and add that back smoothly upscaled.
+   It stands in for the unresolved starlight that makes a real galaxy photo
+   glow instead of looking like loose grains. Halving step by step keeps
+   single stars from aliasing into flicker, and a single full-size blit keeps
+   the cost low. */
+const mkC=()=>{const c=document.createElement("canvas");return{c,x:c.getContext("2d")};};
+const GLOW=[0,1,2,3].map(mkC), GLOWSUM=mkC();
+const GLOW_W=[0,0.5,0.75,1.0];                    // weight per level; 1/2 is only a stepping stone
+function glowPass(c){
+  if(P.glow<=0)return;
+  let src=fx;
+  for(const L of GLOW){
+    L.x.globalCompositeOperation="copy";
+    L.x.drawImage(src,0,0,L.c.width,L.c.height);
+    src=L.c;
+  }
+  const S=GLOWSUM, w=S.c.width, h=S.c.height;
+  S.x.globalCompositeOperation="copy";S.x.globalAlpha=GLOW_W[1];
+  S.x.drawImage(GLOW[1].c,0,0,w,h);
+  S.x.globalCompositeOperation="lighter";
+  for(let i=2;i<GLOW.length;i++){S.x.globalAlpha=GLOW_W[i];S.x.drawImage(GLOW[i].c,0,0,w,h);}
+  c.setTransform(1,0,0,1,0,0);
+  c.globalCompositeOperation="lighter";
+  c.globalAlpha=P.glow;
+  c.drawImage(S.c,0,0,fx.width,fx.height);
+  c.globalAlpha=1;
+  c.setTransform(dpr,0,0,dpr,0,0);
+}
+
 function resize(){
   W=innerWidth;H=innerHeight;readDPR();
   sizeCanvases();
@@ -1186,11 +1280,12 @@ function armDprWatch(){          // precise tracking of page zoom / display chan
 
 /* ─────────────── state ─────────────── */
 let windup=0, orbitA=0, matOn=0, simT=0, lastT=0;
+let patA=0, patOn=1;                              // pattern angle, eased pattern on/off
 let paraX=0,paraY=0,paraTX=0,paraTY=0;
 let palTimer=120;                                 // initial delay before first auto-switch (seconds)
 const SN=[];                      // active supernovae
 let snTimer=8+Math.random()*14;
-let proj=false, projT=0, projUI=0;
+let proj=false, projUI=0;
 
 /* ── automatic slow cycling of inclination / zoom / time speed ──
    Each cycler holds a phase in [0,1) advanced by real elapsed time, so changing
@@ -1230,12 +1325,15 @@ function step(dt,rdt){
   if(P.material)windup+=sdt; else windup+=(0-windup)*Math.min(1,rdt*1.6);
   matOn+=((P.material?1:0)-matOn)*Math.min(1,rdt*2.5);
   orbitA+=((P.orbits?1:0)-orbitA)*Math.min(1,rdt*2.5);
+  patOn+=((P.pattern?1:0)-patOn)*Math.min(1,rdt*2.5);
+  patA+=OMP*patOn*(1-matOn)*sdt;                  // material arms wind up with the stars instead
   captionEl.classList.toggle("on",P.material&&windup>6);
 
   for(let i=0;i<NS;i++)sPhi[i]+=omOf(sA[i])*sdt;
   for(let i=0;i<NN;i++)nPhi[i]+=omOf(nA[i])*sdt;
   for(let i=0;i<NH;i++)hPhi[i]+=omOf(hA[i])*sdt;
   for(let i=0;i<ND;i++)dPhi[i]+=omOf(dA[i])*sdt;
+  for(let i=0;i<NY;i++)yPhi[i]+=omOf(yA[i])*sdt;
 
   paraX+=(paraTX-paraX)*Math.min(1,rdt*2.4);
   paraY+=(paraTY-paraY)*Math.min(1,rdt*2.4);
@@ -1261,12 +1359,21 @@ function step(dt,rdt){
   }
   for(let i=SN.length-1;i>=0;i--){SN[i].t+=rdt;if(SN[i].t>3.4)SN.splice(i,1);}
 
-  if(proj){                       // projector mode: slow camera journey
-    projT+=rdt;
-    P.zoom=clamp(0.8+0.55*Math.sin(projT*0.08),0.2,1.0);   // max 100%
-    P.incl=clamp(28+26*Math.sin(projT*0.031+1.1),0,80);
+  if(proj){                       // projector mode: the scripted cinematic tour
+    stepTour(rdt);
     scheduleSprites();
     if((projUI-=rdt)<=0){projUI=0.25;syncUI();}  // throttled UI refresh
+  }else{camX+=(0-camX)*Math.min(1,rdt*1.5);camY+=(0-camY)*Math.min(1,rdt*1.5);}
+  if(FOL.i>=NS)FOL.i=-1;          // the performance guard may drop the followed star
+  if(ENC.on){
+    if(ENC.exiting){
+      ENC.back=Math.min(1,ENC.back+rdt/2.5);
+      if(ENC.back>=1){ENC.on=false;ENC.exiting=false;ENC.back=0;syncUI();}
+    }else if(!FREEZE)encStep(sdt);
+    if(ENC.zoomT>0){                // pull back so the tails fit on screen
+      ENC.zoomT-=rdt;P.zoom+=(0.5-P.zoom)*Math.min(1,rdt*1.2);scheduleSprites();
+      if((projUI-=rdt)<=0){projUI=0.25;syncUI();}
+    }
   }
 }
 function startPalette(p){
@@ -1297,7 +1404,12 @@ function drawScene(c){
   const br=(reduced||FREEZE)?0:1;
   const scl=SC*P.zoom*(1+0.006*Math.sin(simT*0.11)*br);
   const g=scl/REF, gk=curG()/sprG;
-  const cx=CX+(4*Math.sin(simT*0.05)*br+paraX*3)*g, cy=CY+(3*Math.cos(simT*0.043)*br+paraY*3)*g;
+  const cx=CX+(4*Math.sin(simT*0.05)*br+paraX*3)*g-camX*scl, cy=CY+(3*Math.cos(simT*0.043)*br+paraY*3)*g-camY*cosI*scl;
+  VIEW.cx=cx;VIEW.cy=cy;VIEW.scl=scl;VIEW.cosI=cosI;VIEW.sinI=sinI;
+
+  /* encounter: E — positions come from the integrator; eb>0 while they ease back to the spiral */
+  const E=ENC.on, eb=E?smooth(0,1,ENC.back):0, kin=!E||eb>0;
+  const S_=ENC.s, N_=ENC.n, H_=ENC.h, D_=ENC.d, Y_=ENC.y;
 
   c.setTransform(dpr,0,0,dpr,0,0);
   c.clearRect(0,0,W,H);
@@ -1307,12 +1419,13 @@ function drawScene(c){
   const passes=mixed?[[setA,1-palMix],[setB,palMix]]:[[setA,1]];
   const hot=mixed&&palMix>0.5?setB:setA;              // stars/dust: swap at halfway
 
-  /* core */
+  /* core: the bulge is a spheroid, so it flattens far less than the disc when tilted */
+  const cBul=lerp(ci,1,0.65), cHal=lerp(ci,1,0.3);
   for(const [S,w] of passes){
     c.globalAlpha=w;
     const hs=S.halo.css*gk, cs=S.core.css*gk;
-    c.drawImage(S.halo.img,cx-hs/2,cy-hs*ci/2,hs,hs*ci+1);
-    c.drawImage(S.core.img,cx-cs/2,cy-cs*ci/2,cs,cs*ci+1);
+    c.drawImage(S.halo.img,cx-hs/2,cy-hs*cHal/2,hs,hs*cHal+1);
+    c.drawImage(S.core.img,cx-cs/2,cy-cs*cBul/2,cs,cs*cBul+1);
   }
 
   /* nebulae */
@@ -1322,41 +1435,63 @@ function drawScene(c){
     c.globalAlpha=hubNebA*w;
     const DS=S.neb.map(t=>t.map(b=>b.css*gk));
     for(let i=0;i<NN;i++){
-      const a=nA[i], tilt=tiltOf(a,wnd)+windup*omOf(a)*matOn;
-      const r=a*(1-nE[i]*Math.cos(m*(nPhi[i]-tilt)));
-      const px=cx+r*Math.cos(nPhi[i])*scl, py=cy+(r*Math.sin(nPhi[i])*cosI+nZ[i]*sinI)*scl;
+      let x=0,y=0;
+      if(kin){
+        const a=nA[i], tilt=tiltOf(a,wnd)+patA+windup*omOf(a)*matOn;
+        const r=a*(1-nE[i]*Math.cos(m*(nPhi[i]-tilt)));
+        x=r*Math.cos(nPhi[i]);y=r*Math.sin(nPhi[i]);
+      }
+      if(E){x=N_.x[i]+(x-N_.x[i])*eb;y=N_.y[i]+(y-N_.y[i])*eb;}
+      const px=cx+x*scl, py=cy+(y*cosI+nZ[i]*sinI)*scl;
       if(px<-nebM||px>W+nebM||py<-nebM||py>H+nebM)continue;
       const col=nCol[i],z=nSz[i],s=DS[col][z];
       c.drawImage(S.neb[col][z].img,px-s/2,py-s/2,s,s);
     }
   }
 
-  /* stars — off-screen ones are skipped (matters a lot at high zoom) */
+  /* stars — off-screen ones are skipped (matters a lot at high zoom).
+     Bulge stars above the disc plane are held back and drawn after the dust,
+     so a tilted galaxy shows its dust lane crossing in front of the bulge. */
   c.globalAlpha=starAlpha();
   const starDS=hot.star.map(t=>t.map(b=>b.css*gk));
   const starM=STAR_SZ[STAR_SZ.length-1]*curG()+2;
+  const bulA=bulgeR()*1.3, zCut=0.03*(1-sinI)/Math.max(sinI,0.05);
+  const fi=FOL.i;
+  let nFront=0;
   for(let i=0;i<NS;i++){
-    const a=sA[i], tilt=tiltOf(a,wnd)+sJit[i]+windup*omOf(a)*matOn;
-    const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
-    const px=cx+r*Math.cos(sPhi[i])*scl, py=cy+(r*Math.sin(sPhi[i])*cosI+sZ[i]*sinI)*scl;
+    let x=0,y=0;
+    if(kin){
+      const a=sA[i], tilt=tiltOf(a,wnd)+patA+sJit[i]+windup*omOf(a)*matOn;
+      const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
+      x=r*Math.cos(sPhi[i]);y=r*Math.sin(sPhi[i]);
+    }
+    if(E){x=S_.x[i]+(x-S_.x[i])*eb;y=S_.y[i]+(y-S_.y[i])*eb;}
+    if(i===fi){FOL.x=x;FOL.y=y;FOL.z=sZ[i];}
+    const px=cx+x*scl, py=cy+(y*cosI+sZ[i]*sinI)*scl;
     if(px<-starM||px>W+starM||py<-starM||py>H+starM)continue;
+    if(sZ[i]>zCut&&sA[i]<bulA){FRONT[nFront]=i;FRONT_X[nFront]=px;FRONT_Y[nFront++]=py;continue;}
     const t=sT[i],z=sSz[i],s=starDS[t][z];
     c.drawImage(hot.star[t][z].img,px-s/2,py-s/2,s,s);
   }
 
   /* H-II regions: they light up where the density wave crowds the gas */
-  const hiiScale=lerp(1.1,0.55,P.hub);
+  const hiiScale=lerp(1.1,0.55,P.hub), hOff=0.45/m;
   for(const [S,w] of passes){
     c.globalAlpha=w;
     const DS=S.hii.map(b=>b.css*gk);
     for(let i=0;i<NH;i++){
-      const a=hA[i], tilt=tiltOf(a,wnd)+windup*omOf(a)*matOn, ph=hPhi[i]-tilt;
-      const comp=Math.cos(m*ph)*0.5+0.5;
-      const k=smooth(0.62,1,comp)*hiiScale*(0.6+hSeed[i]*0.7);
+      let x=0,y=0,k=0;
+      if(kin){
+        const a=hA[i], tilt=tiltOf(a,wnd)+patA+windup*omOf(a)*matOn, ph=hPhi[i]-tilt;
+        const comp=Math.cos(m*(ph-hOff*flowOf(a)))*0.5+0.5;
+        k=smooth(0.62,1,comp)*hiiScale*(0.6+hSeed[i]*0.7);
+        const r=a*(1-hE[i]*Math.cos(m*ph));
+        x=r*Math.cos(hPhi[i]);y=r*Math.sin(hPhi[i]);
+      }
+      if(E){x=H_.x[i]+(x-H_.x[i])*eb;y=H_.y[i]+(y-H_.y[i])*eb;k=H_.w[i]+(k-H_.w[i])*eb;}
       if(k<0.12)continue;
-      const r=a*(1-hE[i]*Math.cos(m*ph));
       const idx=Math.min(HII_SZ.length-1,(k*HII_SZ.length)|0), s=DS[idx];
-      const px=cx+r*Math.cos(hPhi[i])*scl, py=cy+(r*Math.sin(hPhi[i])*cosI+hZ[i]*sinI)*scl;
+      const px=cx+x*scl, py=cy+(y*cosI+hZ[i]*sinI)*scl;
       if(px<-s||px>W+s||py<-s||py>H+s)continue;
       c.drawImage(S.hii[idx].img,px-s/2,py-s/2,s,s);
     }
@@ -1365,9 +1500,8 @@ function drawScene(c){
   /* supernovae: a bright flare plus a soft expanding shell — all glow, no outline */
   if(SN.length){
     for(const s of SN){
-      const i=s.i, a=sA[i], tilt=tiltOf(a,wnd)+sJit[i]+windup*omOf(a)*matOn;
-      const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
-      const px=cx+r*Math.cos(sPhi[i])*scl, py=cy+(r*Math.sin(sPhi[i])*cosI+sZ[i]*sinI)*scl;
+      const p=starXY(s.i,m,wnd,E,eb);
+      const px=cx+p[0]*scl, py=cy+(p[1]*cosI+sZ[s.i]*sinI)*scl;
       const t=s.t/3.4, fade=Math.pow(1-t,2.2), flare=Math.exp(-s.t*3.1);
       const es=hot.flash.css*gk*(0.5+t*4.2);          // expanding shell
       c.globalAlpha=fade*0.32;
@@ -1379,29 +1513,72 @@ function drawScene(c){
     c.globalAlpha=1;
   }
 
-  /* dust lanes: multiply pass, hugging the inner edge of the arms */
+  /* young blue stars: they light up a little past the H II regions and fade
+     before the next arm — the age sequence of star formation */
+  const yOff=0.8/m, yS=hot.star[7], yDS=yS.map(b=>b.css*gk), sa=starAlpha();
+  for(let i=0;i<NY;i++){
+    let x=0,y=0,k=0;
+    if(kin){
+      const a=yA[i], tilt=tiltOf(a,wnd)+patA+windup*omOf(a)*matOn, ph=yPhi[i]-tilt;
+      const comp=Math.cos(m*(ph-yOff*flowOf(a)))*0.5+0.5;
+      k=smooth(0.6,1,comp)*(0.55+ySeed[i]*0.45);
+      const r=a*(1-yE[i]*Math.cos(m*ph));
+      x=r*Math.cos(yPhi[i]);y=r*Math.sin(yPhi[i]);
+    }
+    if(E){x=Y_.x[i]+(x-Y_.x[i])*eb;y=Y_.y[i]+(y-Y_.y[i])*eb;k=Y_.w[i]+(k-Y_.w[i])*eb;}
+    if(k<0.05)continue;
+    const z=ySz[i], s=yDS[z];
+    const px=cx+x*scl, py=cy+(y*cosI+yZ[i]*sinI)*scl;
+    if(px<-s||px>W+s||py<-s||py>H+s)continue;
+    c.globalAlpha=k*sa;
+    c.drawImage(yS[z].img,px-s/2,py-s/2,s,s);
+  }
+  c.globalAlpha=1;
+
+  /* companion galaxy: a small bulge plus its own swarm of stars */
+  if(E)drawCompanion(c,hot,passes,cx,cy,scl,cosI,gk,ci);
+
+  glowPass(c);
+
+  /* dust lanes: multiply pass on the upstream edge of the arms, where the gas
+     is compressed; the side flips across corotation and fades right at it */
   c.globalCompositeOperation="multiply";
   const dustA=lerp(1,0.35,P.hub), dOff=0.6/m;
   const dustDS=hot.dust.map(b=>b.css*gk);
   for(let i=0;i<ND;i++){
-    const a=dA[i], tilt=tiltOf(a,wnd)+dJit[i]+windup*omOf(a)*matOn, ph=dPhi[i]-tilt;
-    const comp=Math.cos(m*(ph+dOff))*0.5+0.5;
-    if(comp<0.72)continue;
-    const r=a*(1-dE[i]*Math.cos(m*ph));
-    const px=cx+r*Math.cos(dPhi[i])*scl, py=cy+(r*Math.sin(dPhi[i])*cosI+dZ[i]*sinI)*scl;
+    let x=0,y=0,k=0;
+    if(kin){
+      const a=dA[i], tilt=tiltOf(a,wnd)+patA+dJit[i]+windup*omOf(a)*matOn, ph=dPhi[i]-tilt;
+      const fl=flowOf(a), comp=Math.cos(m*(ph+dOff*fl))*0.5+0.5;
+      k=comp<0.72?0:dustA*smooth(0.72,1,comp)*(0.35+0.65*Math.abs(fl));
+      const r=a*(1-dE[i]*Math.cos(m*ph));
+      x=r*Math.cos(dPhi[i]);y=r*Math.sin(dPhi[i]);
+    }
+    if(E){x=D_.x[i]+(x-D_.x[i])*eb;y=D_.y[i]+(y-D_.y[i])*eb;k=D_.w[i]+(k-D_.w[i])*eb;}
+    if(k<=0.001)continue;
+    const px=cx+x*scl, py=cy+(y*cosI+dZ[i]*sinI)*scl;
     const z=dSz[i],s=dustDS[z];
     if(px<-s||px>W+s||py<-s||py>H+s)continue;
-    c.globalAlpha=dustA*smooth(0.72,1,comp);
+    c.globalAlpha=k;
     c.drawImage(hot.dust[z].img,px-s/2,py-s/2,s,s);
+  }
+
+  /* bulge stars in front of the disc plane: after the dust, so they stay lit */
+  c.globalCompositeOperation="lighter";
+  c.globalAlpha=starAlpha();
+  for(let j=0;j<nFront;j++){
+    const i=FRONT[j], t=sT[i], z=sSz[i], s=starDS[t][z];
+    c.drawImage(hot.star[t][z].img,FRONT_X[j]-s/2,FRONT_Y[j]-s/2,s,s);
   }
   c.globalAlpha=1;c.globalCompositeOperation="source-over";
 
-  /* orbits */
-  if(orbitA>0.01){
-    c.strokeStyle=`rgba(190,215,240,${0.16*orbitA})`;
+  /* orbits (not while the encounter owns the stars) */
+  const oA=orbitA*(E?eb:1);
+  if(oA>0.01){
+    c.strokeStyle=`rgba(190,215,240,${0.16*oA})`;
     c.lineWidth=Math.max(0.4,g);
     for(let k=0;k<26;k++){
-      const a=0.1+k/25*1.4, e=eccOf(a), tilt=tiltOf(a,wnd)+windup*omOf(a)*matOn;
+      const a=0.1+k/25*1.4, e=eccOf(a), tilt=tiltOf(a,wnd)+patA+windup*omOf(a)*matOn;
       c.beginPath();
       for(let j=0;j<=90;j++){
         const th=j/90*TAU, r=a*(1-e*Math.cos(m*(th-tilt)));
@@ -1410,7 +1587,235 @@ function drawScene(c){
       }
       c.stroke();
     }
+    if(patOn>0.01){                              // corotation: stars and pattern move together here
+      const a=oA*patOn;
+      c.save();
+      c.setLineDash([6*Math.max(0.5,g),5*Math.max(0.5,g)]);
+      c.strokeStyle=`rgba(255,205,120,${0.8*a})`;
+      c.lineWidth=Math.max(1.2,2.2*g);
+      c.beginPath();c.ellipse(cx,cy,RCR*scl,RCR*scl*ci,0,0,TAU);c.stroke();
+      c.setLineDash([]);
+      c.fillStyle=`rgba(255,215,140,${0.85*a})`;
+      c.font=`${Math.max(11,Math.round(15*g))}px system-ui,sans-serif`;
+      c.textAlign="center";
+      c.fillText(t("corot"),cx,cy-RCR*scl*ci-6*Math.max(0.6,g));
+      c.restore();
+    }
   }
+
+  if(fi>=0)drawFollow(c,cx,cy,scl,cosI,sinI,g);
+}
+
+/* One star's in-plane position in galaxy units, whichever mode owns it. */
+const XY=[0,0];
+function starXY(i,m,wnd,E,eb){
+  let x=0,y=0;
+  if(!E||eb>0){
+    const a=sA[i], tilt=tiltOf(a,wnd)+patA+sJit[i]+windup*omOf(a)*matOn;
+    const r=a*(1-sE[i]*Math.cos(m*(sPhi[i]-tilt)));
+    x=r*Math.cos(sPhi[i]);y=r*Math.sin(sPhi[i]);
+  }
+  if(E){const S=ENC.s;x=S.x[i]+(x-S.x[i])*eb;y=S.y[i]+(y-S.y[i])*eb;}
+  XY[0]=x;XY[1]=y;return XY;
+}
+
+/* ─────────────── camera, follow-a-star, encounter ─────────────── */
+const VIEW={cx:0,cy:0,scl:1,cosI:1,sinI:0};        // last frame's projection, for picking
+let camX=0, camY=0;                                // camera pan in galaxy units (tour)
+let FRONT=null, FRONT_X=null, FRONT_Y=null;        // bulge stars drawn after the dust
+
+/* Follow a star: a ring marks it, a fading trail shows where it has been. */
+const FOL={i:-1,x:0,y:0,z:0,tr:new Float32Array(3*400),n:0,h:0};
+function follow(i){
+  FOL.i=i;FOL.n=0;FOL.h=0;
+}
+function pickStar(mx,my){
+  const m=P.arms, wnd=windEff(), E=ENC.on, eb=E?smooth(0,1,ENC.back):0;
+  const {cx,cy,scl,cosI,sinI}=VIEW;
+  let best=-1, bd=26*26;
+  for(let i=0;i<NS;i++){
+    const p=starXY(i,m,wnd,E,eb);
+    const dx=cx+p[0]*scl-mx, dy=cy+(p[1]*cosI+sZ[i]*sinI)*scl-my, d=dx*dx+dy*dy;
+    if(d<bd){bd=d;best=i;}
+  }
+  if(best>=0&&best!==FOL.i){follow(best);toast(t("tFollow"));}
+  else if(FOL.i>=0){FOL.i=-1;toast(t("tUnfollow"));}
+}
+function drawFollow(c,cx,cy,scl,cosI,sinI,g){
+  const T=FOL.tr, N=T.length/3;
+  if(FOL.n>0){
+    const l=((FOL.h-1+N)%N)*3, dx=FOL.x-T[l], dy=FOL.y-T[l+1];
+    if(dx*dx+dy*dy>0.006*0.006){T[FOL.h*3]=FOL.x;T[FOL.h*3+1]=FOL.y;T[FOL.h*3+2]=FOL.z;FOL.h=(FOL.h+1)%N;FOL.n=Math.min(N,FOL.n+1);}
+  }else{T[0]=FOL.x;T[1]=FOL.y;T[2]=FOL.z;FOL.h=1;FOL.n=1;}
+  const n=FOL.n, start=(FOL.h-n+N)%N, CH=20;
+  c.lineWidth=Math.max(1.5,2.4*g);c.lineCap="round";
+  for(let k=0;k<n-1;k+=CH){                        // chunks, older = fainter
+    c.strokeStyle=`rgba(150,225,255,${(0.15+0.8*k/n).toFixed(3)})`;
+    c.beginPath();
+    for(let j=k;j<=Math.min(n-1,k+CH);j++){
+      const o=((start+j)%N)*3, x=cx+T[o]*scl, y=cy+(T[o+1]*cosI+T[o+2]*sinI)*scl;
+      j===k?c.moveTo(x,y):c.lineTo(x,y);
+    }
+    c.stroke();
+  }
+  const px=cx+FOL.x*scl, py=cy+(FOL.y*cosI+FOL.z*sinI)*scl;
+  const R=(8+1.5*Math.sin(performance.now()/260))*Math.max(0.8,g);
+  c.strokeStyle="rgba(225,245,255,.9)";c.lineWidth=Math.max(1.2,1.4*g);
+  c.beginPath();c.arc(px,py,R,0,TAU);c.stroke();
+  let key="fIn";
+  if(ENC.on)key="fEnc";
+  else if(patOn>0.5){const fl=flowOf(sA[FOL.i]);key=Math.abs(fl)<0.35?"fCo":fl>0?"fIn":"fOut";}
+  c.font=`${Math.max(12,Math.round(14*g))}px system-ui,sans-serif`;
+  c.textAlign="left";c.fillStyle="rgba(225,245,255,.92)";
+  c.shadowColor="rgba(0,0,0,.9)";c.shadowBlur=6;
+  c.fillText(t(key),px+R+6,py+4);
+  c.shadowBlur=0;
+}
+
+/* Galaxy encounter — test particles in the galaxy's own potential plus one
+   passing companion mass on a prograde, near-parabolic orbit (the set-up of
+   Toomre & Toomre 1972). Coordinates are centred on the host, so the pull
+   the companion exerts on the host centre is subtracted from every star. */
+const GMH=VMAX*VMAX*1.6, GMC=0.45*GMH, GMT=GMH+GMC, EPS2=0.12*0.12, RP=1.25;
+const ENC={on:false,exiting:false,back:0,t:0,zoomT:0,cx:0,cy:0,cvx:0,cvy:0,
+  s:null,n:null,h:null,d:null,y:null,cl:null};
+const mkSet=(n,w)=>({x:new Float32Array(n),y:new Float32Array(n),vx:new Float32Array(n),vy:new Float32Array(n),w:w?new Float32Array(n):null});
+function encStart(){
+  if(ENC.on&&!ENC.exiting)return;
+  const m=P.arms, wnd=windEff();
+  if(!ENC.s||ENC.s.x.length!==NSMAX){
+    ENC.s=mkSet(NSMAX);ENC.n=mkSet(NNMAX);ENC.h=mkSet(NH,1);ENC.d=mkSet(NDMAX,1);ENC.y=mkSet(NYMAX,1);
+  }
+  // start every particle where it is drawn now, on a circular velocity for its radius
+  const put=(S,i,a,e,phi,jit)=>{
+    const tilt=tiltOf(a,wnd)+patA+jit+windup*omOf(a)*matOn, ph=phi-tilt;
+    const r=a*(1-e*Math.cos(m*ph)), x=r*Math.cos(phi), y=r*Math.sin(phi), om=omOf(r);
+    S.x[i]=x;S.y[i]=y;S.vx[i]=-om*y;S.vy[i]=om*x;
+    return {ph,a};
+  };
+  for(let i=0;i<NSMAX;i++)put(ENC.s,i,sA[i],sE[i],sPhi[i],sJit[i]);
+  for(let i=0;i<NNMAX;i++)put(ENC.n,i,nA[i],nE[i],nPhi[i],0);
+  // gas tracers keep the brightness they had at the start, then ride along
+  const hiiScale=lerp(1.1,0.55,P.hub), hOff=0.45/m, yOff=0.8/m, dOff=0.6/m, dustA=lerp(1,0.35,P.hub);
+  for(let i=0;i<NH;i++){const q=put(ENC.h,i,hA[i],hE[i],hPhi[i],0);
+    ENC.h.w[i]=smooth(0.62,1,Math.cos(m*(q.ph-hOff*flowOf(q.a)))*0.5+0.5)*hiiScale*(0.6+hSeed[i]*0.7);}
+  for(let i=0;i<NYMAX;i++){const q=put(ENC.y,i,yA[i],yE[i],yPhi[i],0);
+    ENC.y.w[i]=smooth(0.6,1,Math.cos(m*(q.ph-yOff*flowOf(q.a)))*0.5+0.5)*(0.55+ySeed[i]*0.45);}
+  for(let i=0;i<NDMAX;i++){const q=put(ENC.d,i,dA[i],dE[i],dPhi[i],dJit[i]);
+    const fl=flowOf(q.a), comp=Math.cos(m*(q.ph+dOff*fl))*0.5+0.5;
+    ENC.d.w[i]=comp<0.72?0:dustA*smooth(0.72,1,comp)*(0.35+0.65*Math.abs(fl));}
+  // companion: parabolic orbit with pericentre RP, arriving from off-screen, prograde
+  const r0=3.2, th=-2.3, v0=Math.sqrt(2*GMT/r0), vt=Math.sqrt(2*GMT*RP)/r0, vr=-Math.sqrt(Math.max(0,v0*v0-vt*vt));
+  const ux=Math.cos(th), uy=Math.sin(th);
+  ENC.cx=r0*ux;ENC.cy=r0*uy;ENC.cvx=vr*ux-vt*uy;ENC.cvy=vr*uy+vt*ux;
+  if(!ENC.cl){                                    // the companion's own star swarm
+    const rr=mulberry32(SEED^0x165667b1), n=Math.round(500*NSMAX/11000);
+    ENC.cl={r:new Float32Array(n),th:new Float32Array(n),om:new Float32Array(n),T:new Uint8Array(n),S:new Uint8Array(n)};
+    for(let j=0;j<n;j++){
+      const r=0.02+0.16*Math.pow(rr(),1.6);
+      ENC.cl.r[j]=r;ENC.cl.th[j]=rr()*TAU;ENC.cl.om[j]=0.05/(r+0.05);
+      ENC.cl.T[j]=1+(rr()*3|0);ENC.cl.S[j]=rr()>0.93?1:0;
+    }
+  }
+  ENC.on=true;ENC.exiting=false;ENC.back=0;ENC.t=0;
+  if(P.zoom>0.5){ENC.zoomT=5;P.autoZoom=false;}
+  toast(t("tEnc"));
+}
+function encEnd(){
+  if(!ENC.on||ENC.exiting)return;
+  ENC.exiting=true;
+  toast(t("tEncEnd"));
+}
+function encSet(S,n,h,cx,cy,ix,iy){
+  const X=S.x,Y=S.y,VX=S.vx,VY=S.vy, V2=VMAX*VMAX, R2=RC*RC;
+  for(let i=0;i<n;i++){
+    const x=X[i], y=Y[i], k=V2/(x*x+y*y+R2);
+    const dx=cx-x, dy=cy-y, d2=dx*dx+dy*dy+EPS2, q=GMC/(d2*Math.sqrt(d2));
+    VX[i]+=(-k*x+dx*q-ix)*h; VY[i]+=(-k*y+dy*q-iy)*h;
+    X[i]=x+VX[i]*h; Y[i]=y+VY[i]*h;
+  }
+}
+function encStep(sdt){
+  const sub=Math.max(1,Math.ceil(Math.abs(sdt)/0.04)), h=sdt/sub;
+  for(let s=0;s<sub;s++){
+    const cx=ENC.cx, cy=ENC.cy, c2=cx*cx+cy*cy;
+    const qc=GMT/Math.pow(c2+0.09,1.5);           // companion around the host
+    ENC.cvx-=cx*qc*h; ENC.cvy-=cy*qc*h;
+    ENC.cx+=ENC.cvx*h; ENC.cy+=ENC.cvy*h;
+    const qi=GMC/Math.pow(c2+EPS2,1.5), ix=cx*qi, iy=cy*qi;   // pull on the host centre
+    encSet(ENC.s,NSMAX,h,cx,cy,ix,iy);
+    encSet(ENC.n,NNMAX,h,cx,cy,ix,iy);
+    encSet(ENC.h,NH,h,cx,cy,ix,iy);
+    encSet(ENC.d,NDMAX,h,cx,cy,ix,iy);
+    encSet(ENC.y,NYMAX,h,cx,cy,ix,iy);
+  }
+  ENC.t+=sdt;
+}
+function drawCompanion(c,hot,passes,cx,cy,scl,cosI,gk,ci){
+  const fade=1-smooth(0,1,ENC.back);
+  if(fade<=0.01)return;
+  const X=cx+ENC.cx*scl, Y=cy+ENC.cy*cosI*scl;
+  for(const [S,w] of passes){
+    c.globalAlpha=w*fade;
+    const hs=S.halo.css*gk*0.4, cs=S.core.css*gk*0.6;
+    c.drawImage(S.halo.img,X-hs/2,Y-hs*ci/2,hs,hs*ci+1);
+    c.drawImage(S.core.img,X-cs/2,Y-cs/2,cs,cs);
+  }
+  const L=ENC.cl, DS=hot.star.map(t=>t.map(b=>b.css*gk));
+  c.globalAlpha=starAlpha()*fade;
+  for(let j=0;j<L.r.length;j++){
+    const th=L.th[j]+L.om[j]*ENC.t, r=L.r[j];
+    const px=X+r*Math.cos(th)*scl, py=Y+r*Math.sin(th)*cosI*scl;
+    if(px<-10||px>W+10||py<-10||py>H+10)continue;
+    const T=L.T[j], z=L.S[j], s=DS[T][z];
+    c.drawImage(hot.star[T][z].img,px-s/2,py-s/2,s,s);
+  }
+  c.globalAlpha=1;
+}
+
+/* Cinematic tour (projector mode): scripted shots with eased camera moves and
+   a caption each; shot 3 tracks an arm crest as the pattern turns. */
+const SHOTS=[
+  {z:0.5, i:8,  d:15,cap:"tour1"},
+  {z:0.72,i:22, d:16,cap:"tour2",orb:true},
+  {z:1.6, i:32, d:16,cap:"tour3",arm:true},
+  {z:0.95,i:74, d:15,cap:"tour4"},
+  {z:0.45,i:42, d:15,cap:"tour5"}
+];
+const TOUR={k:0,t:0,fz:0,fi:0,fx:0,fy:0,orb0:false};
+function tourShot(k){
+  TOUR.k=k;TOUR.t=0;TOUR.fz=P.zoom;TOUR.fi=P.incl;TOUR.fx=camX;TOUR.fy=camY;
+  P.orbits=SHOTS[k].orb?true:TOUR.orb0;
+}
+function startTour(){
+  proj=true;TOUR.orb0=P.orbits;
+  P.autoZoom=P.autoInc=false;
+  tourShot(0);
+  toast(t("tProjOn"));
+}
+function endTour(){
+  if(!proj)return;
+  proj=false;P.orbits=TOUR.orb0;
+  P.zoom=clamp(P.zoom,0.1,1);P.incl=Math.round(P.incl);
+  tourCapEl.classList.remove("on");
+  scheduleSprites();syncUI();
+  toast(t("tProjOff"));
+}
+function toggleTour(){proj?endTour():startTour();}
+function stepTour(rdt){
+  const S=SHOTS[TOUR.k];
+  TOUR.t+=rdt;
+  const u=smooth(0,S.d*0.6,TOUR.t);
+  let tx=0,ty=0;
+  if(S.arm){                                     // an arm crest at a≈0.62, moving with the pattern
+    const a=0.62, ph=tiltOf(a,windEff())+patA, r=a*(1-eccOf(a));
+    tx=r*Math.cos(ph);ty=r*Math.sin(ph);
+  }
+  P.zoom=lerp(TOUR.fz,S.z,u);P.incl=lerp(TOUR.fi,S.i,u);
+  camX=lerp(TOUR.fx,tx,u);camY=lerp(TOUR.fy,ty,u);
+  tourCapEl.textContent=t(S.cap);
+  tourCapEl.classList.toggle("on",TOUR.t>1.2&&TOUR.t<S.d-1.4);
+  if(TOUR.t>=S.d)tourShot((TOUR.k+1)%SHOTS.length);
 }
 
 /* ─────────────── main loop + performance guard ─────────────── */
@@ -1618,11 +2023,15 @@ function syncUI(){
   }
   if($("sInc")){
     $("sInc").value=P.incl;
-    $("vInc").textContent=P.incl+"°";
+    $("vInc").textContent=Math.round(P.incl)+"°";
   }
   if($("sSat")){
     $("sSat").value=Math.round((SAT-1)*100);
     $("vSat").textContent=(SAT>=1?"+":"")+Math.round((SAT-1)*100)+"%";
+  }
+  if($("sGlow")){
+    $("sGlow").value=Math.round(P.glow*100);
+    $("vGlow").textContent=Math.round(P.glow*100)+"%";
   }
   if($("sNeb")){
     $("sNeb").value=Math.round((AB-1)*100);
@@ -1646,6 +2055,9 @@ function syncUI(){
     if($(sl))$(sl).value=P[per];
     if($(vl))$(vl).textContent=fmtPer(P[per]);
   });
+  setTg("tPat",P.pattern);
+  const encL=document.querySelector("#bEnc [data-i18n]");
+  if(encL){encL.dataset.i18n=ENC.on&&!ENC.exiting?"encEnd":"encStart";encL.textContent=t(encL.dataset.i18n);}
   setTg("tOrbits",P.orbits);
   setTg("tMat",P.material);
   setTg("tAuto",P.autoPal);
@@ -1776,6 +2188,8 @@ function copyLink(){
   url.searchParams.set("aincT",P.autoIncT);
   url.searchParams.set("azoomT",P.autoZoomT);
   url.searchParams.set("aspdT",P.autoSpdT);
+  url.searchParams.set("pat",P.pattern?"1":"0");
+  url.searchParams.set("glow",Math.round(P.glow*100));
   url.searchParams.set("pal",curPal.id);
   url.searchParams.set("stars",NS);
   url.searchParams.set("lang",LANG);
@@ -1834,6 +2248,7 @@ function bindEvents(){
   if($("sAutoIncT"))$("sAutoIncT").oninput=e=>{P.autoIncT=parseFloat(e.target.value);syncUI();};
   if($("sAutoZoomT"))$("sAutoZoomT").oninput=e=>{P.autoZoomT=parseFloat(e.target.value);syncUI();};
   if($("sAutoSpdT"))$("sAutoSpdT").oninput=e=>{P.autoSpdT=parseFloat(e.target.value);syncUI();};
+  bindTg("tPat","pattern");
   bindTg("tOrbits","orbits");
   bindTg("tMat","material");
   bindTg("tAuto","autoPal");
@@ -1845,15 +2260,21 @@ function bindEvents(){
   // Látvány csúszkák
   if($("sSat"))$("sSat").oninput=e=>{SAT=1+parseFloat(e.target.value)/100;scheduleLook();syncUI();};
   if($("sNeb"))$("sNeb").oninput=e=>{AB=1+parseFloat(e.target.value)/100;scheduleLook();syncUI();};
+  if($("sGlow"))$("sGlow").oninput=e=>{P.glow=parseFloat(e.target.value)/100;syncUI();};
   if($("sStars"))$("sStars").oninput=e=>{setStars(parseFloat(e.target.value));};
 
   // Akció gombok
   if($("bShot"))$("bShot").onclick=takePhoto;
   if($("bLink"))$("bLink").onclick=copyLink;
-  if($("bProj"))$("bProj").onclick=()=>{
-    proj=!proj;
-    toast(proj?t("tProjOn"):t("tProjOff"));
-  };
+  if($("bProj"))$("bProj").onclick=toggleTour;
+  if($("bEnc"))$("bEnc").onclick=()=>{ENC.on&&!ENC.exiting?encEnd():encStart();syncUI();};
+  // a click on the galaxy itself (not the panel or the article) follows the nearest star
+  window.addEventListener("click",e=>{
+    const tg=e.target;
+    if(!(tg===document.body||tg===document.documentElement||tg.id==="hero"||tg.tagName==="CANVAS"))return;
+    if(proj){endTour();return;}
+    pickStar(e.clientX,e.clientY);
+  });
   if($("bHide"))$("bHide").onclick=()=>{
     document.body.classList.toggle("hideui");
     toast(t("tHidden"));
@@ -1912,10 +2333,10 @@ function bindEvents(){
       if(tg)tg.click();
     }else if(k==="v"){
       e.preventDefault();
-      proj=!proj;
-      toast(proj?t("tProjOn"):t("tProjOff"));
+      toggleTour();
     }else if(k==="escape"){
-      if(proj){proj=false;toast(t("tProjOff"));}
+      if(proj)endTour();
+      if(FOL.i>=0){FOL.i=-1;toast(t("tUnfollow"));}
       if(document.body.classList.contains("hideui"))document.body.classList.remove("hideui");
     }
   };
