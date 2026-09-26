@@ -41,6 +41,7 @@ Belül négy fül található: **Galaxis**, **Látvány**, **Hang**, **Tudomány
 | **Rotating pattern** | a spirálminta merev testként forog; a korotáción belül a csillagok előzik a karokat, kívül a karok a csillagokat, és a porsáv → H II → fiatal kék csillag sorrend a korotáción túl oldalt vált |
 | **Show orbits** | a rejtett ellipszispályák kirajzolása (forgó mintánál a szaggatott korotációs körrel) |
 | **Material arms** | „mi lenne, ha a kar anyagból állna" — a feltekeredési probléma demója |
+| **💥 Galaxy encounter** | egy kísérőgalaxis elhalad mellette prográd, közel parabolikus pályán, és árapálycsóvákat meg hidat húz ki (tesztrészecskék a galaxis potenciáljában egy kísérőtömeggel, Toomre & Toomre 1972 nyomán); az **End encounter** minden csillagot visszatekercsel a spirálba |
 
 #### Automatikus mozgatás
 
@@ -78,7 +79,7 @@ Néhány részlet, amitől nem gépiesnek hat:
 | **Milky Way band** | átlós, sűrű csillagfolyam sötét porcsíkokkal a háttérben |
 | **📷 Photo (PNG)** | felület nélküli mentés, ahol fér, kétszeres felbontásban |
 | **🔗 Copy link** | az összes beállítás belekerül az URL-be, így megosztható |
-| **🎬 Projector** | teljes képernyős, lassú kamera-utazás automatikus palettaváltással |
+| **🎬 Projector** | forgatókönyv szerinti filmes túra — öt jelenet (távoli kép, korotáció, a forgó mintát követő kar-közeli, élről látott dudor, eltávolodás) lágy kameramozgással és feliratokkal; a paletták továbbra is váltakoznak |
 | **👁 Hide UI** | vezérlők elrejtése |
 
 ### Hang — procedurális kozmikus hangtér
@@ -104,6 +105,10 @@ A galaxis alatt ugyanez bővebben is olvasható egy legörgethető cikkben, amit
 ### Billentyűk
 
 `H` felület el/be · `F` teljes képernyő · `P` fotó · `V` vetítő mód · `Esc` kilépés · `M` hang
+
+**Kattints egy csillagra**, és követi: gyűrű jelöli, halványuló nyom mutatja az útját, a felirat pedig megmondja, hogy előzi-e a karokat, a karok előzik-e, vagy a korotáció közelében együtt halad velük. Üres helyre kattintva vagy `Esc`-kel elengeded.
+
+Döntött nézetben a központi dudor kerek marad, miközben a korong lelapul; a korongsík fölötti dudorcsillagok a por után rajzolódnak, így porsáv húzódik a dudor előtt.
 
 A Space szándékosan szabadon maradt, hogy továbbra is görgesse az oldalt, és egyik gyorsbillentyű sem sül el, amíg csúszkán, gombon vagy legördülőn van a fókusz.
 
