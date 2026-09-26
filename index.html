@@ -1008,11 +1008,11 @@ function sampleR(rnd){
 /* ─────────────── sprites (scale- and DPI-aware) ─────────────── */
 const TEMPS=[[255,158,78],[255,184,108],[255,205,148],[255,226,190],[255,244,234],[222,234,255],[178,206,255],[142,180,255]];
 const STAR_SZ=[5,9,15], NEB_SZ=[70,110,150], HII_SZ=[8,12,17,23,30,38], DUST_SZ=[26,40];
-function glowSprite(px,r,g,b,coreA,midA){
+function glowSprite(px,r,g,b,coreA,midA,tinted){
   const c=document.createElement("canvas");c.width=c.height=px;
   const x=c.getContext("2d"),h=px/2;
   const gr=x.createRadialGradient(h,h,0,h,h,h);
-  gr.addColorStop(0,`rgba(255,255,255,${coreA})`);
+  gr.addColorStop(0,tinted?`rgba(${r},${g},${b},${coreA})`:`rgba(255,255,255,${coreA})`);   // tinted: a warm centre, as in real bulges
   gr.addColorStop(0.25,`rgba(${r},${g},${b},${midA})`);
   gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
   x.fillStyle=gr;x.fillRect(0,0,px,px);return c;
@@ -1030,15 +1030,16 @@ let sprG=1;
 const curG=()=>SC*P.zoom/REF;
 function buildSet(pal){
   const dev=v=>Math.max(2,Math.round(Math.max(1.2,v*sprG)*dpr));
-  const mk=(base,r,g,b,cA,mA)=>{const d=dev(base);return{img:glowSprite(d,r,g,b,cA,mA),css:d/dpr};};
+  const mk=(base,r,g,b,cA,mA,tn)=>{const d=dev(base);return{img:glowSprite(d,r,g,b,cA,mA,tn),css:d/dpr};};
   const t=pal.starTint;
   const tt=c=>[clamp(c[0]*t[0],0,255)|0,clamp(c[1]*t[1],0,255)|0,clamp(c[2]*t[2],0,255)|0];
   return {
     star:TEMPS.map(c=>{const[r,g,b]=tt(c);return STAR_SZ.map((s,i)=>mk(s,r,g,b,i===2?0.95:0.8,0.5));}),
+    starT:TEMPS.map(c=>{const[r,g,b]=tt(c);return STAR_SZ.map((s,i)=>mk(s,r,g,b,i===2?0.95:0.8,0.5,true));}),   // bulge: warm centres
     neb:pal.neb.map(([r,g,b])=>NEB_SZ.map(s=>mk(s,r,g,b,0.05*AB,0.038*AB))),
     hii:HII_SZ.map(s=>mk(s,pal.hii[0],pal.hii[1],pal.hii[2],0.5,0.3)),
     dust:DUST_SZ.map(s=>{const d=dev(s);return{img:darkSprite(d,pal.dust[0],pal.dust[1],pal.dust[2]),css:d/dpr};}),
-    core:mk(80,pal.core[0],pal.core[1],pal.core[2],0.78,0.3),
+    core:mk(80,pal.core[0],pal.core[1],pal.core[2],0.78,0.3,true),
     halo:mk(300,pal.halo[0],pal.halo[1],pal.halo[2],0.11,0.06),
     flash:mk(160,255,246,225,0.95,0.5)
   };
@@ -1095,6 +1096,7 @@ function populate(){
   NNMAX=Math.round(400*NCAP/11000); NDMAX=Math.round(2200*NCAP/11000); NH=120;
   sA=new Float32Array(NSMAX);sE=new Float32Array(NSMAX);sPhi=new Float32Array(NSMAX);sZ=new Float32Array(NSMAX);sZn=new Float32Array(NSMAX);
   FRONT=new Int32Array(NSMAX);FRONT_X=new Float32Array(NSMAX);FRONT_Y=new Float32Array(NSMAX);
+  BUL=new Int32Array(NSMAX);BUL_X=new Float32Array(NSMAX);BUL_Y=new Float32Array(NSMAX);
   sT=new Uint8Array(NSMAX);sSz=new Uint8Array(NSMAX);sJit=new Float32Array(NSMAX);
   for(let i=0;i<NSMAX;i++){
     const a=sampleR(rnd);sA[i]=a;sE[i]=eccOf(a);sPhi[i]=rnd()*TAU;
@@ -1449,6 +1451,7 @@ function drawScene(c){
     c.globalAlpha=w;
     const hs=S.halo.css*gk, cs=S.core.css*gk;
     c.drawImage(S.halo.img,cx-hs/2,cy-hs*cHal/2,hs,hs*cHal+1);
+    c.globalAlpha=w*CORE_A;
     c.drawImage(S.core.img,cx-cs/2,cy-cs*cBul/2,cs,cs*cBul+1);
   }
 
@@ -1480,8 +1483,10 @@ function drawScene(c){
   const starDS=hot.star.map(t=>t.map(b=>b.css*gk));
   const starM=STAR_SZ[STAR_SZ.length-1]*curG()+2;
   const bulA=bulgeR()*1.3, zCut=0.03*(1-sinI)/Math.max(sinI,0.05);
-  let nFront=0;
+  let nFront=0, nBul=0;
+  const thA=bulgeR()*1.2;
   for(let i=0;i<NS;i++){
+    if(sA[i]<thA&&thinned(i,sA[i]))continue;
     let x=0,y=0;
     if(kin){
       const a=sA[i], tilt=tiltOf(a,wnd)+patA+sJit[i]+windup*omOf(a)*matOn;
@@ -1493,8 +1498,16 @@ function drawScene(c){
     const px=cx+x*scl, py=cy+(y*cosI+sZ[i]*sinI)*scl;
     if(px<-starM||px>W+starM||py<-starM||py>H+starM)continue;
     if(sZ[i]>zCut&&sA[i]<bulA){FRONT[nFront]=i;FRONT_X[nFront]=px;FRONT_Y[nFront++]=py;continue;}
+    if(sA[i]<thA){BUL[nBul]=i;BUL_X[nBul]=px;BUL_Y[nBul++]=py;continue;}
     const t=sT[i],z=sSz[i],s=starDS[t][z];
     c.drawImage(hot.star[t][z].img,px-s/2,py-s/2,s,s);
+  }
+
+  /* inner bulge: the canvas clips per channel, so these go in dimmer to stay warm, not white */
+  c.globalAlpha=starAlpha()*BUL_A;
+  for(let j=0;j<nBul;j++){
+    const i=BUL[j], t=sT[i], z=sSz[i], s=starDS[t][z];
+    c.drawImage(hot.starT[t][z].img,BUL_X[j]-s/2,BUL_Y[j]-s/2,s,s);
   }
 
   /* H-II regions: they light up where the density wave crowds the gas */
@@ -1588,10 +1601,10 @@ function drawScene(c){
 
   /* bulge stars in front of the disc plane: after the dust, so they stay lit */
   c.globalCompositeOperation="lighter";
-  c.globalAlpha=starAlpha();
+  c.globalAlpha=starAlpha()*BUL_A;
   for(let j=0;j<nFront;j++){
     const i=FRONT[j], t=sT[i], z=sSz[i], s=starDS[t][z];
-    c.drawImage(hot.star[t][z].img,FRONT_X[j]-s/2,FRONT_Y[j]-s/2,s,s);
+    c.drawImage(hot.starT[t][z].img,FRONT_X[j]-s/2,FRONT_Y[j]-s/2,s,s);
   }
   c.globalAlpha=1;c.globalCompositeOperation="source-over";
   drawOverlays(c,cx,cy,scl,cosI,sinI,ci,g,m,wnd,E,eb,fi);
@@ -1633,6 +1646,15 @@ function drawOverlays(c,cx,cy,scl,cosI,sinI,ci,g,m,wnd,E,eb,fi){
   if(fi>=0)drawFollow(c,cx,cy,scl,cosI,sinI,g);
 }
 
+/* Real bulges never burn to white (SDSS cores measure 0% near-white, orange
+   centre); summed sprites did. The central sprite is dimmed and a share of
+   the innermost stars is left out, fading to none at 1.2 bulge radii. */
+const CORE_A=0.5, CORE_THIN=0.6, BUL_A=0.4;   // BUL_A: Canvas 2D only
+function thinned(i,a){
+  const ab=bulgeR(), p=CORE_THIN*(1-smooth(0.3*ab,1.2*ab,a));
+  return ((i*0.6180339887)%1)<p;
+}
+
 /* One star's in-plane position in galaxy units, whichever mode owns it. */
 const XY=[0,0];
 function starXY(i,m,wnd,E,eb){
@@ -1649,7 +1671,7 @@ function starXY(i,m,wnd,E,eb){
 /* ─────────────── camera, follow-a-star, encounter ─────────────── */
 const VIEW={cx:0,cy:0,scl:1,cosI:1,sinI:0};        // last frame's projection, for picking
 let camX=0, camY=0;                                // camera pan in galaxy units (tour)
-let FRONT=null, FRONT_X=null, FRONT_Y=null;        // bulge stars drawn after the dust
+let FRONT=null, FRONT_X=null, FRONT_Y=null, BUL=null, BUL_X=null, BUL_Y=null;        // bulge stars drawn after the dust
 
 /* Follow a star: a ring marks it, a fading trail shows where it has been. */
 const FOL={i:-1,x:0,y:0,z:0,tr:new Float32Array(3*400),n:0,h:0};
@@ -1889,6 +1911,8 @@ void main(){
   vec2 p=vec2(r*cos(phi),r*sin(phi));
   float k=1.0,size=5.0,core=0.8,mid=0.5; vec3 col=vec3(255.0);
   if(uMode==0){                                     // stars; the bulge above the disc is drawn after the dust
+    float ab=uBulA/1.3, pth=0.6*(1.0-smoothstep(0.3*ab,1.2*ab,a));   // CORE_THIN
+    if(fract(float(gl_InstanceID)*0.6180339887)<pth){cull();return;}
     bool front=z>uZCut&&a<uBulA;
     if((uFront==1&&!front)||(uFront==-1&&front)){cull();return;}
     col=mix(uTempA[cls],uTempB[cls],uMix);size=STAR_SZ[sz];core=sz==2?0.95:0.8;k=uAlpha;
@@ -1999,7 +2023,7 @@ void main(){
   float x=max(L-K,0.0)/(1.0-K);
   float Lm=L<K?L:K+(1.0-K)*x/(1.0+x);          // Reinhard shoulder: slow, keeps gradation in the core
   c*=Lm/max(L,1e-5);
-  c=min(c,vec3(1.0));
+  c/=max(1.0,max(c.r,max(c.g,c.b)));             // Lupton: scale all channels together, so a bright core stays orange, not white
   o=vec4(c,clamp(sc.a,0.0,1.0));
 }`;
 function glProgram(gl,vs,fs){
@@ -2170,7 +2194,7 @@ function glFrame(V){
   // core and halo — the bulge flattens less than the disc
   const cBul=lerp(ci,1,0.65), cHal=lerp(ci,1,0.3);
   sprPush(cx,cy,300*G,300*G*cHal,mixc(A.halo,B.halo),0.11,0.06,1);
-  sprPush(cx,cy,80*G,80*G*cBul,mixc(A.core,B.core),0.78,0.3,1);
+  sprPush(cx,cy,80*G,80*G*cBul,mixc(A.core,B.core),0.78,0.3,CORE_A);
   glSprDraw();
 
   gl.useProgram(Pp.p);
