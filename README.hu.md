@@ -38,7 +38,8 @@ Belül négy fül található: **Galaxis**, **Látvány**, **Hang**, **Tudomány
 | **Time speed** | szimulációs sebesség (0–3×) |
 | **Inclination** | rálátási szög (0° = szemből) |
 | **Presets** | Andromeda · Whirlpool M51 · Barred SBb · Pinwheel — egy kattintásos beállítás-csomagok |
-| **Show orbits** | a rejtett ellipszispályák kirajzolása |
+| **Rotating pattern** | a spirálminta merev testként forog; a korotáción belül a csillagok előzik a karokat, kívül a karok a csillagokat, és a porsáv → H II → fiatal kék csillag sorrend a korotáción túl oldalt vált |
+| **Show orbits** | a rejtett ellipszispályák kirajzolása (forgó mintánál a szaggatott korotációs körrel) |
 | **Material arms** | „mi lenne, ha a kar anyagból állna" — a feltekeredési probléma demója |
 
 #### Automatikus mozgatás
@@ -69,6 +70,7 @@ Néhány részlet, amitől nem gépiesnek hat:
 | **Auto-switch** | 2–3 percenként lassú, 4,5 másodperces áttűnéssel új palettát sorsol |
 | **Colour boost** | 0–25%: a palettaszínek telítettsége (alap: 15%) — 0%-on az eredeti, visszafogott színek |
 | **Nebula density** | 0–25%: a köd- és felhőrétegek fedettsége (alap: 15%) |
+| **Glow** | 0–100%: a galaxis saját szórt fénye (alap: 50%) — a képkockát 1/16-ig felezve, majd visszaadva; ettől lesz a pöttyökből ragyogó kar |
 | **Star count** | desktop 5 000–30 000, mobil 3 000–20 000 |
 | **Performance guard** | ha az fps 35 alá esik, automatikusan visszaveszi a csillagszámot |
 | **Supernovae** | ritkán felvillanó csillag lágyan táguló fénygömbbel (hanggal is) |
@@ -142,7 +144,7 @@ Az automatikus mozgatásnak külön futása van: a dőlésszög 11° → 58° k�
 
 Nyisd meg az `index.html`-t böngészőben (vagy `python3 -m http.server` és http://localhost:8000).
 
-URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · `?lang=en|hu|ro|de` felületnyelv · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) · és az automatikák a köridejükkel másodpercben (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — ezt állítja elő a **🔗 Copy link** gomb.
+URL-paraméterek: `?seed=42` determinisztikus galaxis · `?freeze` állókép · `?fps=0` teljesítményőr ki · `?lang=en|hu|ro|de` felületnyelv · minden vezérlő értéke is átadható (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`) · és az automatikák a köridejükkel másodpercben (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — ezt állítja elő a **🔗 Copy link** gomb.
 
 ## Licenc
 

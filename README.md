@@ -38,7 +38,8 @@ Inside are four tabs: **Galaxy**, **Visuals**, **Sound** and **Science**.
 | **Time speed** | simulation speed (0–3×) |
 | **Inclination** | viewing angle (0° = face-on) |
 | **Presets** | Andromeda · Whirlpool M51 · Barred SBb · Pinwheel — one-click setups |
-| **Show orbits** | reveal the hidden elliptical orbits |
+| **Rotating pattern** | the spiral pattern turns rigidly; stars overtake the arms inside corotation and fall behind outside it, and the dust lane / H II / young blue star sequence flips sides across it |
+| **Show orbits** | reveal the hidden elliptical orbits (plus the dashed corotation circle while the pattern rotates) |
 | **Material arms** | "what if the arms were made of matter" — a demo of the winding problem |
 
 #### Automatic cycling
@@ -69,6 +70,7 @@ A few details that keep it from feeling mechanical:
 | **Auto-switch** | picks a new palette every 2–3 minutes with a slow 4.5 s crossfade |
 | **Colour boost** | 0–25% chroma lift on the palette (default 15%) — 0% is the original, restrained colouring |
 | **Nebula density** | 0–25% opacity lift on the cloud and nebula layers (default 15%) |
+| **Glow** | 0–100% diffuse light from the galaxy itself (default 50%), built by halving the frame down to 1/16 and adding it back — the unresolved starlight that turns loose grains into glowing arms |
 | **Star count** | desktop 5,000–30,000, mobile 3,000–20,000 |
 | **Performance guard** | automatically lowers the star count if the frame rate drops below 35 fps |
 | **Supernovae** | a rare star flares up inside a softly expanding shell of light (with sound) |
@@ -142,7 +144,7 @@ The auto-cycle controls are covered by their own run: inclination sweeping 11° 
 
 Open `index.html` in a browser (or `python3 -m http.server` and visit http://localhost:8000).
 
-URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
+URL parameters: `?seed=42` deterministic galaxy · `?freeze` static frame · `?fps=0` performance guard off · `?lang=en|hu|ro|de` interface language · every control can be passed as well (`hub`, `bar`, `wind`, `arms`, `zoom`, `spd`, `inc`, `stars`, `pal`, `sat`, `neb`, `auto`, `sn`, `px`, `band`, `orb`, `mat`, `pat`, `glow`) · and the auto-cyclers with their periods in seconds (`ainc`, `aincT`, `azoom`, `azoomT`, `aspd`, `aspdT`) — this is exactly what the **🔗 Copy link** button produces.
 
 ## License
 
