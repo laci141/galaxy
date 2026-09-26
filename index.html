@@ -79,6 +79,7 @@
   canvas.layer{position:absolute;inset:0;width:100%;height:100%;display:block;
     will-change:transform;transition:opacity 4.5s ease}
   #bgB{opacity:0}
+  #glc{display:none}
 
   /* ---------- glass panel ---------- */
   #panel{
@@ -304,6 +305,7 @@
 <div id="wrap">
   <canvas id="bgA" class="layer"></canvas>
   <canvas id="bgB" class="layer"></canvas>
+  <canvas id="glc" class="layer"></canvas>
   <canvas id="fx" class="layer"></canvas>
 </div>
 
@@ -413,6 +415,7 @@
       <button class="tg on" id="tSN" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="supernovae"></span></button>
       <button class="tg on" id="tPar" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="parallax"></span> <span class="dim" data-i18n="mouseTilt"></span></button>
       <button class="tg on" id="tBand" role="switch" aria-checked="true"><span class="sw"></span><span data-i18n="band"></span></button>
+      <button class="tg" id="tGL" role="switch" aria-checked="false"><span class="sw"></span><span data-i18n="glR"></span> <span class="dim" data-i18n="glDim"></span></button>
     </div>
     <div class="grp" data-i18n="actions"></div>
     <div class="btns">
@@ -642,6 +645,7 @@ const I18N={
   pattern:"Rotating pattern",corotDim:"(corotation)",glow:"Glow",corot:"corotation",
   sciPattern:"The spiral pattern itself rotates slowly and rigidly, like a bar. Only at the corotation radius (dashed circle when orbits are shown) do stars keep pace with it: inside, stars overtake the arms; outside, the arms overtake the stars. Gas is compressed where it enters an arm, so the dark dust lanes sit on the upstream edge, pink H II regions just downstream, and short-lived blue stars a little further on — and this order flips across corotation.",
   encStart:"Galaxy encounter",encEnd:"End encounter",tEnc:"A companion galaxy is on its way — watch the tidal tails form",tEncEnd:"Rewinding to the undisturbed spiral",tFollow:"Following a star — click empty space or press Esc to let go",tUnfollow:"Star released",fIn:"overtaking the arms",fOut:"the arms overtake it",fCo:"near corotation — keeping pace",fEnc:"pulled by the companion",sciLim6:"The galaxy encounter uses test particles in a fixed potential plus one companion mass, in the spirit of Toomre & Toomre (1972); the disc has no self-gravity.",tour1:"Every star rides its own slightly tilted orbit. The spiral arms are simply where those orbits crowd together.",tour2:"Inside the dashed corotation circle the stars overtake the arms; outside it, the arms overtake the stars.",tour3:"Gas is squeezed as it enters an arm: dust darkens the upstream edge, and new stars light up pink and blue just behind it.",tour4:"From the side, the round bulge rises out of the thin disc, and a dust lane crosses in front of it.",tour5:"The pattern turns once every few hundred million years, yet no star ever stays in an arm.",
+  glR:"WebGL renderer",glDim:"(beta · GPU, up to 200,000 stars)",tGLfail:"WebGL2 is not available — using Canvas 2D",
   autoZoom:"Auto zoom",autoZoomRange:"(10–90%)",
   autoSpd:"Auto time speed",autoSpdRange:"(0.2–2.8×)"},
 
@@ -706,6 +710,7 @@ const I18N={
   pattern:"Forgó mintázat",corotDim:"(korotáció)",glow:"Ragyogás",corot:"korotáció",
   sciPattern:"Maga a spirálmintázat is lassan, merev testként forog, akár egy küllő. Csak a korotációs sugárnál (szaggatott kör, ha a pályák láthatók) tartanak vele lépést a csillagok: belül a csillagok előzik meg a karokat, kívül a karok a csillagokat. A gáz ott sűrűsödik össze, ahol belép egy karba, ezért a sötét porsávok a belépő oldalon ülnek, a rózsaszín H II régiók közvetlenül mögöttük, a rövid életű kék csillagok pedig még kicsit távolabb — és ez a sorrend a korotáción túl megfordul.",
   encStart:"Galaxis-találkozás",encEnd:"Találkozás vége",tEnc:"Egy kísérőgalaxis közeledik — figyeld, ahogy kialakulnak az árapálycsóvák",tEncEnd:"Visszatekerés a zavartalan spirálhoz",tFollow:"Egy csillag követése — kattints üres helyre vagy nyomd meg az Esc-et az elengedéshez",tUnfollow:"Csillag elengedve",fIn:"előzi a karokat",fOut:"a karok előzik",fCo:"korotáció közelében — együtt halad",fEnc:"a kísérő húzza magával",sciLim6:"A galaxis-találkozás tesztrészecskéket használ rögzített potenciálban egy kísérőtömeggel, Toomre & Toomre (1972) szellemében; a korongnak nincs saját gravitációja.",tour1:"Minden csillag a saját, kissé elfordított pályáján kering. A spirálkarok ott vannak, ahol ezek a pályák összesűrűsödnek.",tour2:"A szaggatott korotációs körön belül a csillagok előzik meg a karokat, kívül a karok a csillagokat.",tour3:"A gáz összepréselődik, amikor belép egy karba: a por elsötétíti a belépő oldalt, mögötte pedig rózsaszín és kék új csillagok gyúlnak.",tour4:"Oldalról nézve a kerek központi dudor kiemelkedik a vékony korongból, előtte pedig porsáv húzódik.",tour5:"A mintázat néhány százmillió évente fordul körbe, mégsem marad egyetlen csillag sem tartósan a karban.",
+  glR:"WebGL-rajzoló",glDim:"(béta · GPU, akár 200 000 csillag)",tGLfail:"A WebGL2 nem érhető el — Canvas 2D marad",
   autoZoom:"Automatikus zoom",autoZoomRange:"(10–90%)",
   autoSpd:"Automatikus idősebesség",autoSpdRange:"(0,2–2,8×)"},
 
@@ -770,6 +775,7 @@ const I18N={
   pattern:"Model rotativ",corotDim:"(corotație)",glow:"Strălucire",corot:"corotație",
   sciPattern:"Modelul spiral se rotește și el, lent și rigid, ca o bară. Doar la raza de corotație (cercul punctat când orbitele sunt afișate) stelele țin pasul cu el: în interior stelele depășesc brațele, în exterior brațele depășesc stelele. Gazul se comprimă acolo unde intră într-un braț, așa că benzile întunecate de praf stau pe marginea de intrare, regiunile roz H II imediat după ele, iar stelele albastre de viață scurtă puțin mai departe — iar ordinea se inversează dincolo de corotație.",
   encStart:"Întâlnire galactică",encEnd:"Oprește întâlnirea",tEnc:"O galaxie însoțitoare se apropie — urmărește cum se formează cozile mareice",tEncEnd:"Revenire la spirala neperturbată",tFollow:"Urmărești o stea — clic pe un loc gol sau Esc pentru a o elibera",tUnfollow:"Stea eliberată",fIn:"depășește brațele",fOut:"brațele o depășesc",fCo:"lângă corotație — ține pasul",fEnc:"trasă de însoțitoare",sciLim6:"Întâlnirea galactică folosește particule-test într-un potențial fix plus o masă însoțitoare, în spiritul lui Toomre & Toomre (1972); discul nu are autogravitație.",tour1:"Fiecare stea parcurge propria orbită, ușor rotită. Brațele spirale sunt doar locurile unde aceste orbite se aglomerează.",tour2:"În interiorul cercului punctat de corotație stelele depășesc brațele; în afara lui, brațele depășesc stelele.",tour3:"Gazul se comprimă când intră într-un braț: praful întunecă marginea de intrare, iar imediat în spatele ei se aprind stele noi, roz și albastre.",tour4:"Din lateral, bulbul rotund se ridică din discul subțire, iar o bandă de praf trece prin fața lui.",tour5:"Modelul face o rotație la fiecare câteva sute de milioane de ani, dar nicio stea nu rămâne mereu într-un braț.",
+  glR:"Randare WebGL",glDim:"(beta · GPU, până la 200.000 de stele)",tGLfail:"WebGL2 nu este disponibil — se folosește Canvas 2D",
   autoZoom:"Zoom automat",autoZoomRange:"(10–90%)",
   autoSpd:"Viteza timpului automată",autoSpdRange:"(0,2–2,8×)"},
 
@@ -834,6 +840,7 @@ const I18N={
   pattern:"Rotierendes Muster",corotDim:"(Korotation)",glow:"Leuchten",corot:"Korotation",
   sciPattern:"Das Spiralmuster selbst rotiert langsam und starr, wie ein Balken. Nur am Korotationsradius (gestrichelter Kreis, wenn die Bahnen sichtbar sind) halten die Sterne mit ihm Schritt: innen überholen die Sterne die Arme, außen überholen die Arme die Sterne. Gas wird dort verdichtet, wo es in einen Arm eintritt, deshalb liegen die dunklen Staubbahnen an der Eintrittskante, die rosa H-II-Regionen direkt dahinter und kurzlebige blaue Sterne etwas weiter — und diese Reihenfolge kehrt sich jenseits der Korotation um.",
   encStart:"Galaxienbegegnung",encEnd:"Begegnung beenden",tEnc:"Eine Begleitgalaxie nähert sich — sieh zu, wie Gezeitenschweife entstehen",tEncEnd:"Zurückspulen zur ungestörten Spirale",tFollow:"Einem Stern folgen — klicke ins Leere oder drücke Esc zum Loslassen",tUnfollow:"Stern losgelassen",fIn:"überholt die Arme",fOut:"die Arme überholen ihn",fCo:"nahe der Korotation — hält Schritt",fEnc:"vom Begleiter mitgerissen",sciLim6:"Die Galaxienbegegnung nutzt Testteilchen in einem festen Potential plus eine Begleitmasse, im Sinne von Toomre & Toomre (1972); die Scheibe hat keine Eigengravitation.",tour1:"Jeder Stern zieht auf seiner eigenen, leicht gedrehten Bahn. Die Spiralarme sind nur die Stellen, an denen sich diese Bahnen drängen.",tour2:"Innerhalb des gestrichelten Korotationskreises überholen die Sterne die Arme; außerhalb überholen die Arme die Sterne.",tour3:"Gas wird beim Eintritt in einen Arm zusammengepresst: Staub verdunkelt die Eintrittskante, und gleich dahinter leuchten neue Sterne rosa und blau auf.",tour4:"Von der Seite ragt der runde Bulge aus der dünnen Scheibe, und ein Staubband zieht vor ihm vorbei.",tour5:"Das Muster dreht sich alle paar hundert Millionen Jahre einmal, doch kein Stern bleibt dauerhaft in einem Arm.",
+  glR:"WebGL-Renderer",glDim:"(Beta · GPU, bis zu 200.000 Sterne)",tGLfail:"WebGL2 ist nicht verfügbar — Canvas 2D wird verwendet",
   autoZoom:"Automatischer Zoom",autoZoomRange:"(10–90 %)",
   autoSpd:"Automatische Zeitgeschwindigkeit",autoSpdRange:"(0,2–2,8×)"}
 };
@@ -943,7 +950,7 @@ const P={
   autoZoom:qbool("azoom",false),autoZoomT:clamp(qnum("azoomT",120),30,180),
   autoSpd:qbool("aspd",false),  autoSpdT:clamp(qnum("aspdT",120),30,180),
   orbits:qbool("orb",false), material:qbool("mat",false), pattern:qbool("pat",true),
-  glow:clamp(qnum("glow",50),0,100)/100,
+  glow:clamp(qnum("glow",50),0,100)/100, gl:qbool("gl",false),
   autoPal:qbool("auto",true), supernova:qbool("sn",true),
   parallax:qbool("px",true), band:qbool("band",true), fpsGuard:qbool("fps",true)
 };
@@ -1060,7 +1067,7 @@ function scheduleLook(){
 }
 
 /* ─────────────── populations ─────────────── */
-let NSMAX=0,NS=0, sA,sE,sPhi,sZ,sZn,sT,sSz,sJit;
+let NSMAX=0,NS=0,NCAP=0, sA,sE,sPhi,sZ,sZn,sT,sSz,sJit;
 // vertical scale: thin disc, rising to a round bulge inside bulgeR()
 const zScale=a=>{const ab=bulgeR();return 0.045*(1+a*0.4)+0.9*a*(1-smooth(0.5*ab,1.3*ab,a));};
 let NNMAX=0,NN=0, nA,nE,nPhi,nZ,nCol,nSz;
@@ -1070,6 +1077,11 @@ let NYMAX=0,NY=0, yA,yE,yPhi,yZ,ySz,ySeed;
 const isSmall=()=>(screen.width||innerWidth)<600;
 const isMed=()=>(screen.width||innerWidth)<1000;
 function starLimits(){
+  if(GLR.on){                                        // the GPU renderer carries far more stars
+    if(isSmall())return{min:3000,max:60000,def:20000};
+    if(isMed())return{min:3000,max:100000,def:40000};
+    return{min:5000,max:200000,def:60000};
+  }
   if(isSmall())return{min:3000,max:18000,def:5000};
   if(isMed())return{min:3000,max:22000,def:9000};
   return{min:5000,max:24000,def:12000};   // max 24000
@@ -1078,7 +1090,9 @@ function populate(){
   buildCDF();
   const rnd=mulberry32(SEED^0x1b873593);
   const L=starLimits();
-  NSMAX=L.max; NNMAX=Math.round(400*NSMAX/11000); NDMAX=Math.round(2200*NSMAX/11000); NH=120;
+  // nebulae, dust and young stars stay at the Canvas 2D maximum: only the star count grows
+  NSMAX=L.max; NCAP=Math.min(NSMAX,24000);
+  NNMAX=Math.round(400*NCAP/11000); NDMAX=Math.round(2200*NCAP/11000); NH=120;
   sA=new Float32Array(NSMAX);sE=new Float32Array(NSMAX);sPhi=new Float32Array(NSMAX);sZ=new Float32Array(NSMAX);sZn=new Float32Array(NSMAX);
   FRONT=new Int32Array(NSMAX);FRONT_X=new Float32Array(NSMAX);FRONT_Y=new Float32Array(NSMAX);
   sT=new Uint8Array(NSMAX);sSz=new Uint8Array(NSMAX);sJit=new Float32Array(NSMAX);
@@ -1111,7 +1125,7 @@ function populate(){
   /* young blue stars: born where the arm compresses the gas, gone before the
      next arm — own RNG so the rest of the seeded galaxy stays unchanged */
   const yr=mulberry32(SEED^0x27d4eb2f);
-  NYMAX=Math.round(900*NSMAX/11000);
+  NYMAX=Math.round(900*NCAP/11000);
   yA=new Float32Array(NYMAX);yE=new Float32Array(NYMAX);yPhi=new Float32Array(NYMAX);yZ=new Float32Array(NYMAX);
   ySz=new Uint8Array(NYMAX);ySeed=new Float32Array(NYMAX);
   for(let i=0;i<NYMAX;i++){
@@ -1119,6 +1133,7 @@ function populate(){
     yA[i]=a;yE[i]=eccOf(a);yPhi[i]=yr()*TAU;yZ[i]=(yr()-0.5)*0.03;
     ySz[i]=yr()>0.8?2:1;ySeed[i]=yr();
   }
+  glPopulate();
   setStars(clamp(qnum("stars",L.def),L.min,L.max));
 }
 /* The full population is generated once; the slider only sets how many of
@@ -1126,7 +1141,8 @@ function populate(){
 function setStars(n){
   const L=starLimits();
   NS=clamp(Math.round(n),L.min,L.max);
-  NN=Math.round(NNMAX*NS/NSMAX); ND=Math.round(NDMAX*NS/NSMAX); NY=Math.round(NYMAX*NS/NSMAX);
+  const ns=Math.min(NS,NCAP);
+  NN=Math.round(NNMAX*ns/NCAP); ND=Math.round(NDMAX*ns/NCAP); NY=Math.round(NYMAX*ns/NCAP);
   const el=$("sStars"); el.min=L.min; el.max=L.max; el.value=NS;
   $("vStars").textContent=NS.toLocaleString(LOCALE[LANG]);
 }
@@ -1138,6 +1154,7 @@ function refreshEcc(){
   for(let i=0;i<NH;i++)hE[i]=eccOf(hA[i]);
   for(let i=0;i<NDMAX;i++)dE[i]=eccOf(dA[i]);
   for(let i=0;i<NYMAX;i++)yE[i]=eccOf(yA[i]);
+  glUploadStatic();
 }
 
 /* ─────────────── background layer (static, seeded) ─────────────── */
@@ -1233,6 +1250,7 @@ function sizeCanvases(){
     GLOW[i].c.width=Math.max(1,Math.round(fx.width/k));GLOW[i].c.height=Math.max(1,Math.round(fx.height/k));
   }
   GLOWSUM.c.width=GLOW[1].c.width;GLOWSUM.c.height=GLOW[1].c.height;
+  glResize();
 }
 /* Diffuse light: halve the frame four times (1/2 … 1/16), stack the smaller
    copies into one quarter-size image, and add that back smoothly upscaled.
@@ -1329,11 +1347,9 @@ function step(dt,rdt){
   patA+=OMP*patOn*(1-matOn)*sdt;                  // material arms wind up with the stars instead
   captionEl.classList.toggle("on",P.material&&windup>6);
 
-  for(let i=0;i<NS;i++)sPhi[i]+=omOf(sA[i])*sdt;
-  for(let i=0;i<NN;i++)nPhi[i]+=omOf(nA[i])*sdt;
-  for(let i=0;i<NH;i++)hPhi[i]+=omOf(hA[i])*sdt;
-  for(let i=0;i<ND;i++)dPhi[i]+=omOf(dA[i])*sdt;
-  for(let i=0;i<NY;i++)yPhi[i]+=omOf(yA[i])*sdt;
+  // phases wrap to [0, 2π): float32 keeps its precision in long sessions (all uses are 2π-periodic)
+  const adv=(PH,A,n)=>{for(let i=0;i<n;i++){const v=PH[i]+omOf(A[i])*sdt;PH[i]=v>=TAU?v-TAU:v;}};
+  adv(sPhi,sA,NS);adv(nPhi,nA,NN);adv(hPhi,hA,NH);adv(dPhi,dA,ND);adv(yPhi,yA,NY);
 
   paraX+=(paraTX-paraX)*Math.min(1,rdt*2.4);
   paraY+=(paraTY-paraY)*Math.min(1,rdt*2.4);
@@ -1351,8 +1367,9 @@ function step(dt,rdt){
     snTimer-=rdt*Math.max(0.3,P.speed);
     if(snTimer<=0&&SN.length<4){
       snTimer=9+Math.random()*16;
-      let idx=(Math.random()*NS)|0, guard=0;
-      while(sA[idx]<0.25&&guard++<20)idx=(Math.random()*NS)|0;
+      const nSN=ENC.on&&GLR.on?Math.min(NS,ENC_GL_MAX):NS;   // only stars that are on screen
+      let idx=(Math.random()*nSN)|0, guard=0;
+      while(sA[idx]<0.25&&guard++<20)idx=(Math.random()*nSN)|0;
       SN.push({i:idx,t:0});
       if(sound.on)sound.boom();
     }
@@ -1413,6 +1430,13 @@ function drawScene(c){
 
   c.setTransform(dpr,0,0,dpr,0,0);
   c.clearRect(0,0,W,H);
+  const fi=FOL.i;
+  if(GLR.on){                                      // GPU draws the galaxy; this canvas only carries overlays
+    glFrame({cx,cy,scl,cosI,sinI,ci,m,wnd,E,eb});
+    if(fi>=0){const q=starXY(fi,m,wnd,E,eb);FOL.x=q[0];FOL.y=q[1];FOL.z=sZ[fi];}
+    drawOverlays(c,cx,cy,scl,cosI,sinI,ci,g,m,wnd,E,eb,fi);
+    return;
+  }
   c.globalCompositeOperation="lighter";
 
   const mixed=nextPal!==null&&setB!==null;
@@ -1456,7 +1480,6 @@ function drawScene(c){
   const starDS=hot.star.map(t=>t.map(b=>b.css*gk));
   const starM=STAR_SZ[STAR_SZ.length-1]*curG()+2;
   const bulA=bulgeR()*1.3, zCut=0.03*(1-sinI)/Math.max(sinI,0.05);
-  const fi=FOL.i;
   let nFront=0;
   for(let i=0;i<NS;i++){
     let x=0,y=0;
@@ -1571,7 +1594,11 @@ function drawScene(c){
     c.drawImage(hot.star[t][z].img,FRONT_X[j]-s/2,FRONT_Y[j]-s/2,s,s);
   }
   c.globalAlpha=1;c.globalCompositeOperation="source-over";
+  drawOverlays(c,cx,cy,scl,cosI,sinI,ci,g,m,wnd,E,eb,fi);
+}
 
+/* Vector overlays on top of either renderer: orbits, corotation, the followed star. */
+function drawOverlays(c,cx,cy,scl,cosI,sinI,ci,g,m,wnd,E,eb,fi){
   /* orbits (not while the encounter owns the stars) */
   const oA=orbitA*(E?eb:1);
   if(oA>0.01){
@@ -1633,7 +1660,8 @@ function pickStar(mx,my){
   const m=P.arms, wnd=windEff(), E=ENC.on, eb=E?smooth(0,1,ENC.back):0;
   const {cx,cy,scl,cosI,sinI}=VIEW;
   let best=-1, bd=26*26;
-  for(let i=0;i<NS;i++){
+  const n=E&&GLR.on?Math.min(NS,ENC_GL_MAX):NS;
+  for(let i=0;i<n;i++){
     const p=starXY(i,m,wnd,E,eb);
     const dx=cx+p[0]*scl-mx, dy=cy+(p[1]*cosI+sZ[i]*sinI)*scl-my, d=dx*dx+dy*dy;
     if(d<bd){bd=d;best=i;}
@@ -1718,6 +1746,7 @@ function encStart(){
     }
   }
   ENC.on=true;ENC.exiting=false;ENC.back=0;ENC.t=0;
+  if(GLR.on&&FOL.i>=ENC_GL_MAX)FOL.i=-1;
   if(P.zoom>0.5){ENC.zoomT=5;P.autoZoom=false;}
   toast(t("tEnc"));
 }
@@ -1743,7 +1772,7 @@ function encStep(sdt){
     ENC.cvx-=cx*qc*h; ENC.cvy-=cy*qc*h;
     ENC.cx+=ENC.cvx*h; ENC.cy+=ENC.cvy*h;
     const qi=GMC/Math.pow(c2+EPS2,1.5), ix=cx*qi, iy=cy*qi;   // pull on the host centre
-    encSet(ENC.s,NSMAX,h,cx,cy,ix,iy);
+    encSet(ENC.s,encStars(),h,cx,cy,ix,iy);
     encSet(ENC.n,NNMAX,h,cx,cy,ix,iy);
     encSet(ENC.h,NH,h,cx,cy,ix,iy);
     encSet(ENC.d,NDMAX,h,cx,cy,ix,iy);
@@ -1817,6 +1846,416 @@ function stepTour(rdt){
   tourCapEl.classList.toggle("on",TOUR.t>1.2&&TOUR.t<S.d-1.4);
   if(TOUR.t>=S.d)tourShot((TOUR.k+1)%SHOTS.length);
 }
+
+/* ─────────────── WebGL2 renderer (opt-in, ?gl=1) ───────────────
+   The same populations and the same orbit maths, moved to the GPU: every
+   star is an instanced quad whose position, arm brightness and colour are
+   worked out in the vertex shader. Light is summed in linear space in a
+   half-float buffer (HDR), blurred into a bloom with a dual-filter chain and
+   squeezed back into the screen with the ACES filmic curve. The CPU still
+   owns the phases, the encounter integrator and picking; overlays (orbits,
+   the followed star) stay on the 2D canvas on top. If WebGL2 is missing or
+   the context is lost, the page falls back to the Canvas 2D renderer. */
+const GLR={on:false,gl:null,hdr:false,scale:1,pops:{},quad:null,spr:null,sprBuf:null,sprData:new Float32Array(0),
+  prog:{},loc:{},scene:null,chain:[],tri:null};
+const GL_MAXDPR=2;                                 // phones: cap the pixel density, the look barely changes
+const GLSL_POP_VS=`#version 300 es
+precision highp float;
+precision highp int;
+layout(location=0) in vec2 aCorner;
+layout(location=1) in vec4 aStat;   // a, e, jitter, z
+layout(location=2) in vec3 aStat2;  // colour class, size class, seed
+layout(location=3) in float aPhi;
+layout(location=4) in vec3 aEnc;    // encounter x, y, frozen weight
+uniform vec2 uDev; uniform vec3 uCam; uniform vec2 uIncl; uniform float uScale;
+uniform int uMode; uniform int uFront;
+uniform float uM,uWnd,uBar,uBarR,uPatA,uWindup,uMatOn,uPatOn,uOMP,uVMAX,uRC;
+uniform float uEnc,uEB,uG,uAlpha,uMix,uHiiScale,uDustA,uNebA,uAB,uBulA,uZCut; uniform int uEncMax;
+uniform vec3 uTempA[8],uTempB[8],uNebA3[4],uNebB3[4],uHiiA,uHiiB,uDustCA,uDustCB;
+out vec2 vUV; out vec3 vCol; out float vCore; out float vMid; out float vK;
+const float STAR_SZ[3]=float[3](5.,9.,15.);
+const float NEB_SZ[3]=float[3](70.,110.,150.);
+const float HII_SZ[6]=float[6](8.,12.,17.,23.,30.,38.);
+const float DUST_SZ[2]=float[2](26.,40.);
+float om(float r){return uVMAX/sqrt(r*r+uRC*uRC);}
+float tiltOf(float a){float t=smoothstep(uBarR*0.35,uBarR*1.25,a);return mix(uBarR*uWnd*0.15,a*uWnd,mix(1.0,t,uBar));}
+float flowOf(float a){return clamp((1.0-uOMP*uPatOn/om(a))*4.0,-1.0,1.0);}
+void cull(){gl_Position=vec4(2.0,2.0,2.0,1.0);}
+void main(){
+  float a=aStat.x,e=aStat.y,z=aStat.w,phi=aPhi,seed=aStat2.z;
+  int cls=int(aStat2.x+0.5),sz=int(aStat2.y+0.5);
+  float ph=phi-(tiltOf(a)+uPatA+aStat.z+uWindup*om(a)*uMatOn);
+  float r=a*(1.0-e*cos(uM*ph));
+  vec2 p=vec2(r*cos(phi),r*sin(phi));
+  float k=1.0,size=5.0,core=0.8,mid=0.5; vec3 col=vec3(255.0);
+  if(uMode==0){                                     // stars; the bulge above the disc is drawn after the dust
+    bool front=z>uZCut&&a<uBulA;
+    if((uFront==1&&!front)||(uFront==-1&&front)){cull();return;}
+    col=mix(uTempA[cls],uTempB[cls],uMix);size=STAR_SZ[sz];core=sz==2?0.95:0.8;k=uAlpha;
+  }else if(uMode==1){                               // nebulae
+    col=mix(uNebA3[cls],uNebB3[cls],uMix);size=NEB_SZ[sz];core=0.05*uAB;mid=0.038*uAB;k=uNebA;
+  }else if(uMode==2){                               // H II just downstream of the crest
+    float comp=cos(uM*(ph-0.45/uM*flowOf(a)))*0.5+0.5;
+    k=smoothstep(0.62,1.0,comp)*uHiiScale*(0.6+seed*0.7);
+  }else if(uMode==3){                               // young blue stars a little further on
+    float comp=cos(uM*(ph-0.8/uM*flowOf(a)))*0.5+0.5;
+    k=smoothstep(0.6,1.0,comp)*(0.55+seed*0.45);
+  }else{                                            // dust on the upstream edge
+    float fl=flowOf(a),comp=cos(uM*(ph+0.6/uM*fl))*0.5+0.5;
+    k=comp<0.72?0.0:uDustA*smoothstep(0.72,1.0,comp)*(0.35+0.65*abs(fl));
+  }
+  if(uEnc>0.5){
+    if(uMode==0&&gl_InstanceID>=uEncMax){           // not integrated: sits out the encounter, fades back in
+      if(uEB<=0.001){cull();return;}
+      k*=uEB;
+    }else{p=mix(aEnc.xy,p,uEB);if(uMode>=2)k=mix(aEnc.z,k,uEB);}
+  }
+  if(uMode==2){
+    if(k<0.12){cull();return;}
+    size=HII_SZ[min(5,int(k*6.0))];col=mix(uHiiA,uHiiB,uMix);core=0.5;mid=0.3;k=1.0;
+  }else if(uMode==3){
+    if(k<0.05){cull();return;}
+    col=mix(uTempA[7],uTempB[7],uMix);size=STAR_SZ[sz];core=sz==2?0.95:0.8;k*=uAlpha;
+  }else if(uMode==4){
+    if(k<=0.001){cull();return;}
+    col=mix(uDustCA,uDustCB,uMix);size=DUST_SZ[sz];
+  }
+  vec2 c=uCam.xy+vec2(p.x,p.y*uIncl.x+z*uIncl.y)*uCam.z;
+  float px=max(2.0,size*uG*uScale);
+  vec2 d=c*uScale+aCorner*px*0.5;
+  gl_Position=vec4(d.x/uDev.x*2.0-1.0,1.0-d.y/uDev.y*2.0,0.0,1.0);
+  vUV=aCorner;vCol=col/255.0;vCore=core;vMid=mid;vK=k;
+}`;
+const GLSL_SPR_VS=`#version 300 es
+precision highp float;
+precision highp int;
+layout(location=0) in vec2 aCorner;
+layout(location=1) in vec4 aPS;     // x, y, w, h (CSS px)
+layout(location=2) in vec3 aCol;    // sRGB 0–255
+layout(location=3) in vec3 aCMA;    // core, mid, alpha
+uniform vec2 uDev; uniform float uScale;
+out vec2 vUV; out vec3 vCol; out float vCore; out float vMid; out float vK;
+void main(){
+  vec2 d=aPS.xy*uScale+aCorner*aPS.zw*uScale*0.5;
+  gl_Position=vec4(d.x/uDev.x*2.0-1.0,1.0-d.y/uDev.y*2.0,0.0,1.0);
+  vUV=aCorner;vCol=aCol/255.0;vCore=aCMA.x;vMid=aCMA.y;vK=aCMA.z;
+}`;
+/* the canvas radial gradient, stop for stop: white·core → colour·mid at 25% → 0.
+   Light adds in the same (display) space as the 2D canvas's "lighter" mode,
+   so both renderers agree wherever the canvas would not clip; the float
+   buffer simply keeps counting past 1.0 where the canvas saturates. (Adding
+   in linear light was tried: faint halos vanished over brighter regions.) */
+const GLSL_SPRITE_FS=`#version 300 es
+precision highp float;
+precision highp int;
+in vec2 vUV; in vec3 vCol; in float vCore; in float vMid; in float vK;
+uniform int uMode; out vec4 o;
+void main(){
+  float t=length(vUV); if(t>1.0)discard;
+  if(uMode==4){                                     // dust: a multiply factor
+    float a=(t<0.6?mix(0.56,0.26,t/0.6):mix(0.26,0.0,(t-0.6)/0.4))*vK;
+    o=vec4(vec3(1.0)-a*(vec3(1.0)-vCol),a);return;   // alpha: how much background it hides
+  }
+  vec3 c=t<0.25?mix(vec3(1.0),vCol,t/0.25)*mix(vCore,vMid,t/0.25):vCol*vMid*(1.0-(t-0.25)/0.75);
+  o=vec4(c*vK,0.0);
+}`;
+const GLSL_TRI_VS=`#version 300 es
+out vec2 vUv;
+void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);vUv=p;gl_Position=vec4(p*2.0-1.0,0.0,1.0);}`;
+const GLSL_DOWN_FS=`#version 300 es
+precision highp float;
+precision highp int;
+in vec2 vUv; uniform sampler2D uTex; uniform vec2 uTexel; out vec4 o;
+void main(){vec2 h=uTexel*0.5;
+  vec3 s=texture(uTex,vUv).rgb*4.0+texture(uTex,vUv-h).rgb+texture(uTex,vUv+h).rgb
+        +texture(uTex,vUv+vec2(h.x,-h.y)).rgb+texture(uTex,vUv-vec2(h.x,-h.y)).rgb;
+  o=vec4(s/8.0,1.0);}`;
+const GLSL_UP_FS=`#version 300 es
+precision highp float;
+precision highp int;
+in vec2 vUv; uniform sampler2D uTex; uniform vec2 uTexel; out vec4 o;
+void main(){vec2 h=uTexel*0.5;
+  vec3 s=texture(uTex,vUv+vec2(-h.x*2.0,0.0)).rgb+texture(uTex,vUv+vec2(-h.x,h.y)).rgb*2.0
+        +texture(uTex,vUv+vec2(0.0,h.y*2.0)).rgb+texture(uTex,vUv+vec2(h.x,h.y)).rgb*2.0
+        +texture(uTex,vUv+vec2(h.x*2.0,0.0)).rgb+texture(uTex,vUv+vec2(h.x,-h.y)).rgb*2.0
+        +texture(uTex,vUv+vec2(0.0,-h.y*2.0)).rgb+texture(uTex,vUv+vec2(-h.x,-h.y)).rgb*2.0;
+  o=vec4(s/12.0,1.0);}`;
+/* Soft-knee tone curve: untouched below the knee, so everything the canvas
+   would draw without clipping looks the same, then a Reinhard shoulder that
+   never clips — dense cores and 200,000 stars keep their structure
+   instead of burning to white. (ACES was tried first; its toe swallowed the
+   faint glow.) The light adds onto the background canvas; alpha carries the
+   dust, which hides it. */
+const GLSL_COMP_FS=`#version 300 es
+precision highp float;
+precision highp int;
+in vec2 vUv; uniform sampler2D uScene; uniform sampler2D uBloom; uniform float uGlow,uExp; out vec4 o;
+const float K=0.75;
+void main(){
+  vec4 sc=texture(uScene,vUv);
+  vec3 c=(sc.rgb+texture(uBloom,vUv).rgb*uGlow)*uExp;
+  // the curve runs on luminance and the colour is scaled with it, so hues keep their saturation
+  float L=dot(c,vec3(0.2126,0.7152,0.0722));
+  float x=max(L-K,0.0)/(1.0-K);
+  float Lm=L<K?L:K+(1.0-K)*x/(1.0+x);          // Reinhard shoulder: slow, keeps gradation in the core
+  c*=Lm/max(L,1e-5);
+  c=min(c,vec3(1.0));
+  o=vec4(c,clamp(sc.a,0.0,1.0));
+}`;
+function glProgram(gl,vs,fs){
+  const sh=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;};
+  const p=gl.createProgram();
+  gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
+  const L={};
+  for(let i=0,n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);i<n;i++){
+    const u=gl.getActiveUniform(p,i),nm=u.name.replace(/\[0\]$/,"");L[nm]=gl.getUniformLocation(p,u.name);
+  }
+  return {p,L};
+}
+function glInit(){
+  const cv=$("glc");
+  let gl=null;
+  try{gl=cv.getContext("webgl2",{alpha:true,premultipliedAlpha:true,antialias:false,depth:false,stencil:false});}catch(e){}
+  if(!gl)return false;
+  try{
+    GLR.gl=gl;
+    GLR.hdr=!!gl.getExtension("EXT_color_buffer_float");
+    GLR.prog.pop=glProgram(gl,GLSL_POP_VS,GLSL_SPRITE_FS);
+    GLR.prog.spr=glProgram(gl,GLSL_SPR_VS,GLSL_SPRITE_FS);
+    GLR.prog.down=glProgram(gl,GLSL_TRI_VS,GLSL_DOWN_FS);
+    GLR.prog.up=glProgram(gl,GLSL_TRI_VS,GLSL_UP_FS);
+    GLR.prog.comp=glProgram(gl,GLSL_TRI_VS,GLSL_COMP_FS);
+    GLR.quad=gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,GLR.quad);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    GLR.tri=gl.createVertexArray();
+    // sprite batch (core, halo, supernovae, companion)
+    GLR.spr=gl.createVertexArray();GLR.sprBuf=gl.createBuffer();
+    gl.bindVertexArray(GLR.spr);
+    gl.bindBuffer(gl.ARRAY_BUFFER,GLR.quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,GLR.sprBuf);
+    [[1,4,0],[2,3,16],[3,3,28]].forEach(([l,n,o])=>{gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,n,gl.FLOAT,false,40,o);gl.vertexAttribDivisor(l,1);});
+    gl.bindVertexArray(null);
+  }catch(e){console.warn("WebGL2 renderer unavailable:",e);GLR.gl=null;return false;}
+  cv.addEventListener("webglcontextlost",ev=>{ev.preventDefault();glFallback();});
+  cv.style.display="block";
+  GLR.on=true;
+  return true;
+}
+// context lost mid-session: hide the GL layer and keep drawing with Canvas 2D
+function glFallback(){
+  GLR.on=false;$("glc").style.display="none";
+  toast(t("tGLfail"));
+}
+/* one VAO per population: static (a, e, jitter, z | class, size, seed), phase, encounter */
+function glPop(name,n){
+  const gl=GLR.gl, P_={n,vao:gl.createVertexArray(),stat:gl.createBuffer(),phi:gl.createBuffer(),enc:gl.createBuffer(),
+    statData:new Float32Array(n*7),encData:new Float32Array(n*3)};
+  gl.bindVertexArray(P_.vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER,GLR.quad);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,P_.stat);gl.bufferData(gl.ARRAY_BUFFER,n*28,gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,4,gl.FLOAT,false,28,0);gl.vertexAttribDivisor(1,1);
+  gl.enableVertexAttribArray(2);gl.vertexAttribPointer(2,3,gl.FLOAT,false,28,16);gl.vertexAttribDivisor(2,1);
+  gl.bindBuffer(gl.ARRAY_BUFFER,P_.phi);gl.bufferData(gl.ARRAY_BUFFER,n*4,gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(3);gl.vertexAttribPointer(3,1,gl.FLOAT,false,4,0);gl.vertexAttribDivisor(3,1);
+  gl.bindBuffer(gl.ARRAY_BUFFER,P_.enc);gl.bufferData(gl.ARRAY_BUFFER,n*12,gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(4);gl.vertexAttribPointer(4,3,gl.FLOAT,false,12,0);gl.vertexAttribDivisor(4,1);
+  gl.bindVertexArray(null);
+  GLR.pops[name]=P_;
+}
+function glFill(P_,n,A,E,J,Z,C,S,SEED_){
+  const d=P_.statData;
+  for(let i=0;i<n;i++){const o=i*7;
+    d[o]=A[i];d[o+1]=E[i];d[o+2]=J?J[i]:0;d[o+3]=Z[i];d[o+4]=C?C[i]:0;d[o+5]=S?S[i]:0;d[o+6]=SEED_?SEED_[i]:0;}
+  const gl=GLR.gl;gl.bindBuffer(gl.ARRAY_BUFFER,P_.stat);gl.bufferSubData(gl.ARRAY_BUFFER,0,d);
+}
+function glPopulate(){
+  if(!GLR.on)return;
+  glPop("s",NSMAX);glPop("n",NNMAX);glPop("h",NH);glPop("d",NDMAX);glPop("y",NYMAX);
+  glUploadStatic();
+}
+// e and z follow the Hubble / bar sliders, so this runs again from refreshEcc()
+function glUploadStatic(){
+  if(!GLR.on||!GLR.pops.s)return;
+  const p=GLR.pops;
+  glFill(p.s,NSMAX,sA,sE,sJit,sZ,sT,sSz,null);
+  glFill(p.n,NNMAX,nA,nE,null,nZ,nCol,nSz,null);
+  glFill(p.h,NH,hA,hE,null,hZ,null,null,hSeed);
+  glFill(p.d,NDMAX,dA,dE,dJit,dZ,null,dSz,null);
+  glFill(p.y,NYMAX,yA,yE,null,yZ,null,ySz,ySeed);
+}
+function glUploadEnc(P_,S,n){
+  const d=P_.encData;
+  for(let i=0;i<n;i++){d[i*3]=S.x[i];d[i*3+1]=S.y[i];d[i*3+2]=S.w?S.w[i]:0;}
+  const gl=GLR.gl;gl.bindBuffer(gl.ARRAY_BUFFER,P_.enc);gl.bufferSubData(gl.ARRAY_BUFFER,0,d,0,n*3);
+}
+function glTarget(w,h){
+  const gl=GLR.gl, t=gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D,t);
+  if(GLR.hdr)gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA16F,w,h,0,gl.RGBA,gl.HALF_FLOAT,null);
+  else gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA8,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const f=gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);
+  if(GLR.hdr&&gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){
+    gl.deleteFramebuffer(f);gl.deleteTexture(t);GLR.hdr=false;return glTarget(w,h);   // no float targets: 8-bit
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  return {t,f,w,h};
+}
+function glResize(){
+  if(!GLR.on)return;
+  const gl=GLR.gl, cv=$("glc");
+  GLR.scale=Math.min(dpr,GL_MAXDPR);
+  cv.width=Math.max(1,Math.round(W*GLR.scale));cv.height=Math.max(1,Math.round(H*GLR.scale));
+  const free=T=>{if(T){gl.deleteFramebuffer(T.f);gl.deleteTexture(T.t);}};
+  free(GLR.scene);GLR.chain.forEach(free);
+  GLR.scene=glTarget(cv.width,cv.height);
+  GLR.chain=[];
+  let w=cv.width,h=cv.height;
+  for(let i=0;i<6&&w>8&&h>8;i++){w=Math.max(1,w>>1);h=Math.max(1,h>>1);GLR.chain.push(glTarget(w,h));}
+}
+const rgbOf=c=>typeof c==="string"?c.split(",").map(Number):c;
+const tint=(c,t_)=>[clamp(c[0]*t_[0],0,255),clamp(c[1]*t_[1],0,255),clamp(c[2]*t_[2],0,255)];
+function glPalUniforms(L,gl){
+  const A=curPal, B=nextPal||curPal;
+  const flat=arr=>new Float32Array(arr.flat());
+  gl.uniform3fv(L.uTempA,flat(TEMPS.map(c=>tint(c,A.starTint))));
+  gl.uniform3fv(L.uTempB,flat(TEMPS.map(c=>tint(c,B.starTint))));
+  gl.uniform3fv(L.uNebA3,flat(A.neb));gl.uniform3fv(L.uNebB3,flat(B.neb));
+  gl.uniform3fv(L.uHiiA,A.hii);gl.uniform3fv(L.uHiiB,B.hii);
+  gl.uniform3fv(L.uDustCA,A.dust);gl.uniform3fv(L.uDustCB,B.dust);
+  gl.uniform1f(L.uMix,nextPal?palMix:0);
+}
+// a few big glows per frame — core, halo, supernovae, the companion — built on the CPU
+let sprN=0;
+function sprPush(x,y,w,h,col,core,mid,alpha){
+  if(alpha<=0.002)return;
+  if((sprN+1)*10>GLR.sprData.length){const d=new Float32Array(Math.max(640,GLR.sprData.length*2));d.set(GLR.sprData);GLR.sprData=d;}
+  const d=GLR.sprData,o=sprN*10;
+  d[o]=x;d[o+1]=y;d[o+2]=w;d[o+3]=h;d[o+4]=col[0];d[o+5]=col[1];d[o+6]=col[2];d[o+7]=core;d[o+8]=mid;d[o+9]=alpha;sprN++;
+}
+function glSprDraw(){
+  if(!sprN)return;
+  const gl=GLR.gl, S=GLR.prog.spr;
+  gl.useProgram(S.p);
+  gl.uniform2f(S.L.uDev,$("glc").width,$("glc").height);gl.uniform1f(S.L.uScale,GLR.scale);gl.uniform1i(S.L.uMode,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,GLR.sprBuf);gl.bufferData(gl.ARRAY_BUFFER,GLR.sprData.subarray(0,sprN*10),gl.STREAM_DRAW);
+  gl.bindVertexArray(GLR.spr);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,sprN);
+  sprN=0;
+}
+// steeper than Canvas 2D: past 24,000 stars the extra count should read as density, not glare
+const glStarAlpha=()=>clamp(Math.pow(12000/Math.max(1,NS),0.6),0.08,1);
+function glFrame(V){
+  const gl=GLR.gl, cv=$("glc"), p=GLR.pops, Pp=GLR.prog.pop, L=Pp.L;
+  const {cx,cy,scl,cosI,sinI,ci,m,wnd,E,eb}=V;
+  const G=curG();
+  // phases (and, during an encounter, positions) change every frame
+  const up=(P_,arr,n)=>{gl.bindBuffer(gl.ARRAY_BUFFER,P_.phi);gl.bufferSubData(gl.ARRAY_BUFFER,0,arr,0,n);};
+  up(p.s,sPhi,NS);up(p.n,nPhi,NN);up(p.h,hPhi,NH);up(p.d,dPhi,ND);up(p.y,yPhi,NY);
+  if(E&&!ENC.exiting){
+    glUploadEnc(p.s,ENC.s,encStars());glUploadEnc(p.n,ENC.n,NN);
+    glUploadEnc(p.h,ENC.h,NH);glUploadEnc(p.d,ENC.d,ND);glUploadEnc(p.y,ENC.y,NY);
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER,GLR.scene.f);
+  gl.viewport(0,0,GLR.scene.w,GLR.scene.h);
+  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
+
+  const A=curPal, B=nextPal||curPal, mx=nextPal?palMix:0;
+  const mixc=(a,b)=>[lerp(a[0],b[0],mx),lerp(a[1],b[1],mx),lerp(a[2],b[2],mx)];
+  // core and halo — the bulge flattens less than the disc
+  const cBul=lerp(ci,1,0.65), cHal=lerp(ci,1,0.3);
+  sprPush(cx,cy,300*G,300*G*cHal,mixc(A.halo,B.halo),0.11,0.06,1);
+  sprPush(cx,cy,80*G,80*G*cBul,mixc(A.core,B.core),0.78,0.3,1);
+  glSprDraw();
+
+  gl.useProgram(Pp.p);
+  gl.uniform2f(L.uDev,cv.width,cv.height);gl.uniform3f(L.uCam,cx,cy,scl);gl.uniform2f(L.uIncl,cosI,sinI);
+  gl.uniform1f(L.uScale,GLR.scale);
+  gl.uniform1f(L.uM,m);gl.uniform1f(L.uWnd,wnd);gl.uniform1f(L.uBar,P.bar);gl.uniform1f(L.uBarR,barR());
+  gl.uniform1f(L.uPatA,patA);gl.uniform1f(L.uWindup,windup);gl.uniform1f(L.uMatOn,matOn);gl.uniform1f(L.uPatOn,patOn);
+  gl.uniform1f(L.uOMP,OMP);gl.uniform1f(L.uVMAX,VMAX);gl.uniform1f(L.uRC,RC);
+  gl.uniform1f(L.uEnc,E?1:0);gl.uniform1i(L.uEncMax,ENC_GL_MAX);gl.uniform1f(L.uEB,eb);gl.uniform1f(L.uG,G);gl.uniform1f(L.uAlpha,glStarAlpha());
+  gl.uniform1f(L.uHiiScale,lerp(1.1,0.55,P.hub));gl.uniform1f(L.uDustA,lerp(1,0.35,P.hub));
+  gl.uniform1f(L.uNebA,lerp(1,0.75,P.hub));gl.uniform1f(L.uAB,AB);
+  gl.uniform1f(L.uBulA,bulgeR()*1.3);gl.uniform1f(L.uZCut,0.03*(1-sinI)/Math.max(sinI,0.05));
+  glPalUniforms(L,gl);
+  const draw=(P_,mode,n,front)=>{
+    if(n<=0)return;
+    gl.uniform1i(L.uMode,mode);gl.uniform1i(L.uFront,front||0);
+    gl.bindVertexArray(P_.vao);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,4,n);
+  };
+  draw(p.n,1,NN);
+  draw(p.s,0,NS,-1);
+  draw(p.h,2,NH);
+  // supernovae
+  for(const s of SN){
+    const q=starXY(s.i,m,wnd,E,eb), px=cx+q[0]*scl, py=cy+(q[1]*cosI+sZ[s.i]*sinI)*scl;
+    const tt=s.t/3.4, fade=Math.pow(1-tt,2.2), flare=Math.exp(-s.t*3.1), F=[255,246,225];
+    const es=160*G*(0.5+tt*4.2), fs=160*G*(0.35+flare*1.5);
+    sprPush(px,py,es,es*ci,F,0.95,0.5,fade*0.32);
+    sprPush(px,py,fs,fs*ci,F,0.95,0.5,clamp(0.35+flare,0,1));
+  }
+  if(E){                                           // the companion and its swarm
+    const fade=1-smooth(0,1,ENC.back), X=cx+ENC.cx*scl, Y=cy+ENC.cy*cosI*scl;
+    sprPush(X,Y,300*G*0.4,300*G*0.4*ci,mixc(A.halo,B.halo),0.11,0.06,fade);
+    sprPush(X,Y,80*G*0.6,80*G*0.6,mixc(A.core,B.core),0.78,0.3,fade);
+    const Lc=ENC.cl, sa=glStarAlpha()*fade, ST=[5,9,15];
+    for(let j=0;j<Lc.r.length;j++){
+      const th=Lc.th[j]+Lc.om[j]*ENC.t, r=Lc.r[j], T=Lc.T[j], z=Lc.S[j], sz=Math.max(2/GLR.scale,ST[z]*G);
+      sprPush(X+r*Math.cos(th)*scl,Y+r*Math.sin(th)*cosI*scl,sz,sz,tint(TEMPS[T],A.starTint),z===2?0.95:0.8,0.5,sa);
+    }
+  }
+  glSprDraw();
+  gl.useProgram(Pp.p);
+  draw(p.y,3,NY);
+  // dust multiplies what is behind it
+  gl.blendFuncSeparate(gl.ZERO,gl.SRC_COLOR,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  draw(p.d,4,ND);
+  gl.blendFunc(gl.ONE,gl.ONE);
+  draw(p.s,0,NS,1);
+
+  // bloom: dual-filter down the chain, then add back up
+  const C=GLR.chain, Dn=GLR.prog.down, Up=GLR.prog.up;
+  gl.bindVertexArray(GLR.tri);
+  gl.disable(gl.BLEND);
+  gl.useProgram(Dn.p);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(Dn.L.uTex,0);
+  let src=GLR.scene;
+  for(const T of C){
+    gl.bindFramebuffer(gl.FRAMEBUFFER,T.f);gl.viewport(0,0,T.w,T.h);
+    gl.bindTexture(gl.TEXTURE_2D,src.t);gl.uniform2f(Dn.L.uTexel,1/src.w,1/src.h);
+    gl.drawArrays(gl.TRIANGLES,0,3);src=T;
+  }
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
+  gl.useProgram(Up.p);gl.uniform1i(Up.L.uTex,0);
+  for(let i=C.length-1;i>0;i--){
+    const T=C[i-1];
+    gl.bindFramebuffer(gl.FRAMEBUFFER,T.f);gl.viewport(0,0,T.w,T.h);
+    gl.bindTexture(gl.TEXTURE_2D,C[i].t);gl.uniform2f(Up.L.uTexel,1/C[i].w,1/C[i].h);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+  }
+  gl.disable(gl.BLEND);
+  // tone map onto the canvas
+  const Cp=GLR.prog.comp;
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,cv.width,cv.height);
+  gl.useProgram(Cp.p);
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,GLR.scene.t);gl.uniform1i(Cp.L.uScene,0);
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,C.length?C[0].t:GLR.scene.t);gl.uniform1i(Cp.L.uBloom,1);
+  gl.uniform1f(Cp.L.uGlow,P.glow*GL_GLOW);gl.uniform1f(Cp.L.uExp,GL_EXP);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindVertexArray(null);
+}
+const GL_GLOW=0.25, GL_EXP=1.0;
+/* The encounter integrates every star on the CPU; on the GPU path that is
+   capped so a phone keeps its frame rate (measured: 60,000 stars cost ~43 ms
+   a frame at a 6× CPU slowdown, 20,000 about 19 ms). */
+const ENC_GL_MAX=30000;
+const encStars=()=>GLR.on?Math.min(NS,ENC_GL_MAX):NSMAX;
 
 /* ─────────────── main loop + performance guard ─────────────── */
 let fpsT0=0,fpsN=0,fpsLow=0;
@@ -2065,6 +2504,7 @@ function syncUI(){
   setTg("tSN",P.supernova);
   setTg("tPar",P.parallax);
   setTg("tBand",P.band);
+  setTg("tGL",P.gl);
 
   document.querySelectorAll("#segArms button").forEach(b=>{
     b.classList.toggle("on",parseInt(b.dataset.m,10)===P.arms);
@@ -2163,6 +2603,7 @@ function takePhoto(){
     octx.drawImage(bgBack,0,0);
     octx.globalAlpha=1;
   }
+  if(GLR.on){drawScene(ctx);octx.drawImage($("glc"),0,0,out.width,out.height);}
   octx.drawImage(fx,0,0);
   
   const link=document.createElement("a");
@@ -2173,7 +2614,7 @@ function takePhoto(){
   toast(t("tSaved").replace("{s}",link.download));
 }
 
-function copyLink(){
+function buildLink(){
   const url=new URL(location.href);
   url.searchParams.set("hub",P.hub.toFixed(2));
   url.searchParams.set("bar",P.bar.toFixed(2));
@@ -2193,6 +2634,11 @@ function copyLink(){
   url.searchParams.set("pal",curPal.id);
   url.searchParams.set("stars",NS);
   url.searchParams.set("lang",LANG);
+  url.searchParams.set("gl",P.gl?"1":"0");
+  return url;
+}
+function copyLink(){
+  const url=buildLink();
   navigator.clipboard.writeText(url.toString()).then(()=>{
     toast(t("tLink"));
   }).catch(()=>{
@@ -2256,6 +2702,7 @@ function bindEvents(){
   bindTg("tSN","supernova");
   bindTg("tPar","parallax");
   bindTg("tBand","band",()=>drawBG(bgFrontCtx,curPal));
+  bindTg("tGL","gl",v=>{const u=buildLink();u.searchParams.set("gl",v?"1":"0");u.searchParams.delete("stars");location.href=u.toString();});
 
   // Látvány csúszkák
   if($("sSat"))$("sSat").oninput=e=>{SAT=1+parseFloat(e.target.value)/100;scheduleLook();syncUI();};
@@ -2345,6 +2792,7 @@ function bindEvents(){
 /* ─────────────── Inicializálás & Indítás ─────────────── */
 function init(){
   readDPR();
+  if(P.gl&&!glInit()){P.gl=false;setTimeout(()=>toast(t("tGLfail")),800);}
   populate();
   buildSets();
   setLang(LANG);
