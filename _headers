@@ -1,10 +1,8 @@
-# Cloudflare Pages HTTP-fejlécek
-# Az index.html-t mindig újra kell validálni, különben egy frissítés után
-# a böngésző a régi verziót mutatja a gyorsítótárból.
-
 /*
   X-Content-Type-Options: nosniff
-  Referrer-Policy: no-referrer-when-downgrade
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(self), gyroscope=(self)
+  Content-Security-Policy: default-src 'none'; script-src 'sha256-skX+Qrz4cB9RoLJFbr4NL/vYVQD7qx9tOxw7loqNv18='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'
 
 /
   Cache-Control: public, max-age=0, must-revalidate

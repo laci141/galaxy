@@ -77,7 +77,7 @@
   #wrap{position:fixed;inset:0;opacity:0;transition:opacity 2s ease}
   #wrap.on{opacity:1}
   canvas.layer{position:absolute;inset:0;width:100%;height:100%;display:block;
-    will-change:transform;transition:opacity 4.5s ease}
+    transition:opacity 4.5s ease}
   #bgB{opacity:0}
   #glc{display:none}
 
@@ -186,26 +186,45 @@
   #credit b{color:rgba(232,238,247,.72);font-weight:600}
   body.hideui #panel,body.hideui #hint,body.hideui #credit{opacity:0;pointer-events:none}
 
-  #drawerBtn{display:none}
   @media (max-width:700px){
+    /* one visible entry point: the top-right glass button */
+    #drawerBtn{display:none}
+    #restoreBtn{display:flex;position:fixed;
+      top:calc(14px + env(safe-area-inset-top,0px));
+      right:calc(14px + env(safe-area-inset-right,0px));
+      width:44px;height:44px;z-index:30;font-size:20px;line-height:1;
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     #panel{left:0;right:0;top:auto;bottom:0;width:auto;border-radius:16px 16px 0 0;
       backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
       box-shadow:0 12px 32px -14px rgba(0,0,0,.7);padding:0 14px 12px;
-      max-height:82vh;transform:translateY(calc(100% - 44px));transition:transform .35s ease,opacity .3s ease}
+      max-height:82dvh;transform:translateY(100%);transition:transform .35s ease,opacity .3s ease;
+      padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
     #panel.open{transform:translateY(0)}
     .brand,#panel .sub{display:none}
     .head{padding-bottom:4px}
-    body.min #panel{transform:translateY(100%)}
-    #restoreBtn{width:40px;height:40px;right:14px;top:14px}
-    #drawerBtn{display:flex;width:100%;height:44px;align-items:center;justify-content:center;gap:8px;
-      background:none;border:0;color:#e8eef7;font:600 12px inherit;cursor:pointer;letter-spacing:.04em;flex:none}
-    #drawerBtn .chev{transition:transform .35s}
-    #panel.open #drawerBtn .chev{transform:rotate(180deg)}
-    .page{max-height:58vh}
+    .page{max-height:calc(82dvh - 150px)}
+    body.sheet #scrollHint,body.sheet #credit{opacity:0;pointer-events:none}
+    body.hideui #restoreBtn{opacity:1;pointer-events:auto}
+    #sndBtn{position:static;width:44px;height:44px}
+    .hbtns button{width:44px;height:44px}
     #caption{bottom:82px;font-size:12.5px}
     #hint{display:none}
     #credit{bottom:54px;font-size:10.5px}
-    #sndBtn{width:38px;height:38px;left:14px;top:14px}
+    /* touch targets and text size on phones */
+    .seg button,#tabs button,.btns button,.pal button{min-height:44px}
+    #langs button{min-height:44px;font-size:12px}
+    button.tg{min-height:44px;font-size:12px}
+    input[type=range]{height:44px}
+    .trio input[type=range]{height:44px}
+    .ctl label,.auto .per label,#panel .sub{font-size:12px}
+    .grp{font-size:12px}
+    .pal button{font-size:12px}
+    #credit{font-size:12px}
+    #credit a{display:inline-block;padding:15px 0}
+    #scrollHint{min-height:44px;font-size:12px;padding:0 16px}
+    #about .build{font-size:12px}
+    .trio input[type=range]::-webkit-slider-thumb{width:24px;height:24px;margin-top:-9.3px}
+    .trio input[type=range]::-moz-range-thumb{width:24px;height:24px}
   }
   @media (prefers-reduced-motion: reduce){canvas.layer{transition:none}}
 
@@ -320,7 +339,6 @@
 <button id="restoreBtn" data-i18n-title="restoreTitle" aria-label="Show controls">☰</button>
 
 <div id="panel">
-  <button id="drawerBtn"><span data-i18n="controls"></span> <span class="chev">▴</span></button>
   <div class="head">
     <div class="txt">
       <div class="brand">Density Wave</div>
@@ -607,7 +625,7 @@ const I18N={
   tGuard:"Performance guard: star count {n}",tSaved:"Image saved — {s}",
   tLink:"Link copied — with every setting included",tCopy:"Copy the link:",
   tProjOn:"Projector mode — exit with V, Esc or a click",tProjOff:"Projector mode off",
-  tApplied:"{name} applied",tHidden:"UI hidden — press H to bring it back",
+  tApplied:"{name} applied",tHidden:"UI hidden — press H to bring it back",tHiddenTouch:"UI hidden — tap the top-right button to bring it back",showSettings:"Show settings",hideSettings:"Hide settings",
   tNoAudio:"This browser does not support Web Audio",reducedMotion:"(reduced motion)",
   tReset:"Simulation reset to default",
   sciTitle:"Scientific basis",
@@ -633,7 +651,7 @@ const I18N={
   ab_p4:"This is a visual approximation, not an N-body or hydrodynamic simulation: the orbits are prescribed rather than computed from gravity. The supernova flashes and the Milky Way-inspired background band are decorative effects, not physical models, and the morphology slider approximates the look of the Sa–Sc sequence rather than classifying anything. The origin, lifetime and exact dynamics of spiral arms remain an active research question.",
   ab_h2d:"Controls",
   ab_c1:"— morphology, bar strength, winding, arm count, zoom, time speed and viewing angle, plus one-click presets.",
-  ab_c2:"— four colour palettes with automatic crossfade, colour and nebula intensity, star count from 3,000 to 30,000, supernova flashes and parallax.",
+  ab_c2:"— four colour palettes with automatic crossfade, colour and nebula intensity, star count adjusted to your device, supernova flashes and parallax.",
   ab_c3:"— a procedural cosmic soundscape generated live by the Web Audio API, with a slider per layer.",
   ab_c4:"— H hides the interface, F is fullscreen, P saves a PNG, V starts projector mode, M toggles sound.",
   ab_h2e:"Scientific basis",
@@ -672,7 +690,7 @@ const I18N={
   tGuard:"Teljesítményőr: csillagszám {n}",tSaved:"Kép mentve — {s}",
   tLink:"Link a vágólapon — minden beállítással",tCopy:"Másold ki a linket:",
   tProjOn:"Vetítő mód — kilépés: V, Esc vagy kattintás",tProjOff:"Vetítő mód kikapcsolva",
-  tApplied:"{name} beállítva",tHidden:"Felület elrejtve — H a visszahozáshoz",
+  tApplied:"{name} beállítva",tHidden:"Felület elrejtve — H a visszahozáshoz",tHiddenTouch:"Felület elrejtve — koppints a jobb felső gombra a visszahozáshoz",showSettings:"Beállítások megnyitása",hideSettings:"Beállítások bezárása",
   tNoAudio:"A böngésző nem támogatja a Web Audiót",reducedMotion:"(csökkentett mozgás)",
   tReset:"Szimuláció visszaállítva",
   sciTitle:"Tudományos alapok",
@@ -698,7 +716,7 @@ const I18N={
   ab_p4:"Ez vizuális közelítés, nem N-test vagy hidrodinamikai szimuláció: a pályák előre megadottak, nem a gravitációból számítottak. A szupernóva-villanások és a Tejút ihlette háttérsáv díszítő effektek, nem fizikai modellek, a morfológia-csúszka pedig az Sa–Sc sorozat látványát közelíti, nem osztályoz semmit. A spirálkarok eredete, élettartama és pontos dinamikája továbbra is aktív kutatási kérdés.",
   ab_h2d:"Vezérlők",
   ab_c1:"— morfológia, küllőerősség, feltekeredés, karok száma, zoom, idősebesség és rálátási szög, plusz egykattintásos készletek.",
-  ab_c2:"— négy színvilág automatikus áttűnéssel, szín- és ködsűrűség, csillagszám 3 000-től 30 000-ig, szupernóva-villanások és parallax.",
+  ab_c2:"— négy színvilág automatikus áttűnéssel, szín- és ködsűrűség, a készülékedhez igazított csillagszám, szupernóva-villanások és parallax.",
   ab_c3:"— procedurális kozmikus hangtér, amelyet a Web Audio API generál élőben, rétegenként külön csúszkával.",
   ab_c4:"— H elrejti a felületet, F teljes képernyő, P PNG-t ment, V indítja a vetítő módot, M kapcsolja a hangot.",
   ab_h2e:"Tudományos alapok",
@@ -737,7 +755,7 @@ const I18N={
   tGuard:"Protecție performanță: {n} stele",tSaved:"Imagine salvată — {s}",
   tLink:"Link copiat — cu toate setările",tCopy:"Copiază linkul:",
   tProjOn:"Mod proiector — ieșire cu V, Esc sau clic",tProjOff:"Mod proiector oprit",
-  tApplied:"{name} aplicat",tHidden:"UI ascuns — apasă H pentru a-l readuce",
+  tApplied:"{name} aplicat",tHidden:"UI ascuns — apasă H pentru a-l readuce",tHiddenTouch:"UI ascuns — atinge butonul din dreapta-sus pentru a-l readuce",showSettings:"Arată setările",hideSettings:"Ascunde setările",
   tNoAudio:"Acest browser nu suportă Web Audio",reducedMotion:"(mișcare redusă)",
   tReset:"Simularea resetată",
   sciTitle:"Baze științifice",
@@ -763,7 +781,7 @@ const I18N={
   ab_p4:"Este o aproximare vizuală, nu o simulare cu N corpuri sau hidrodinamică: orbitele sunt prescrise, nu calculate din gravitație. Fulgerele de supernovă și banda de fundal inspirată de Calea Lactee sunt efecte decorative, nu modele fizice, iar cursorul de morfologie aproximează aspectul secvenței Sa–Sc, fără a clasifica nimic. Originea, durata de viață și dinamica exactă a brațelor spirale rămân o întrebare de cercetare activă.",
   ab_h2d:"Controale",
   ab_c1:"— morfologie, intensitatea barei, înfășurare, număr de brațe, zoom, viteza timpului și unghi de vizualizare, plus setări predefinite.",
-  ab_c2:"— patru palete de culori cu tranziție automată, intensitatea culorii și a nebuloasei, număr de stele de la 3.000 la 30.000, fulgere de supernovă și parallax.",
+  ab_c2:"— patru palete de culori cu tranziție automată, intensitatea culorii și a nebuloasei, număr de stele adaptat dispozitivului, fulgere de supernovă și parallax.",
   ab_c3:"— un peisaj sonor cosmic procedural generat live de Web Audio API, cu câte un cursor pentru fiecare strat.",
   ab_c4:"— H ascunde interfața, F este ecran complet, P salvează un PNG, V pornește modul proiector, M comută sunetul.",
   ab_h2e:"Bază științifică",
@@ -802,7 +820,7 @@ const I18N={
   tGuard:"Leistungswächter: Sternenzahl {n}",tSaved:"Bild gespeichert — {s}",
   tLink:"Link kopiert — mit allen Einstellungen",tCopy:"Link kopieren:",
   tProjOn:"Projektormodus — Beenden mit V, Esc oder Klick",tProjOff:"Projektormodus aus",
-  tApplied:"{name} angewendet",tHidden:"UI ausgeblendet — H holt es zurück",
+  tApplied:"{name} angewendet",tHidden:"UI ausgeblendet — H holt es zurück",tHiddenTouch:"UI ausgeblendet — tippe oben rechts, um sie zurückzuholen",showSettings:"Einstellungen anzeigen",hideSettings:"Einstellungen ausblenden",
   tNoAudio:"Dieser Browser unterstützt Web Audio nicht",reducedMotion:"(reduzierte Bewegung)",
   tReset:"Simulation zurückgesetzt",
   sciTitle:"Wissenschaftliche Grundlagen",
@@ -828,7 +846,7 @@ const I18N={
   ab_p4:"Dies ist eine visuelle Näherung, keine N-Körper- oder hydrodynamische Simulation: die Bahnen sind vorgegeben und nicht aus der Gravitation berechnet. Die Supernova-Blitze und das von der Milchstraße inspirierte Hintergrundband sind dekorative Effekte, keine physikalischen Modelle, und der Morphologie-Regler nähert das Aussehen der Sa–Sc-Sequenz an, ohne etwas zu klassifizieren. Entstehung, Lebensdauer und genaue Dynamik von Spiralarmen bleiben eine offene Forschungsfrage.",
   ab_h2d:"Bedienelemente",
   ab_c1:"— Morphologie, Balkenstärke, Aufwicklung, Armanzahl, Zoom, Zeitgeschwindigkeit und Betrachtungswinkel sowie Voreinstellungen per Klick.",
-  ab_c2:"— vier Farbpaletten mit automatischer Überblendung, Farb- und Nebelintensität, Sternanzahl von 3.000 bis 30.000, Supernova-Blitze und Parallaxe.",
+  ab_c2:"— vier Farbpaletten mit automatischer Überblendung, Farb- und Nebelintensität, an dein Gerät angepasste Sternenzahl, Supernova-Blitze und Parallaxe.",
   ab_c3:"— eine prozedurale kosmische Klanglandschaft, live erzeugt von der Web Audio API, mit einem Regler pro Ebene.",
   ab_c4:"— H blendet die Oberfläche aus, F ist Vollbild, P speichert ein PNG, V startet den Projektormodus, M schaltet den Ton.",
   ab_h2e:"Wissenschaftliche Grundlage",
@@ -850,18 +868,33 @@ const stored=(()=>{try{return localStorage.getItem("dw-lang");}catch(e){return n
 let LANG = "en";
 // Override if URL parameter or stored value is valid
 const urlLang = QS.get("lang");
-if (urlLang && I18N[urlLang]) LANG = urlLang;
-else if (stored && I18N[stored]) LANG = stored;
+if (urlLang && Object.prototype.hasOwnProperty.call(I18N,urlLang)) LANG = urlLang;
+else if (stored && Object.prototype.hasOwnProperty.call(I18N,stored)) LANG = stored;
 // (otherwise stays "en")
 
 const t=k=>(I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;
 
 const $=id=>document.getElementById(id);
+/* Phones: one top-right glass button opens/closes the panel as a bottom
+   sheet; desktop keeps the minimise/restore behaviour with the ☰ glyph. */
+const isPhone=()=>matchMedia("(max-width:700px)").matches;
+function setSheet(open){
+  const p=$("panel"), b=$("restoreBtn");
+  p.classList.toggle("open",open);
+  document.body.classList.toggle("sheet",open);
+  b.setAttribute("aria-expanded",String(open));
+  b.setAttribute("aria-label",t(open?"hideSettings":"showSettings"));
+  b.textContent=open?"\u2212":"\u2699";        // − / ⚙
+}
+function syncRestoreBtn(){                      // desktop keeps the ☰ glyph
+  if(isPhone())setSheet($("panel").classList.contains("open"));
+  else{$("restoreBtn").textContent="\u2630";$("restoreBtn").removeAttribute("aria-expanded");}
+}
 const bgA=$("bgA"), bgB=$("bgB"), fx=$("fx"), captionEl=$("caption"), tourCapEl=$("tourCap");
 const actx=bgA.getContext("2d"), bctx2=bgB.getContext("2d"), ctx=fx.getContext("2d");
 let bgFront=bgA, bgBack=bgB, bgFrontCtx=actx, bgBackCtx=bctx2;
 let W=0,H=0,CX=0,CY=0,SC=1,dpr=1;
-const readDPR=()=>{dpr=clamp(devicePixelRatio||1,0.25,4);};
+const readDPR=()=>{dpr=clamp(devicePixelRatio||1,0.25,isSmall()?2:4);};
 
 /* ─────────────── colour palettes (from the reference photographs) ─────────────── */
 const RAW=[
@@ -1089,11 +1122,11 @@ const isSmall=()=>(screen.width||innerWidth)<600;
 const isMed=()=>(screen.width||innerWidth)<1000;
 function starLimits(){
   if(GLR.on){                                        // the GPU renderer carries far more stars
-    if(isSmall())return{min:3000,max:60000,def:20000};
+    if(isSmall())return{min:1500,max:30000,def:10000};
     if(isMed())return{min:3000,max:100000,def:40000};
     return{min:5000,max:200000,def:60000};
   }
-  if(isSmall())return{min:3000,max:18000,def:5000};
+  if(isSmall())return{min:1500,max:9000,def:2500};
   if(isMed())return{min:3000,max:22000,def:9000};
   return{min:5000,max:24000,def:12000};   // max 24000
 }
@@ -2293,8 +2326,18 @@ const encStars=()=>GLR.on?Math.min(NS,ENC_GL_MAX):NSMAX;
 
 /* ─────────────── main loop + performance guard ─────────────── */
 let fpsT0=0,fpsN=0,fpsLow=0;
+/* Pause when the tab is hidden or #hero is scrolled out (#about covers it
+   with an opaque background from 90 px down), and resume cleanly. */
+let hidden=document.hidden, covered=false;
+document.addEventListener("visibilitychange",()=>{
+  hidden=document.hidden;
+  if(sound.ac){ if(hidden)sound.ac.suspend(); else if(sound.on)sound.ac.resume(); }
+  if(!hidden)lastT=performance.now();       // no giant dt after returning
+});
+new IntersectionObserver(es=>{covered=!es[0].isIntersecting;},{threshold:0}).observe($("hero"));
 function frame(now){
   requestAnimationFrame(frame);
+  if(hidden||covered){lastT=now;fpsT0=0;fpsN=0;return;}
   const raw=(now-lastT)/1000||0;lastT=now;
   const rdt=Math.min(0.25,raw);          // real time (survives a slow frame)
   const dt=Math.min(0.05,raw);           // orbit step, clamped for stability
@@ -2623,6 +2666,7 @@ function setLang(lang){
   renderPalettes();
   renderPresets();
   syncUI();
+  syncRestoreBtn();
 }
 
 /* ─────────────── Műveletek (Fotó & Link) ─────────────── */
@@ -2676,7 +2720,11 @@ function copyLink(){
   navigator.clipboard.writeText(url.toString()).then(()=>{
     toast(t("tLink"));
   }).catch(()=>{
-    prompt(t("tCopy"),url.toString());
+    const el=$("toast");
+    el.textContent=t("tCopy")+" "+url.toString();
+    el.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>el.classList.remove("on"),8000);
   });
 }
 
@@ -2758,7 +2806,7 @@ function bindEvents(){
   });
   if($("bHide"))$("bHide").onclick=()=>{
     document.body.classList.toggle("hideui");
-    toast(t("tHidden"));
+    toast(t(isPhone()?"tHiddenTouch":"tHidden"));
   };
   if($("bReset"))$("bReset").onclick=()=>{
     toast(t("tReset"));
@@ -2770,9 +2818,16 @@ function bindEvents(){
   };
 
   // Ablak / Panel vezérlés
-  if($("minBtn"))$("minBtn").onclick=()=>document.body.classList.add("min");
-  if($("restoreBtn"))$("restoreBtn").onclick=()=>document.body.classList.remove("min");
-  if($("drawerBtn"))$("drawerBtn").onclick=()=>$("panel").classList.toggle("open");
+  /* Phones: one top-right glass button opens/closes the panel as a bottom
+     sheet; desktop keeps the minimise/restore behaviour with the ☰ glyph. */
+  if($("minBtn"))$("minBtn").onclick=()=>{ if(isPhone())setSheet(false); else document.body.classList.add("min"); };
+  if($("restoreBtn"))$("restoreBtn").onclick=()=>{
+    document.body.classList.remove("hideui");
+    if(isPhone())setSheet(!$("panel").classList.contains("open"));
+    else document.body.classList.remove("min");
+  };
+  matchMedia("(max-width:700px)").addEventListener("change",syncRestoreBtn);
+  syncRestoreBtn();
 
   // Hang vezérlés
   if($("tSound"))$("tSound").onclick=()=>sound.toggle();
@@ -2817,6 +2872,7 @@ function bindEvents(){
       toggleTour();
     }else if(k==="escape"){
       if(proj)endTour();
+      if(isPhone()&&$("panel").classList.contains("open"))setSheet(false);
       if(FOL.i>=0){FOL.i=-1;toast(t("tUnfollow"));}
       if(document.body.classList.contains("hideui"))document.body.classList.remove("hideui");
     }
