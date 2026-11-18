@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
 <meta charset="utf-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Density Wave — Interactive Spiral Galaxy Simulation</title>
 <meta name="description" content="Interactive spiral galaxy simulation built on density wave theory: watch nested stellar orbits crowd into spiral arms, explore the winding problem, and adjust morphology, colour, star count and a procedural cosmic soundscape.">
@@ -2672,7 +2673,7 @@ function renderPresets(){
 /* ─────────────── Nyelvváltás ─────────────── */
 function setLang(lang){
   if(!I18N[lang])return;
-  LANG=lang;
+  LANG=lang;document.documentElement.lang=lang;
   try{localStorage.setItem("dw-lang",lang);}catch(e){}
   document.querySelectorAll("#langs button").forEach(b=>{
     b.classList.toggle("on",b.dataset.l===lang);

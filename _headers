@@ -2,7 +2,7 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(self), gyroscope=(self)
-  Content-Security-Policy: default-src 'none'; script-src 'sha256-YrHS5GnhvgjUtlhUF29pxo8nK92A6kZ8orF72sA4x/c='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'none'; script-src 'sha256-nNFhOEGeRUVzdMSED0qR4dbkjRzbY2bWk44uUVe/ppc='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'
 
 /
   Cache-Control: public, max-age=0, must-revalidate
