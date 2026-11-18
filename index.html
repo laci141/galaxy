@@ -43,7 +43,7 @@
   "isAccessibleForFree": true,
   "inLanguage": ["en", "hu", "ro", "de"],
   "license": "https://opensource.org/licenses/MIT",
-  "dateModified": "2026-09-26",
+  "dateModified": "2026-11-14",
   "image": "https://galaxy-90m.pages.dev/og-image.png",
   "author": {
     "@type": "Person",
@@ -115,7 +115,7 @@
   body.hideui #restoreBtn{opacity:0;pointer-events:none}
   .ctl{margin:9px 0}
   .ctl label{display:flex;justify-content:space-between;font-size:11px;color:rgba(232,238,247,.8);margin-bottom:3px}
-  .ctl label .val{color:rgba(232,238,247,.5);font-variant-numeric:tabular-nums}
+  .ctl label .val{color:rgba(232,238,247,.55);font-variant-numeric:tabular-nums}
   input[type=range]{width:100%;height:20px;margin:0;accent-color:#7fd4ff;background:transparent;cursor:pointer}
   .seg{display:flex;gap:5px}
   .seg button{flex:1;font:600 11px inherit;color:rgba(232,238,247,.75);background:rgba(255,255,255,.06);
@@ -132,7 +132,7 @@
     background:#cfd9e6;transition:transform .25s}
   button.tg.on .sw{background:rgba(127,212,255,.55)}
   button.tg.on .sw::after{transform:translateX(13px);background:#fff}
-  .dim{color:rgba(232,238,247,.45)}
+  .dim{color:rgba(232,238,247,.55)}
 
   /* language switch + tabs */
   #langs{margin:10px 0 8px}
@@ -145,7 +145,7 @@
   .page.on{display:block}
   .page::-webkit-scrollbar{width:5px}
   .page::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:3px}
-  .grp{margin:12px 0 4px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(232,238,247,.4)}
+  .grp{margin:12px 0 4px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:rgba(232,238,247,.55)}
   .grp:first-child{margin-top:2px}
   .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   .btns button{flex:1 1 auto;min-width:78px;font:600 11px inherit;color:rgba(232,238,247,.82);
@@ -160,7 +160,7 @@
   .pal .dot{width:13px;height:13px;border-radius:50%;flex:none;box-shadow:0 0 7px -1px currentColor}
 
   /* caption + toast + hint + credit */
-  #caption{position:fixed;left:50%;bottom:46px;transform:translateX(-50%);max-width:520px;text-align:center;
+  #caption{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);max-width:520px;text-align:center;
     font-size:14px;line-height:1.5;color:rgba(255,220,180,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;padding:0 20px;z-index:9;text-wrap:pretty}
   #caption.on{opacity:1}
@@ -175,12 +175,12 @@
     padding:9px 16px;font-size:12px;color:#e8eef7;opacity:0;pointer-events:none;
     transition:opacity .3s ease,transform .3s ease;box-shadow:0 12px 30px -12px rgba(0,0,0,.8)}
   #toast.on{opacity:1;transform:translate(-50%,0)}
-  #hint{position:fixed;left:20px;bottom:46px;z-index:9;font-size:11px;color:rgba(232,238,247,.34);
+  #hint{position:fixed;left:20px;bottom:52px;z-index:9;font-size:11px;color:rgba(232,238,247,.55);
     opacity:0;transition:opacity .6s ease;pointer-events:none}
   #hint.on{opacity:1}
   #credit{position:fixed;left:20px;bottom:20px;z-index:11;font-size:11.5px;
     transition:opacity .4s ease}
-  #credit a{color:rgba(232,238,247,.5);text-decoration:none;transition:color .2s;
+  #credit a{color:rgba(232,238,247,.55);text-decoration:none;transition:color .2s;
     text-shadow:0 1px 6px rgba(0,0,0,.85)}
   #credit a:hover{color:#aee4ff}
   #credit b{color:rgba(232,238,247,.72);font-weight:600}
@@ -188,7 +188,6 @@
 
   @media (max-width:700px){
     /* one visible entry point: the top-right glass button */
-    #drawerBtn{display:none}
     #restoreBtn{display:flex;position:fixed;
       top:calc(14px + env(safe-area-inset-top,0px));
       right:calc(14px + env(safe-area-inset-right,0px));
@@ -200,16 +199,16 @@
       max-height:82dvh;transform:translateY(100%);transition:transform .35s ease,opacity .3s ease;
       padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
     #panel.open{transform:translateY(0)}
-    .brand,#panel .sub{display:none}
+    .brand,.head .sub{display:none}
     .head{padding-bottom:4px}
     .page{max-height:calc(82dvh - 150px)}
     body.sheet #scrollHint,body.sheet #credit{opacity:0;pointer-events:none}
     body.hideui #restoreBtn{opacity:1;pointer-events:auto}
     #sndBtn{position:static;width:44px;height:44px}
     .hbtns button{width:44px;height:44px}
-    #caption{bottom:82px;font-size:12.5px}
+    #caption{bottom:118px;font-size:12.5px}
     #hint{display:none}
-    #credit{bottom:54px;font-size:10.5px}
+    #credit{bottom:64px;font-size:10.5px}
     /* touch targets and text size on phones */
     .seg button,#tabs button,.btns button,.pal button{min-height:44px}
     #langs button{min-height:44px;font-size:12px}
@@ -223,8 +222,6 @@
     #credit a{display:inline-block;padding:15px 0}
     #scrollHint{min-height:44px;font-size:12px;padding:0 16px}
     #about .build{font-size:12px}
-    .trio input[type=range]::-webkit-slider-thumb{width:24px;height:24px;margin-top:-9.3px}
-    .trio input[type=range]::-moz-range-thumb{width:24px;height:24px}
   }
   @media (prefers-reduced-motion: reduce){canvas.layer{transition:none}}
 
@@ -254,7 +251,7 @@
   .trio .cell>.ctl>label{display:block;margin-bottom:4px}
   .trio .tt{display:block;font-size:calc(var(--auto-fs)*1.3);font-weight:600;
     line-height:1.2;min-height:calc(var(--auto-fs)*1.3*2.4);color:rgba(232,238,247,.92)}
-  .trio .rng{font-weight:400;color:rgba(232,238,247,.5);white-space:nowrap}
+  .trio .rng{font-weight:400;color:rgba(232,238,247,.55);white-space:nowrap}
   .trio .cell>.ctl>label .val{display:block;margin-top:2px;
     font-size:calc(var(--auto-fs)*1.4);font-weight:600;color:#aee4ff}
   /* every automatic-cycling string shares one size */
@@ -263,6 +260,18 @@
   .trio .auto button.tg .sw{margin-top:1px}
   .trio .auto .per label{font-size:var(--auto-fs)}
   .trio .auto .per .val{font-size:var(--auto-fs)}
+  /* every panel slider gets the same custom track, filled by paintFills() via --p;
+     :where() keeps the specificity below the thicker .trio override */
+  :where(#panel) input[type=range]{-webkit-appearance:none;appearance:none}
+  :where(#panel) input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;
+    background:linear-gradient(90deg,#7fd4ff 0 var(--p,0%),rgba(255,255,255,.16) var(--p,0%))}
+  :where(#panel) input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:16px;height:16px;margin-top:-6px;border-radius:50%;border:0;background:#e8f6ff;
+    box-shadow:0 1px 4px rgba(0,0,0,.5)}
+  :where(#panel) input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+  :where(#panel) input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:#7fd4ff}
+  :where(#panel) input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    border:0;background:#e8f6ff}
   /* 35% thicker track; the fill is painted by paintFills() since a custom
      track overrides accent-color */
   .trio input[type=range]{height:27px;-webkit-appearance:none;appearance:none}
@@ -281,6 +290,19 @@
     .trio{grid-template-columns:1fr;gap:0}
     .trio .tt{min-height:0}
     .trio .cell+.cell{margin-top:11px}
+  }
+  /* narrow desktop: credit, hint and caption stack above the centred scroll button */
+  @media (min-width:701px) and (max-width:999px){
+    #credit{bottom:56px}
+    #hint{bottom:80px}
+    #caption{bottom:102px}
+  }
+  /* phones: 24px thumbs on every slider (after the .trio rules so they win) */
+  @media (max-width:700px){
+    :where(#panel) input[type=range]::-webkit-slider-thumb{width:24px;height:24px;margin-top:-10px}
+    :where(#panel) input[type=range]::-moz-range-thumb{width:24px;height:24px}
+    .trio input[type=range]::-webkit-slider-thumb{width:24px;height:24px;margin-top:-9.3px}
+    .trio input[type=range]::-moz-range-thumb{width:24px;height:24px}
   }
 
   /* keyboard focus ring — every interactive element */
@@ -309,7 +331,7 @@
   #about a:hover{border-bottom-color:#7fd4ff}
   #about .refs{font-size:13.5px;line-height:1.55;color:rgba(232,238,247,.66)}
   #about .foot{margin-top:40px;padding-top:18px;border-top:1px solid rgba(255,255,255,.09);
-    font-size:12.5px;color:rgba(232,238,247,.45)}
+    font-size:12.5px;color:rgba(232,238,247,.55)}
   #about .build{display:inline-block;margin-left:10px;padding:1px 7px;border-radius:5px;
     background:rgba(127,212,255,.08);border:1px solid rgba(127,212,255,.2);
     font:11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(127,212,255,.6)}
@@ -513,7 +535,7 @@
           <a href="https://doi.org/10.1515/9781400828722"
              target="_blank"
              rel="noopener noreferrer">
-            DOI / kiadói oldal
+            DOI / <span data-i18n="publisher">Publisher</span>
           </a>
         </li>
         <li>
@@ -524,7 +546,7 @@
           <a href="https://uscibooks.aip.org/books/the-physical-universe-an-introduction-to-astronomy/"
              target="_blank"
              rel="noopener noreferrer">
-            Kiadói oldal
+            <span data-i18n="publisher">Publisher</span>
           </a>
         </li>
         <li>
@@ -575,7 +597,7 @@
       Dobbs, C. &amp; Baba, J. (2014). <a href="https://ui.adsabs.harvard.edu/abs/2014PASA...31...35D" target="_blank" rel="noopener">Dawes Review 4: Spiral Structures in Disc Galaxies</a>. <i>Publications of the Astronomical Society of Australia</i>, 31, e035.
     </p>
 
-    <p class="foot"><span data-i18n="ab_foot">Open source, MIT licensed — built by laci141.</span> <a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener" data-i18n="ab_src">Source and download on GitHub ↗</a> <span class="build">build 2026-09-26</span></p>
+    <p class="foot"><span data-i18n="ab_foot">Open source, MIT licensed — built by laci141.</span> <a href="https://github.com/laci141/galaxy" target="_blank" rel="noopener" data-i18n="ab_src">Source and download on GitHub ↗</a> <span class="build">build 2026-11-14</span></p>
   </div>
 </main>
 
@@ -638,7 +660,7 @@ const I18N={
   sciLim3:"“Supernovae” are visual effects only (bright flares and expanding shells).",
   sciLim4:"The “Milky Way‑inspired band” is a generated background, not a real star map.",
   sciLim5:"Presets like “Andromeda‑like” are morphological matches, not precise physical models.",
-  sciSources:"Sources",
+  sciSources:"Sources",publisher:"Publisher",
   scrollHint:"Scroll for the science ↓",aboutBtn:"About",ab_keys:"Keys",
   ab_h1:"Density Wave — Interactive Spiral Galaxy Simulation",
   ab_lead:"A browser simulation of how the spiral arms of a disc galaxy can appear without any fixed structure holding them together. Every star follows its own elliptical orbit; the arms are simply where those orbits crowd.",
@@ -703,7 +725,7 @@ const I18N={
   sciLim3:"A „szupernóvák” csak vizuális effektek (fényes fellángolások és táguló héjak).",
   sciLim4:"A „Tejút ihlette háttérsáv” generált háttér, nem valódi csillagtérkép.",
   sciLim5:"Az olyan előbeállítások, mint az „Androméda-szerű”, morfológiai egyezések, nem pontos fizikai modellek.",
-  sciSources:"Források",
+  sciSources:"Források",publisher:"Kiadói oldal",
   scrollHint:"Görgess a tudományért ↓",aboutBtn:"Leírás",ab_keys:"Billentyűk",
   ab_h1:"Density Wave — interaktív spirálgalaxis-szimuláció",
   ab_lead:"Böngészős szimuláció arról, hogyan jelenhetnek meg egy koronggalaxis spirálkarjai anélkül, hogy bármilyen merev szerkezet tartaná össze őket. Minden csillag a saját ellipszispályáján kering; a karok egyszerűen ott vannak, ahol ezek a pályák összetorlódnak.",
@@ -768,7 +790,7 @@ const I18N={
   sciLim3:"„Supernovele” sunt doar efecte vizuale (flare luminoase și învelișuri în expansiune).",
   sciLim4:"„Banda Căii Lactee” este un fundal generat, nu o hartă stelară reală.",
   sciLim5:"Preconfigurările precum „Andromeda-similar” sunt potriviri morfologice, nu modele fizice precise.",
-  sciSources:"Surse",
+  sciSources:"Surse",publisher:"Editura",
   scrollHint:"Derulează pentru știință ↓",aboutBtn:"Despre",ab_keys:"Taste",
   ab_h1:"Density Wave — simulare interactivă a unei galaxii spirale",
   ab_lead:"O simulare în browser care arată cum pot apărea brațele spirale ale unei galaxii-disc fără nicio structură fixă care să le țină laolaltă. Fiecare stea urmează propria orbită eliptică; brațele sunt pur și simplu acolo unde acele orbite se înghesuie.",
@@ -833,7 +855,7 @@ const I18N={
   sciLim3:"„Supernovae“ sind nur visuelle Effekte (helle Blitze und expandierende Hüllen).",
   sciLim4:"Das „Milchstraßen-inspirierte Band“ ist ein generierter Hintergrund, keine echte Sternenkarte.",
   sciLim5:"Voreinstellungen wie „Andromeda-ähnlich“ sind morphologische Übereinstimmungen, keine präzisen physikalischen Modelle.",
-  sciSources:"Quellen",
+  sciSources:"Quellen",publisher:"Verlag",
   scrollHint:"Scrollen für die Wissenschaft ↓",aboutBtn:"Über",ab_keys:"Tasten",
   ab_h1:"Density Wave — interaktive Spiralgalaxien-Simulation",
   ab_lead:"Eine Browser-Simulation davon, wie die Spiralarme einer Scheibengalaxie entstehen können, ohne dass eine feste Struktur sie zusammenhält. Jeder Stern folgt seiner eigenen elliptischen Bahn; die Arme sind einfach dort, wo sich diese Bahnen drängen.",
@@ -2589,9 +2611,9 @@ function syncUI(){
   paintFills();
 }
 
-/* The trio sliders draw their own track, so accent-color no longer fills it. */
+/* Every panel slider draws its own track, so accent-color no longer fills it. */
 function paintFills(){
-  document.querySelectorAll(".trio input[type=range]").forEach(el=>{
+  document.querySelectorAll("#panel input[type=range]").forEach(el=>{
     const mn=parseFloat(el.min),mx=parseFloat(el.max);
     if(mx>mn)el.style.setProperty("--p",(100*(parseFloat(el.value)-mn)/(mx-mn))+"%");
   });
@@ -2791,6 +2813,8 @@ function bindEvents(){
   if($("sNeb"))$("sNeb").oninput=e=>{AB=1+parseFloat(e.target.value)/100;scheduleLook();syncUI();};
   if($("sGlow"))$("sGlow").oninput=e=>{P.glow=parseFloat(e.target.value)/100;syncUI();};
   if($("sStars"))$("sStars").oninput=e=>{setStars(parseFloat(e.target.value));};
+  // sliders that never call syncUI (stars, sound) keep their track fill in sync too
+  if($("panel"))$("panel").addEventListener("input",paintFills);
 
   // Akció gombok
   if($("bShot"))$("bShot").onclick=takePhoto;
