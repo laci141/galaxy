@@ -138,6 +138,15 @@
   /* language switch + tabs */
   #langs{margin:10px 0 8px}
   #langs button{font-size:10.5px;letter-spacing:.05em;padding:4px 0}
+  /* pointer targets: 24px minimum on every screen; long German words may break instead of spilling out */
+  #langs button,button.tg{min-height:24px}
+  button.tg>span:not(.sw){min-width:0;overflow-wrap:anywhere;hyphens:auto}
+  /* touch screens wider than a phone get the phone's 44px targets */
+  @media (pointer:coarse){
+    .seg button,#tabs button,.btns button,.pal button,#langs button,button.tg{min-height:44px}
+    .hbtns button{width:44px;height:44px}
+    #credit a{display:inline-block;padding:15px 0;margin:-15px 0}
+  }
   #tabs{display:flex;gap:5px;margin:0 0 10px}
   #tabs button{flex:1;font:600 11px inherit;color:rgba(232,238,247,.7);background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:6px 0;cursor:pointer;transition:.15s}
