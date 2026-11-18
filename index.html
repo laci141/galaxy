@@ -161,7 +161,7 @@
   .pal .dot{width:13px;height:13px;border-radius:50%;flex:none;box-shadow:0 0 7px -1px currentColor}
 
   /* caption + toast + hint + credit */
-  #caption{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);max-width:520px;text-align:center;
+  #caption{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);width:100%;max-width:560px;box-sizing:border-box;text-align:center;
     font-size:14px;line-height:1.5;color:rgba(255,220,180,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;padding:0 20px;z-index:9;text-wrap:pretty}
   #caption.on{opacity:1}
@@ -169,7 +169,7 @@
     font-size:17px;line-height:1.5;color:rgba(232,240,255,.94);text-shadow:0 1px 10px rgba(0,0,0,.95);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:9;text-wrap:pretty;box-sizing:border-box}
   #tourCap.on{opacity:1}
-  @media (max-width:700px){#tourCap{font-size:14px;top:9%}}
+  @media (max-width:700px){#tourCap{font-size:14px;top:max(9%,72px)}}
   #toast{position:fixed;left:50%;top:24px;transform:translate(-50%,-14px);z-index:20;
     background:rgba(12,18,32,.72);border:1px solid rgba(255,255,255,.13);border-radius:11px;
     backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);
