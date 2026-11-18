@@ -160,12 +160,16 @@
   .pal button.on{border-color:rgba(127,212,255,.6);background:rgba(127,212,255,.16);color:#e8f6ff}
   .pal .dot{width:13px;height:13px;border-radius:50%;flex:none;box-shadow:0 0 7px -1px currentColor}
 
+  /* width the open desktop panel takes from the right edge; captions centre in the rest */
+  body{--r:0px}
+  @media (min-width:701px){body:not(.min):not(.hideui){--r:360px}}
+  @media (min-width:1000px){body:not(.min):not(.hideui){--r:540px}}
   /* caption + toast + hint + credit */
-  #caption{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);width:100%;max-width:560px;box-sizing:border-box;text-align:center;
+  #caption{position:fixed;--cw:min(560px,calc(100% - var(--r)));left:min(50%,calc(100% - var(--r) - var(--cw) / 2));bottom:74px;transform:translateX(-50%);width:var(--cw);box-sizing:border-box;text-align:center;
     font-size:14px;line-height:1.5;color:rgba(255,220,180,.92);text-shadow:0 1px 8px rgba(0,0,0,.9);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;padding:0 20px;z-index:9;text-wrap:pretty}
   #caption.on{opacity:1}
-  #tourCap{position:fixed;left:50%;top:13%;transform:translateX(-50%);max-width:600px;width:calc(100% - 40px);text-align:center;
+  #tourCap{position:fixed;--tw:min(600px,calc(100% - var(--r) - 40px));left:min(50%,calc(100% - var(--r) - 20px - var(--tw) / 2));top:13%;transform:translateX(-50%);width:var(--tw);text-align:center;
     font-size:17px;line-height:1.5;color:rgba(232,240,255,.94);text-shadow:0 1px 10px rgba(0,0,0,.95);
     opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:9;text-wrap:pretty;box-sizing:border-box}
   #tourCap.on{opacity:1}
